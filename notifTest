@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Function to send or update a notification
+# $1 = notification ID (0 for new)
+# $2 = summary (title)
+# $3 = body (text)
+send_notif() {
+    local id=$1
+    local summary=$2
+    local body=$3
+
+    # Call the Notifications interface
+    # returns the notification ID (needed for updates)
+    local notif_id=$(gdbus call \
+        --session \
+        --dest org.freedesktop.Notifications \
+        --object-path /org/freedesktop/Notifications \
+        --method org.freedesktop.Notifications.Notify \
+        "script" `# app name`\
+        $id \
+        "" `# icon`\
+        "$summary" \
+        "$body" \
+        '[]' `# actions`\
+        '{}' `# hints`\
+        5000 `# timeout in ms`
+    )
+
+    notif_id=$(echo "$notif_id" | grep -oP 'uint32 \K\d+')
+    echo "$notif_id"
+}
+
+# --- Example usage ---
+
+# Send initial notification
+NOTIF_ID=$(send_notif 0 "Task" "Starting…")
+
+# Wait 2.5 seconds
+sleep 2.5
+
+# Update the same notification
+send_notif $NOTIF_ID "Task" "Finished!"
