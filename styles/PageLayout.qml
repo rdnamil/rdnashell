@@ -41,9 +41,9 @@ ColumnLayout { id: root
 
 	Item { id: bodyWrapper
 		visible: root.body
-		Layout.fillWidth: root.body?.width || null
+		Layout.fillWidth: true
 		Layout.minimumWidth: root.body?.width || 0
-		Layout.preferredHeight: root.body.height
+		Layout.preferredHeight: root.body?.height || null
 
 		Rectangle {
 			anchors.fill: parent
@@ -61,7 +61,7 @@ ColumnLayout { id: root
 		visible: root.footer
 		Layout.fillWidth: true
 		Layout.minimumWidth: root.footer?.width || 0
-		Layout.preferredHeight: root.footer.height
+		Layout.preferredHeight: root.footer?.height || null
 
 		Rectangle {
 			anchors.fill: parent
