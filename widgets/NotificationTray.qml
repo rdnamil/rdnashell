@@ -48,13 +48,13 @@ Ctrl.Widget { id: root
 					Image {
 						visible: (delegate.modelData?.image || false) || Globals.Settings.debug
 						Layout.preferredWidth: height
-						Layout.fillHeight: true
+						Layout.preferredHeight: bodyLayout.height
 						source: delegate.modelData?.image || ''
 
 						Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; }
 					}
 
-					ColumnLayout {
+					ColumnLayout { id: bodyLayout
 						spacing: Globals.Controls.spacing
 
 						// app name and summary

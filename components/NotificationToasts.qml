@@ -29,7 +29,12 @@ Variants { id: root
 			bottom: (root.edges & Edges.Bottom) !== 0
 		}
 		exclusiveZone: 0
-		mask: Region { item: column; }
+		mask: Region {
+			x: column.x
+			y: column.y +colTrans.y
+			width: column.width
+			height: column.height
+		}
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:notifications"
 		implicitWidth: column.width +30
@@ -137,13 +142,13 @@ Variants { id: root
 								Image {
 									visible: (delegate.modelData?.image || false) || Globals.Settings.debug
 									Layout.preferredWidth: height
-									Layout.fillHeight: true
+									Layout.preferredHeight: bodyLayout.height
 									source: delegate.modelData?.image || ''
 
 									Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; }
 								}
 
-								ColumnLayout {
+								ColumnLayout { id: bodyLayout
 									spacing: Globals.Controls.spacing
 
 									// app name and summary
