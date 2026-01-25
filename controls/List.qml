@@ -48,14 +48,16 @@ ScrollView { id: root
 			opacity: 0.75
 		}
 
-		MouseArea {
+		MouseArea { id: mouseArea
 			anchors.fill: parent
 			hoverEnabled: true
 			onPositionChanged: (mouse) => {
 				const idx = listView.indexAt(mouse.x, mouse.y +listView.contentY);
 				if (idx !== -1) listView.currentIndex = idx;
 			}
-			onClicked: (mouse) => { root.itemClicked(listView.currentItem, mouse); }
+			onClicked: (mouse) => { if (listView.indexAt(mouse.x, mouse.y +listView.contentY) === listView.currentIndex) {
+				root.itemClicked(listView.currentItem, mouse);
+			}}
 		}
 	}
 }
