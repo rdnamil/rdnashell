@@ -53,6 +53,7 @@ Variants { id: root
 				height: repeater.itemAt(index).height
 				blur: 30
 				opacity: 0.4 *repeater.itemAt(index).toastOpacity
+				transform: Translate { y: colTrans.y; }
 			}
 		}
 
