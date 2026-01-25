@@ -33,7 +33,10 @@ ColumnLayout { id: root
 			topRightRadius: Globals.Controls.radius
 			color: Globals.Colours.base
 
-			Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Globals.Colours.mid; }
+			Rectangle {
+				anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; }
+				width: parent.width -2; height: 1; color: Globals.Colours.mid;
+			}
 		}
 
 		Component.onCompleted: if (root.header) root.header.parent = headerWrapper;
