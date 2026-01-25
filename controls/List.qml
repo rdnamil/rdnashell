@@ -9,6 +9,8 @@ ScrollView { id: root
 	required property var model
 	required property Component delegate
 
+	readonly property ListView view: listView
+
 	signal itemClicked(Item item, MouseEvent mouse)
 
 	padding: Globals.Controls.padding
@@ -35,6 +37,7 @@ ScrollView { id: root
 		model: root.model
 		delegate: root.delegate
 		clip: true
+		currentIndex: mouseArea.containsMouse? listView.indexAt(mouseArea.mouseX, mouseArea.mouseY +listView.contentY) : -1
 		boundsBehavior: Flickable.StopAtBounds
 		highlightMoveDuration: 0
 		highlightFollowsCurrentItem: false
@@ -51,11 +54,11 @@ ScrollView { id: root
 		MouseArea { id: mouseArea
 			anchors.fill: parent
 			hoverEnabled: true
-			onPositionChanged: (mouse) => {
-				const idx = listView.indexAt(mouse.x, mouse.y +listView.contentY);
-				if (idx !== -1) listView.currentIndex = idx;
-			}
-			onClicked: (mouse) => { if (listView.indexAt(mouse.x, mouse.y +listView.contentY) === listView.currentIndex) {
+			// onPositionChanged: (mouse) => {
+			// 	const idx = listView.indexAt(mouse.x, mouse.y +listView.contentY);
+			// 	if (idx !== -1) listView.currentIndex = idx;
+			// }
+			onClicked: (mouse) => { if (listView.indexAt(mouse.x, mouse.y +listView.contentY) !== -1) {
 				root.itemClicked(listView.currentItem, mouse);
 			}}
 		}
