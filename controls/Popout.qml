@@ -15,9 +15,13 @@ Item { id: root
 
 	property bool isOpen
 
+	signal opened()
+	signal closed()
+
 	function toggle() { root.isOpen = !root.isOpen; }
 
 	anchors.fill: parent
+	onIsOpenChanged: root.isOpen? root.opened() : root.closed();
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
@@ -47,13 +51,14 @@ Item { id: root
 
 		RectangularShadow {
 			anchors.horizontalCenter: parent.horizontalCenter
-			y: contentWrapper.y +contentTrans.y
+			y: contentWrapper.y
 			z: -999
 			width: contentWrapper.width
 			height: contentWrapper.height
 			radius: Globals.Controls.radius
 			blur: 30
 			opacity: 0.4 *contentWrapper.opacity
+			transform: Translate { y: contentTrans.y; }
 		}
 
 		Item { id: contentWrapper
@@ -73,8 +78,6 @@ Item { id: root
 		}
 
 		ParallelAnimation { id: contentAnim
-			property bool dir
-
 			onStarted: if (root.isOpen) window.visible = true;
 			NumberAnimation {
 				target: contentWrapper; property: "opacity"; duration: 250; easing.type: Easing.OutCirc;
