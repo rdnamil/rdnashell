@@ -95,6 +95,7 @@ Ctrl.Widget { id: root
 
 										if (timeDiff < 6e4) return "Just now";
 										else if (timeDiff < 36e5) return `${Math.floor(timeDiff /6e4)} min ago`;
+										else if (timeDiff < 72e5) return "1 hour ago";
 										else return Qt.formatDateTime(timestamp, "hh:mm");
 									}
 									color: Globals.Colours.text
