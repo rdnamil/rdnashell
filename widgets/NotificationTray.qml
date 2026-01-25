@@ -14,6 +14,10 @@ import qs.styles as Style
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
+	readonly property SystemClock dateTime: SystemClock { id: clock
+		precision: SystemClock.Seconds
+	}
+
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		source: Service.Notifications.dnd? Quickshell.iconPath("notifications-disabled") : Quickshell.iconPath("notification", "notification-inactive")
@@ -79,6 +83,22 @@ Ctrl.Widget { id: root
 									wrapMode: Text.Wrap
 									maximumLineCount: 2
 									elide: Text.ElideRight
+								}
+
+								Text {
+									readonly property date timestamp: new Date()
+
+									Layout.alignment: Qt.AlignRight
+									// text: root.dateTime.date.getTime() -timestamp.getTime() < 1e3? "Just now" : Qt.formatDateTime(timestamp, "hh:mm")
+									text: {
+										const timeDiff = root.dateTime.date.getTime() -timestamp.getTime();
+
+										if (timeDiff < 6e4) return "Just now";
+										else return Qt.formatDateTime(timestamp, "hh:mm");
+									}
+									color: Globals.Colours.text
+									font.pointSize: 8
+									font.weight: 600
 								}
 							}
 
