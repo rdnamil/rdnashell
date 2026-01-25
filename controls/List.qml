@@ -13,10 +13,10 @@ ScrollView { id: root
 
 	signal itemClicked(Item item, MouseEvent mouse)
 
-	padding: Globals.Controls.padding
+	padding: Globals.Controls.padding /2
 	width: 480
 	height: Math.min(360, listView.contentHeight +padding *2)
-	background: Rectangle { anchors.fill: parent; radius: Globals.Controls.radius; color: Globals.Colours.dark; }
+	// background: Rectangle { anchors.fill: parent; radius: Globals.Controls.radius; color: Globals.Colours.dark; }
 	ScrollBar.vertical: ScrollBar { id: scrollBar
 		x: root.width -width /2 -root.padding
 		y: root.padding
@@ -46,7 +46,7 @@ ScrollView { id: root
 			y: listView.currentItem?.y || 0
 			width: listView.width
 			height: listView.currentItem?.height || 0
-			radius: Globals.Controls.radius
+			radius: Globals.Controls.radius *(3 /4)
 			color: Globals.Colours.accent
 			opacity: 0.75
 		}
