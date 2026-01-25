@@ -55,10 +55,10 @@ Ctrl.Widget { id: root
 						width: parent.width -Globals.Controls.padding
 						// image
 						Image {
-							visible: (delegate.modelData?.image || false) || Globals.Settings.debug
+							visible: (delegate.modelData?.notif.image || false) || Globals.Settings.debug
 							Layout.preferredWidth: height
 							Layout.preferredHeight: bodyLayout.height
-							source: delegate.modelData?.image || ''
+							source: delegate.modelData?.notif.image || ''
 
 							Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; }
 						}
@@ -69,14 +69,14 @@ Ctrl.Widget { id: root
 							// app name and summary
 							RowLayout {
 								IconImage {
-									visible: delegate.modelData?.appIcon || false
+									visible: delegate.modelData?.notif.appIcon || false
 									implicitSize: Globals.Controls.iconSize
-									source: delegate.modelData?.appIcon || ''
+									source: delegate.modelData?.notif.appIcon || ''
 								}
 
 								Text {
 									Layout.fillWidth: true
-									text: `<b>${delegate.modelData?.appName}</b> ${delegate.modelData?.summary}`
+									text: `<b>${delegate.modelData?.notif.appName}</b> ${delegate.modelData?.notif.summary}`
 									color: Globals.Colours.text
 									font.pointSize: 8
 									font.weight: 600
@@ -89,14 +89,16 @@ Ctrl.Widget { id: root
 									readonly property date timestamp: new Date()
 
 									Layout.alignment: Qt.AlignRight
-									// text: root.dateTime.date.getTime() -timestamp.getTime() < 1e3? "Just now" : Qt.formatDateTime(timestamp, "hh:mm")
+									// text: Qt.formatDateTime(delegate.modelData.timestamp, "hh:mm")
 									text: {
-										const timeDiff = root.dateTime.date.getTime() -timestamp.getTime();
+										const timeDiff = root.dateTime.date.getTime() -delegate.modelData.timestamp.getTime();
 
 										if (timeDiff < 6e4) return "Just now";
+										else if (timeDiff < 36e5) return `${Math.floor(timeDiff /6e4)} min ago`;
 										else return Qt.formatDateTime(timestamp, "hh:mm");
 									}
 									color: Globals.Colours.text
+									font.family: Globals.Font.sans
 									font.pointSize: 8
 									font.weight: 600
 								}
@@ -105,7 +107,7 @@ Ctrl.Widget { id: root
 							// body
 							Text {
 								Layout.fillWidth: true
-								text: delegate.modelData?.body || null
+								text: delegate.modelData?.notif.body || null
 								color: Globals.Colours.text
 								font.pointSize: 8
 								wrapMode: Text.Wrap

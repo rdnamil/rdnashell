@@ -19,8 +19,12 @@ Singleton { id: root
 
 		onNotification: (notif) => {
 			notif.tracked = true;
+			root.history.values.splice(0, 0, {
+				"notif": notif,
+				"timestamp": new Date()
+			});
+			// root.history.values.find(n => n === notif).push({"date": Date.now()});
 			if (!root.dnd) root.toast.values.splice(0, 0, notif);
-			if (!root.dnd) root.history.values.splice(0, 0, notif);
 		}
 	}
 	readonly property ScriptModel toast: ScriptModel { id: toast; objectProp: "id"; }
@@ -45,9 +49,9 @@ Singleton { id: root
 		root.toast.values.splice(0, 0, notif);
 	}
 
+	function clearall() { server.trackedNotifications.values.forEach(n => root.dismiss(n.id)); }
+
 	IpcHandler {
 		target: "notification"
-
-		function clearall(): void { server.trackedNotifications.values.forEach(n => root.dismiss(n.id)); }
 	}
 }
