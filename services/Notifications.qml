@@ -30,7 +30,10 @@ Singleton { id: root
 
 	signal dismiss(int id)
 
-	onDismiss: (id) => { root.history.values.splice(root.history.values.findIndex(n => n.id === id), 1); }
+	onDismiss: (id) => {
+		root.history.values.splice(root.history.values.findIndex(n => n.id === id), 1);
+		if (!root.toast.values.find(n => n.id === id)) server.trackedNotifications.values.find(n => n.id === id).dismiss();
+	}
 
 	function toastDestroy(id, dismissed = false) {
 		root.toast.values.splice(root.toast.values.findIndex(n => n.id === id), 1);
