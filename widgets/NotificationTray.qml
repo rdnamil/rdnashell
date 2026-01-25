@@ -19,7 +19,7 @@ Ctrl.Widget { id: root
 
 	Ctrl.Popout { id: popout
 		content: Ctrl.List { id: list
-			onItemClicked: (item, mouse) => { Service.Notifications.dismiss(item.modelData.id); }
+			onItemClicked: (item, mouse) => { Service.Notifications.dismiss(item.modelData.id); item.remove(); }
 			model: Service.Notifications.history
 			delegate: Component { Item { id: delegate
 				required property var modelData
@@ -27,12 +27,14 @@ Ctrl.Widget { id: root
 
 				property int cachedIndex
 
+				function remove() {
+					delegate.ListView.delayRemove = true;
+					rmAnim.start();
+				}
+
 				width: parent?.width || 0
 				height: layout.height +Globals.Controls.padding
 				transform: Translate { id: delegateTrans; }
-
-				ListView.delayRemove: true
-				ListView.onRemove: rmAnim.start();
 
 				NumberAnimation { id: rmAnim
 					target: delegateTrans; property: "x"; from: 0; to: delegate.width; duration: 250; easing.type: Easing.InOutCirc;
