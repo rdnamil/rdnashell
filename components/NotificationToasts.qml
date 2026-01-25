@@ -52,7 +52,7 @@ Variants { id: root
 				width: repeater.itemAt(index).width
 				height: repeater.itemAt(index).height
 				blur: 30
-				opacity: 0.4 *repeater.itemAt(index).toastOpacity
+				opacity: 0.4 *repeater.itemAt(index).toast.opacity
 				transform: Translate { y: colTrans.y; }
 			}
 		}
@@ -69,7 +69,7 @@ Variants { id: root
 					required property var modelData
 					required property int index
 
-					readonly property real toastOpacity: toast.opacity
+					readonly property Item toast: toast
 
 					property bool expired
 					property bool dismissed
