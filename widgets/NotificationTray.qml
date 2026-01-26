@@ -26,11 +26,17 @@ Ctrl.Widget { id: root
 
 	Ctrl.Popout { id: popout
 		content: Style.PageLayout {
-			header: Item {
-				height: 36
+			header: RowLayout {
+				Style.Button {
+					Layout.margins: Globals.Controls.padding
+					icon: IconImage {
+						implicitSize: 16
+						source: Quickshell.iconPath("notifications-disabled")
+					}
+				}
 			}
 			body: Ctrl.List { id: list
-				onItemClicked: (item, mouse) => { Service.Notifications.dismiss(item.modelData.id); item.remove(); }
+				onItemClicked: (item, mouse) => { Service.Notifications.dismiss(item.modelData.notif.id); item.remove(); }
 				model: Service.Notifications.history
 				delegate: Component { Item { id: delegate
 					required property var modelData
