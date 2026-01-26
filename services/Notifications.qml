@@ -21,7 +21,8 @@ Singleton { id: root
 			notif.tracked = true;
 			root.history.values.splice(0, 0, {
 				"notif": notif,
-				"timestamp": new Date()
+				"timestamp": new Date(),
+				"read": false
 			});
 			// root.history.values.find(n => n === notif).push({"date": Date.now()});
 			if (!root.dnd) root.toast.values.splice(0, 0, notif);
@@ -49,7 +50,12 @@ Singleton { id: root
 		root.toast.values.splice(0, 0, notif);
 	}
 
-	function clearall() { server.trackedNotifications.values.forEach(n => root.dismiss(n.id)); }
+	function readNotif(id) { root.history.values.find(n => n.notif.id === id).read = true; }
+
+	function clearall() {
+		root.history.values.slice().reverse()
+		.forEach(n => root.dismiss(n.notif.id));
+	}
 
 	IpcHandler {
 		target: "notification"
