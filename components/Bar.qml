@@ -32,24 +32,9 @@ Variants { id: root
 		implicitHeight: root.height
 		color: Globals.Settings.debug? "#80ff0000" : "transparent"
 
-		Rectangle {
-			visible: !Globals.Settings.debug
-			anchors.fill: parent
-			color: "black"
-			layer.enabled: true
-			layer.effect: OpacityMask {
-				invert: true
-				maskSource: bar
-			}
-		}
-
 		Rectangle { id: bar
 			visible: !Globals.Settings.debug
 			anchors.fill: parent
-			topRightRadius:  window.anchors.top? height /4 : 0
-			topLeftRadius: window.anchors.top? height /4 : 0
-			bottomRightRadius:  window.anchors.top? 0 : height /4
-			bottomLeftRadius: window.anchors.top? 0 : height /4
 			color: Globals.Colours.dark
 			opacity: 0.975
 
@@ -59,8 +44,53 @@ Variants { id: root
 					bottom: window.anchors.top? parent.bottom : undefined
 				}
 				width: parent.width
+				height: 2
+				color: Globals.Colours.light
+				opacity: 0.6
+			}
+
+			Rectangle {
+				anchors {
+					top: window.anchors.top? undefined : parent.top
+					bottom: window.anchors.top? parent.bottom : undefined
+				}
+				width: parent.width
 				height: 1
-				color: Globals.Colours.mid
+				color: Globals.Colours.dark
+			}
+		}
+
+		Repeater {
+			model: [(Edges.Left | (Globals.Settings.barIsTop? Edges.Top : Edges.Bottom)),
+			(Edges.Right | (Globals.Settings.barIsTop? Edges.Top : Edges.Bottom))]
+			delegate: Rectangle { id: corner
+				required property var modelData
+
+				function has(edge) { return (corner.modelData & edge) !== 0; }
+				anchors {
+					left: corner.has(Edges.Left)? bar.left : undefined
+					right: corner.has(Edges.Right)? bar.right : undefined
+					top: corner.has(Edges.Top)? bar.top : undefined
+					bottom: corner.has(Edges.Bottom)? bar.bottom : undefined
+				}
+				width: bar.height /4
+				height: width
+				color: "black"
+				layer.enabled: true
+				layer.effect: OpacityMask {
+					invert: true
+					maskSource: Item {
+						width: corner.width; height: width;
+
+						Rectangle {
+							anchors {
+								horizontalCenter: corner.has(Edges.Left)? parent.right : parent.left;
+								verticalCenter: corner.has(Edges.Top)? parent.bottom : parent.top;
+							}
+							width: parent.width *2; height: width; radius: height /2;
+						}
+					}
+				}
 			}
 		}
 
