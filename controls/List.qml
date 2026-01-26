@@ -14,6 +14,7 @@ ScrollView { id: root
 
 	signal itemClicked(Item item, MouseEvent mouse)
 
+	onVisibleChanged: if (visible) scrollbar.position = 0.0;
 	padding: Globals.Controls.padding /2
 	width: 480
 	height: Math.min(360, listView.contentHeight +padding *2)
