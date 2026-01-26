@@ -25,14 +25,22 @@ Ctrl.Widget { id: root
 	onClicked: popout.toggle()
 
 	Ctrl.Popout { id: popout
+		onOpen: list.scrollbar.position = 0.0;
 		content: Style.PageLayout {
-			header: RowLayout {
-				Style.Button {
-					Layout.margins: Globals.Controls.padding
-					icon: IconImage {
-						implicitSize: 16
-						source: Quickshell.iconPath("notifications-disabled")
-					}
+			header: Row {
+				padding: Globals.Controls.spacing
+				spacing: Globals.Controls.spacing
+				clip: false
+
+				IconImage {
+					anchors.verticalCenter: parent.verticalCenter
+					implicitSize: 16
+					source: Quickshell.iconPath("notifications-disabled")
+				}
+
+				Ctrl.Switch {
+					toggle: Service.Notifications.dnd
+					onClicked: Service.Notifications.dnd = !Service.Notifications.dnd;
 				}
 			}
 			body: Ctrl.List { id: list
