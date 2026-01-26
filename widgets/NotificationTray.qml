@@ -18,6 +18,17 @@ Ctrl.Widget { id: root
 		precision: SystemClock.Seconds
 	}
 
+	acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+	onClicked: (mouse) => {
+		switch (mouse.button) {
+			case Qt.LeftButton:
+				popout.toggle();
+				break;
+			case Qt.MiddleButton:
+				Service.Notifications.dnd = !Service.Notifications.dnd;
+				break;
+		}
+	}
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		// source: Service.Notifications.dnd? Quickshell.iconPath("notifications-disabled") : Quickshell.iconPath("notification", "notification-inactive")
@@ -28,7 +39,6 @@ Ctrl.Widget { id: root
 			else return un? Quickshell.iconPath("notification-new-symbolic") : Quickshell.iconPath("notification-symbolic");
 		}
 	}
-	onClicked: popout.toggle()
 
 	Ctrl.Popout { id: popout
 		onOpen: Service.Notifications.history.values.forEach(n => n.read = true);
