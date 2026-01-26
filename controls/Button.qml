@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.controls as Ctrl
 import "../globals.js" as Globals
@@ -7,6 +9,7 @@ Ctrl.Widget { id: root
 	height: icon.height +Globals.Controls.padding
 	hoverEnabled: true
 	onPressed: pressAnim.start();
+	onReleased: if (!pressAnim.running) bak.opacity = Qt.binding(() => root.containsMouse? 0.25 : 0.0);
 	containmentMask: Item {
 		width: root.width
 		height: root.height
@@ -23,6 +26,6 @@ Ctrl.Widget { id: root
 		target: bak; property: "opacity";
 		from: bak.opacity; to: 0.1;
 		duration: 250; easing.type: Easing.InOutCirc;
-		onFinished: bak.opacity = Qt.binding(() => root.containsMouse? 0.25 : 0.0);
+		onFinished: root.pressed? bak.opacity = 0.1 : bak.opacity = Qt.binding(() => root.containsMouse? 0.25 : 0.0);
 	}
 }
