@@ -26,21 +26,36 @@ Ctrl.Widget { id: root
 
 	Ctrl.Popout { id: popout
 		onOpen: list.scrollbar.position = 0.0;
-		content: Style.PageLayout {
-			header: Row {
-				padding: Globals.Controls.spacing
-				spacing: Globals.Controls.spacing
-				clip: false
+		content: Style.PageLayout { id: content
+			header: RowLayout {
+				width: content.width
 
-				IconImage {
-					anchors.verticalCenter: parent.verticalCenter
-					implicitSize: 16
-					source: Quickshell.iconPath("notifications-disabled")
+				Row {
+					Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+					padding: Globals.Controls.spacing
+					spacing: Globals.Controls.spacing
+					clip: false
+
+					IconImage {
+						anchors.verticalCenter: parent.verticalCenter
+						implicitSize: 16
+						source: Quickshell.iconPath("notifications-disabled")
+					}
+
+					Ctrl.Switch {
+						toggle: Service.Notifications.dnd
+						onClicked: Service.Notifications.dnd = !Service.Notifications.dnd;
+					}
 				}
 
-				Ctrl.Switch {
-					toggle: Service.Notifications.dnd
-					onClicked: Service.Notifications.dnd = !Service.Notifications.dnd;
+				Ctrl.Button {
+					Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+					Layout.margins: Globals.Controls.spacing
+					onClicked: Service.Notifications.clearall();
+					icon: IconImage {
+						implicitSize: Globals.Controls.iconSize
+						source: Quickshell.iconPath("edit-clear-history")
+					}
 				}
 			}
 			body: Ctrl.List { id: list
