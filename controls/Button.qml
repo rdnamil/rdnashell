@@ -7,7 +7,6 @@ import "../globals.js" as Globals
 Ctrl.Widget { id: root
 	width: icon.width +Globals.Controls.padding
 	height: icon.height +Globals.Controls.padding
-	hoverEnabled: true
 	onPressed: pressAnim.restart();
 	onReleased: if (!pressAnim.running) bak.opacity = Qt.binding(() => root.containsMouse? 0.25 : 0.0);
 	containmentMask: Item {

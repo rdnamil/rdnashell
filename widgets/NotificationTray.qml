@@ -72,6 +72,7 @@ Ctrl.Widget { id: root
 						implicitSize: Globals.Controls.iconSize
 						source: Quickshell.iconPath("edit-clear-history")
 					}
+					tooltip: "clear all"
 				}
 			}
 			body: Ctrl.List { id: list
