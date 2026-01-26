@@ -10,6 +10,7 @@ ScrollView { id: root
 	required property Component delegate
 
 	readonly property ListView view: listView
+	readonly property ScrollBar scrollbar: scrollBar
 
 	signal itemClicked(Item item, MouseEvent mouse)
 
@@ -29,7 +30,7 @@ ScrollView { id: root
 			opacity: (scrollBar.active && scrollBar.size < 1.0) ? 0.75 : 0
 
 			Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
-			Behavior on opacity { NumberAnimation { duration: 250; }}
+			Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 			Behavior on color { ColorAnimation { duration: 250; }}
 		}
 	}

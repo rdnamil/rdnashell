@@ -62,7 +62,7 @@ ColumnLayout { id: root
 				z: -1
 				radius: parent.radius
 				blur: 30
-				opacity: 0.4
+				opacity: 0.8
 				color: Globals.Colours.dark
 			}
 		}
