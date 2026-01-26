@@ -15,13 +15,13 @@ Item { id: root
 
 	property bool isOpen
 
-	signal opened()
-	signal closed()
+	signal open()
+	signal close()
 
 	function toggle() { root.isOpen = !root.isOpen; }
 
 	anchors.fill: parent
-	onIsOpenChanged: root.isOpen? root.opened() : root.closed();
+	onIsOpenChanged: root.isOpen? root.open() : root.close();
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
@@ -42,10 +42,10 @@ Item { id: root
 			margins.left: if ((window.itemRect(root).x +root.content.width /2 +Globals.Controls.padding *2) > window.screen.width) {
 				return window.screen.width -window.itemRect(root).x -root.content.width /2 -Globals.Controls.padding;
 			} else if ((window.itemRect(root).x -root.content.width /2 -Globals.Controls.padding *2) < 0) {
-				return root.content.width /2 +Globals.Controls.padding -window.itemRect(root).x;
+				return root.content.width /2 -window.itemRect(root).x +Globals.Controls.padding;
 			} else return root.width /2;
 			edges: (Globals.Settings.barIsTop? Edges.Bottom : Edges.Top) | Edges.Left
-			gravity: Globals.Settings.barIsTop? Edges.Bottom : Edges.Top
+			gravity: Globals.Settings.barIsTop? Edges.Bottom : Edges.Top | Edges.Left
 			adjustment: PopupAdjustment.None
 		}
 
