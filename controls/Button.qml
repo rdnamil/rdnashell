@@ -8,7 +8,7 @@ Ctrl.Widget { id: root
 	width: icon.width +Globals.Controls.padding
 	height: icon.height +Globals.Controls.padding
 	hoverEnabled: true
-	onPressed: pressAnim.start();
+	onPressed: pressAnim.restart();
 	onReleased: if (!pressAnim.running) bak.opacity = Qt.binding(() => root.containsMouse? 0.25 : 0.0);
 	containmentMask: Item {
 		width: root.width
@@ -25,7 +25,7 @@ Ctrl.Widget { id: root
 	NumberAnimation { id: pressAnim
 		target: bak; property: "opacity";
 		from: bak.opacity; to: 0.1;
-		duration: 250; easing.type: Easing.InOutCirc;
+		duration: 50; easing.type: Easing.InOutCirc;
 		onFinished: root.pressed? bak.opacity = 0.1 : bak.opacity = Qt.binding(() => root.containsMouse? 0.25 : 0.0);
 	}
 }
