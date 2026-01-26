@@ -85,7 +85,8 @@ Item { id: root
 				to: root.isOpen? 0.975 : 0.0
 			}
 			NumberAnimation {
-				target: contentTrans; property: "y"; duration: 250; easing.type: Easing.OutCirc;
+				target: contentTrans; property: "y"; duration: 250;
+				easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc;
 				from: root.isOpen? (window.height +Globals.Controls.padding) *(Globals.Settings.barIsTop? -1 : 1) : 0
 				to: root.isOpen? 0 : (window.height +Globals.Controls.padding) *(Globals.Settings.barIsTop? -1 : 1)
 			}

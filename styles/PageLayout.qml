@@ -16,27 +16,21 @@ ColumnLayout { id: root
 
 	Item { id: headerWrapper
 		visible: root.header
-		z: 1
 		Layout.fillWidth: true
 		Layout.minimumWidth: root.header?.width || 0
 		Layout.preferredHeight: root.header?.height || null
 
 		RectangularShadow {
-			anchors.fill: margin
+			anchors.fill: parent
 			blur: 30
 			opacity: 0.6
 		}
 
-		Rectangle { id: margin
+		Rectangle {
 			anchors.fill: parent
 			topLeftRadius: Globals.Controls.radius
 			topRightRadius: Globals.Controls.radius
 			color: Globals.Colours.base
-
-			Rectangle {
-				anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; }
-				width: parent.width -2; height: 1; color: Globals.Colours.mid;
-			}
 		}
 
 		Component.onCompleted: if (root.header) root.header.parent = headerWrapper;
@@ -47,14 +41,30 @@ ColumnLayout { id: root
 		Layout.fillWidth: true
 		Layout.minimumWidth: root.body?.width || 0
 		Layout.preferredHeight: root.body?.height || null
+		Layout.minimumHeight: Globals.Controls.radius *3
+
+
 
 		Rectangle {
 			anchors.fill: parent
-			topLeftRadius: root.header? 0 : Globals.Controls.radius
-			topRightRadius: root.header? 0 : Globals.Controls.radius
-			bottomLeftRadius: root.footer? 0 : Globals.Controls.radius
-			bottomRightRadius: root.footer? 0 : Globals.Controls.radius
-			color: Globals.Colours.dark
+			radius: Globals.Controls.radius
+			color: Globals.Colours.mid
+
+			Rectangle {
+				z: -1
+				width: parent.width
+				height: parent.radius
+				color: Globals.Colours.base
+			}
+
+			RectangularShadow {
+				anchors.fill: parent
+				z: -1
+				radius: parent.radius
+				blur: 30
+				opacity: 0.4
+				color: Globals.Colours.dark
+			}
 		}
 
 		Component.onCompleted: if (root.body) root.body.parent = bodyWrapper;
