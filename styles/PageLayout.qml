@@ -37,13 +37,12 @@ ColumnLayout { id: root
 	}
 
 	Item { id: bodyWrapper
+		z: 1
 		visible: root.body
 		Layout.fillWidth: true
 		Layout.minimumWidth: root.body?.width || 0
 		Layout.preferredHeight: root.body?.height || null
-		Layout.minimumHeight: Globals.Controls.radius *3
-
-
+		Layout.minimumHeight: root.body? Globals.Controls.radius *3 : 0
 
 		Rectangle {
 			anchors.fill: parent
@@ -51,6 +50,14 @@ ColumnLayout { id: root
 			color: Globals.Colours.mid
 
 			Rectangle {
+				z: -1
+				width: parent.width
+				height: parent.radius
+				color: Globals.Colours.base
+			}
+
+			Rectangle {
+				anchors.bottom: parent.bottom
 				z: -1
 				width: parent.width
 				height: parent.radius
@@ -80,12 +87,7 @@ ColumnLayout { id: root
 			anchors.fill: parent
 			bottomLeftRadius: Globals.Controls.radius
 			bottomRightRadius: Globals.Controls.radius
-			color: Globals.Colours.dark
-
-			Rectangle {
-				anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; }
-				width: parent.width -Globals.Controls.padding *2; height: 1; color: Globals.Colours.mid;
-			}
+			color: Globals.Colours.base
 		}
 
 		Component.onCompleted: if (root.footer) root.footer.parent = footerWrapper;
