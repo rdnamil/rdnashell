@@ -20,24 +20,30 @@ Ctrl.Widget { id: root
 
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
-		source: Service.Notifications.dnd? Quickshell.iconPath("notifications-disabled") : Quickshell.iconPath("notification", "notification-inactive")
+		// source: Service.Notifications.dnd? Quickshell.iconPath("notifications-disabled") : Quickshell.iconPath("notification", "notification-inactive")
+		source: {
+			const un = Service.Notifications.history.values.some(n => n && !n.read);
+
+			if (Service.Notifications.dnd) return un? Quickshell.iconPath("notification-disabled-new-symbolic") : Quickshell.iconPath("notification-disabled-symbolic");
+			else return un? Quickshell.iconPath("notification-new-symbolic") : Quickshell.iconPath("notification-symbolic");
+		}
 	}
 	onClicked: popout.toggle()
 
 	Ctrl.Popout { id: popout
-		onOpen: list.scrollbar.position = 0.0;
+		onOpen: Service.Notifications.history.values.forEach(n => n.read = true);
 		content: Style.PageLayout { id: content
 			header: RowLayout {
 				width: content.width
 
 				Row {
 					Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-					padding: Globals.Controls.spacing
-					spacing: Globals.Controls.spacing
+					Layout.margins: Globals.Controls.spacing
 					clip: false
 
 					IconImage {
 						anchors.verticalCenter: parent.verticalCenter
+						width: implicitSize +Globals.Controls.padding
 						implicitSize: 16
 						source: Quickshell.iconPath("notifications-disabled")
 					}
@@ -72,6 +78,7 @@ Ctrl.Widget { id: root
 					width: list.view.width || 0
 					height: layout.height +Globals.Controls.padding
 					transform: Translate { id: delegateTrans; }
+					Component.onCompleted: if (popout.isOpen) Service.Notifications.readNotif(delegate.modelData.notif.id);
 
 					ParallelAnimation { id: rmAnim
 						NumberAnimation { target: delegateTrans; property: "x"; from: 0; to: delegate.width; duration: 250; easing.type: Easing.InOutCirc; }
