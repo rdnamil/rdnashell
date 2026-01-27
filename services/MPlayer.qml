@@ -83,7 +83,7 @@ Singleton { id: root
 	Connections {
 		target: player
 
-		function onTrackChanged() { if (player.trackTitle) {
+		function onTrackTitleChanged() { if (player.trackTitle) {
 			// prevent player going inactive
 			root.active = true;
 			grace.stop();
