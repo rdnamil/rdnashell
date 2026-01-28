@@ -99,6 +99,7 @@ Ctrl.Widget { id: root
 
 					RowLayout { id: layout
 						anchors.centerIn: parent
+						spacing: Globals.Controls.padding
 						width: parent.width -Globals.Controls.padding
 						// image
 						Image {
@@ -106,6 +107,7 @@ Ctrl.Widget { id: root
 							Layout.preferredWidth: height
 							Layout.preferredHeight: bodyLayout.height
 							source: delegate.modelData?.notif.image || ''
+							mipmap: true
 
 							Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; }
 						}

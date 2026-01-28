@@ -145,6 +145,7 @@ Variants { id: root
 									Layout.preferredWidth: height
 									Layout.preferredHeight: bodyLayout.height
 									source: delegate.modelData?.image || ''
+									mipmap: true
 
 									Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; }
 								}
