@@ -10,7 +10,7 @@ import Quickshell.Services.Notifications
 
 Singleton { id: root
 	readonly property NotificationServer server: NotificationServer { id: server
-		keepOnReload: false
+		keepOnReload: true
 		actionsSupported: true
 		bodyHyperlinksSupported: true
 		bodyImagesSupported: true
@@ -19,13 +19,22 @@ Singleton { id: root
 
 		onNotification: (notif) => {
 			notif.tracked = true;
+
+			const sharedId = root.history.values.some(n => n.notif.id === notif.id);
+			 if (sharedId) root.history.values.splice(root.history.values.findIndex(n => n.notif.id === notif.id), 1);
+
 			root.history.values.splice(0, 0, {
 				"notif": notif,
 				"timestamp": new Date(),
 				"read": false
 			});
-			// root.history.values.find(n => n === notif).push({"date": Date.now()});
-			if (!root.dnd) root.toast.values.splice(0, 0, notif);
+
+			if (!root.dnd) {
+				const sharedId = root.toast.values.some(n => n.id === notif.id);
+				if (sharedId) root.toast.values.splice(root.toast.values.findIndex(n => n.id === notif.id), 1);
+
+				root.toast.values.splice(0, 0, notif);
+			}
 		}
 	}
 	readonly property ScriptModel toast: ScriptModel { id: toast; objectProp: "id"; }
