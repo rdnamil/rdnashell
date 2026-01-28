@@ -11,8 +11,9 @@ ShellRoot { id: root
 			Test {}
 		]
 		centre: [
-			NotificationTray {},
-			Switch {},
+			// NotificationTray {},
+			Test {},
+			MusicPlayer {},
 			Test {}
 		]
 		right: [
@@ -20,7 +21,7 @@ ShellRoot { id: root
 			Test {}
 		]
 	}
-	NotificationToasts {}
+	// NotificationToasts {}
 
 	Component.onCompleted: {
 		ShellUtils.init();

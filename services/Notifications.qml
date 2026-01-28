@@ -3,7 +3,9 @@
 ---------------------------------*/
 
 pragma Singleton
+pragma ComponentBehavior: Bound
 
+import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Notifications
@@ -21,7 +23,7 @@ Singleton { id: root
 			notif.tracked = true;
 
 			const sharedId = root.history.values.some(n => n.notif.id === notif.id);
-			 if (sharedId) root.history.values.splice(root.history.values.findIndex(n => n.notif.id === notif.id), 1);
+			if (sharedId) root.history.values.splice(root.history.values.findIndex(n => n.notif.id === notif.id), 1);
 
 			root.history.values.splice(0, 0, {
 				"notif": notif,
@@ -37,48 +39,26 @@ Singleton { id: root
 			}
 		}
 	}
+	readonly property Item connections: Item { Repeater { id: connections
+		model: ScriptModel { values: [...root.server.trackedNotifications.values] }
+		delegate: Item { id: delegate
+			required property var modelData
+
+			Component.onCompleted: console.log("connected")
+
+			Connections {
+				target: delegate.modelData
+
+				function onClosed(reason) {
+					console.log(NotificationCloseReason.toString(reason));
+				}
+			}
+		}
+	}}
 	readonly property ScriptModel toast: ScriptModel { id: toast; objectProp: "id"; }
 	readonly property ScriptModel history: ScriptModel { id: history; objectProp: "id"; }
 
 	property bool dnd
-
-	signal dismiss(int id)
-
-	onDismiss: (id) => {
-		// root.history.values.splice(root.history.values.findIndex(n => n.notif.id === id), 1);
-		const ns = root.history.values
-		.reduce((a, n, i) => {
-			if (n.notif.id === id) a.push(i);
-			return a;
-		}, [])
-		.sort((a, b) => b -a);
-		ns.forEach((i) => { root.history.values.splice(i, 1); });
-		if (!root.toast.values.some(n => n.id === id)) server.trackedNotifications.values.find(n => n.id === id)?.dismiss();
-	}
-
-	function toastDestroy(id, dismissed = false) {
-		// root.toast.values.splice(root.toast.values.findIndex(n => n.id === id), 1);
-		const ns = root.toast.values
-		.reduce((a, n, i) => {
-			if (n.id === id) a.push(i);
-			return a;
-		}, [])
-		.sort((a, b) => b -a);
-		ns.forEach((i) => { root.toast.values.splice(i, 1); });
-		if (dismissed) server.trackedNotifications.values.find(n => n.id === id).dismiss();
-	}
-
-	function toastResend(id) {
-		const notif = root.toast.values.splice(root.toast.values.findIndex(n => n.id === id), 1)[0];
-		root.toast.values.splice(0, 0, notif);
-	}
-
-	function readNotif(id) { root.history.values.find(n => n.notif.id === id).read = true; }
-
-	function clearall() {
-		root.history.values.slice().reverse()
-		.forEach(n => root.dismiss(n.notif.id));
-	}
 
 	IpcHandler {
 		target: "notification"
