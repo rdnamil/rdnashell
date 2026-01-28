@@ -157,7 +157,7 @@ Variants { id: root
 										IconImage {
 											visible: delegate.modelData?.appIcon || false
 											implicitSize: Globals.Controls.iconSize
-											source: delegate.modelData?.appIcon || ''
+											source: Quickshell.iconPath(delegate.modelData?.appIcon, "notifications")
 										}
 
 										Text {

@@ -118,7 +118,7 @@ Ctrl.Widget { id: root
 								IconImage {
 									visible: delegate.modelData?.notif.appIcon || false
 									implicitSize: Globals.Controls.iconSize
-									source: delegate.modelData?.notif.appIcon || ''
+									source: Quickshell.iconPath(delegate.modelData?.notif.appIcon, "notifications")
 								}
 
 								Text {
