@@ -68,13 +68,11 @@ Item { id: root
 			height: root.content.height
 			transform: Translate { id: contentTrans; }
 			layer.enabled: true
-			layer.effect: OpacityMask {
-				maskSource: Rectangle {
-					width: contentWrapper.width
-					height: contentWrapper.height
-					radius: Globals.Controls.radius
-				}
-			}
+			layer.effect: OpacityMask { maskSource: Rectangle {
+				width: contentWrapper.width
+				height: contentWrapper.height
+				radius: Globals.Controls.radius
+			}}
 		}
 
 		ParallelAnimation { id: contentAnim
