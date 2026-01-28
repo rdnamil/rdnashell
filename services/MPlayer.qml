@@ -24,6 +24,7 @@ Singleton { id: root
 			else return players[0];
 		} else return null;
 	}
+	readonly property FrameAnimation frameAnim: frameAnim
 	readonly property ColorQuantizer colorQuant: ColorQuantizer {
 		source: root.artUrl
 		depth: 8
@@ -41,7 +42,7 @@ Singleton { id: root
 		avgHue /= root.colorQuant.colors.length
 		avgVal /= root.colorQuant.colors.length
 
-		const colours = [...root.colorQuant.colors]
+		const colours = Array.from(root.colorQuant.colors)
 		// filter out colours that don't meet min req
 		.filter(c => (c.hsvSaturation > 0.5 && c.hsvValue > 0.1))
 		// sort based on hue furthest from avg & highest sat/val
@@ -65,13 +66,22 @@ Singleton { id: root
 		else if (avgHue < 0) return Qt.hsva(-1, 1.0, Math.max(Math.min(avgVal, 0.6), 0.3), 1.0);
 		else return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
 	}
+	readonly property color complementary: Qt.hsva((accent.hsvHue +0.5) %1, 0.75, 0.75, 1.0)
 
 	property bool active
 	property string title
 	property string artist
-	property string artUrl
+	property url artUrl
 
-	// period where artist can be updated
+	function loopState() {
+		const states = [MprisLoopState.None, MprisLoopState.Playlist, MprisLoopState.Track];
+
+		return states[(states.findIndex(s => s === root.player.loopState) +1) %states.length];
+	}
+
+	onPlayerChanged: if (!root.player) grace.restart();
+
+	// period where track props can be updated
 	Timer { id: hold; interval: 500; }
 
 	// period before player is inactive
@@ -99,13 +109,23 @@ Singleton { id: root
 			const a = player.trackArtist;
 			root.artist = a;
 		}}
+
+		function onTrackArtUrlChanged() { if (hold.running) {
+			// update artist if hold
+			const a = player.trackArtUrl;
+			root.artUrl = a;
+		}}
 	}
 
 	// update the active player's position while playing
-	FrameAnimation {
-		running: player.playbackState == MprisPlaybackState.Playing
+	FrameAnimation { id: frameAnim
+		running: root.player?.playbackState == MprisPlaybackState.Playing
 		onTriggered: player.positionChanged();
 	}
 
-	function init() {}
+	Component.onCompleted: { if (root.player) {
+		root.title = player.trackTitle;
+		root.artist = player.trackArtist;
+		root.artUrl = player.trackArtUrl;
+	}}
 }
