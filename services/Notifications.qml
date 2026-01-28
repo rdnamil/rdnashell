@@ -36,12 +36,26 @@ Singleton { id: root
 	signal dismiss(int id)
 
 	onDismiss: (id) => {
-		root.history.values.splice(root.history.values.findIndex(n => n.notif.id === id), 1);
-		if (!root.toast.values.find(n => n.id === id)) server.trackedNotifications.values.find(n => n.id === id).dismiss();
+		// root.history.values.splice(root.history.values.findIndex(n => n.notif.id === id), 1);
+		const ns = root.history.values
+		.reduce((a, n, i) => {
+			if (n.notif.id === id) a.push(i);
+			return a;
+		}, [])
+		.sort((a, b) => b -a);
+		ns.forEach((i) => { root.history.values.splice(i, 1); });
+		if (!root.toast.values.some(n => n.id === id)) server.trackedNotifications.values.find(n => n.id === id)?.dismiss();
 	}
 
 	function toastDestroy(id, dismissed = false) {
-		root.toast.values.splice(root.toast.values.findIndex(n => n.id === id), 1);
+		// root.toast.values.splice(root.toast.values.findIndex(n => n.id === id), 1);
+		const ns = root.toast.values
+		.reduce((a, n, i) => {
+			if (n.id === id) a.push(i);
+			return a;
+		}, [])
+		.sort((a, b) => b -a);
+		ns.forEach((i) => { root.toast.values.splice(i, 1); });
 		if (dismissed) server.trackedNotifications.values.find(n => n.id === id).dismiss();
 	}
 
