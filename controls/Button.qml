@@ -5,6 +5,8 @@ import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
+	property bool enabled: true
+
 	width: icon.width +Globals.Controls.padding
 	height: icon.height +Globals.Controls.padding
 	onPressed: pressAnim.restart();
@@ -15,6 +17,7 @@ Ctrl.Widget { id: root
 	}
 
 	Rectangle { id: bak
+		visible: root.enabled
 		anchors.fill: parent; z: -1; radius: Globals.Controls.radius *( 3/4); color: Globals.Colours.light;
 		opacity: parent.containsMouse? 0.25 : 0.0
 
