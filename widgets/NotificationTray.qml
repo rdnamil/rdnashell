@@ -31,7 +31,6 @@ Ctrl.Widget { id: root
 	}
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
-		// source: Service.Notifications.dnd? Quickshell.iconPath("notifications-disabled") : Quickshell.iconPath("notification", "notification-inactive")
 		source: {
 			const un = Service.Notifications.history.values.some(n => n && !n.read);
 

@@ -12,7 +12,7 @@ import Quickshell.Services.Notifications
 
 Singleton { id: root
 	readonly property NotificationServer server: NotificationServer { id: server
-		keepOnReload: true
+		keepOnReload: false
 		actionsSupported: true
 		bodyHyperlinksSupported: true
 		bodyImagesSupported: true
@@ -22,7 +22,9 @@ Singleton { id: root
 		onNotification: (notif) => {
 			notif.tracked = true;
 
-			const sharedId = root.history.values.some(n => n.notif.id === notif.id);
+			let sharedId = false;
+
+			sharedId = root.history.values.some(n => n.notif.id === notif.id);
 			if (sharedId) root.history.values.splice(root.history.values.findIndex(n => n.notif.id === notif.id), 1);
 
 			root.history.values.splice(0, 0, {
@@ -32,7 +34,7 @@ Singleton { id: root
 			});
 
 			if (!root.dnd) {
-				const sharedId = root.toast.values.some(n => n.id === notif.id);
+				sharedId = root.toast.values.some(n => n.id === notif.id);
 				if (sharedId) root.toast.values.splice(root.toast.values.findIndex(n => n.id === notif.id), 1);
 
 				root.toast.values.splice(0, 0, notif);
@@ -44,7 +46,7 @@ Singleton { id: root
 		delegate: Item { id: delegate
 			required property var modelData
 
-			Component.onCompleted: console.log("connected")
+			Component.onCompleted: console.log(`Notifications: Connection to id#${delegate.modelData.id} created`)
 
 			Connections {
 				target: delegate.modelData
@@ -59,6 +61,8 @@ Singleton { id: root
 	readonly property ScriptModel history: ScriptModel { id: history; objectProp: "id"; }
 
 	property bool dnd
+
+	signal dismiss(int id)
 
 	IpcHandler {
 		target: "notification"
