@@ -40,7 +40,10 @@ Ctrl.Widget { id: root
 	}
 
 	Ctrl.Popout { id: popout
-		onOpen: Service.Notifications.history.values.forEach(n => n.read = true);
+		onOpen: {
+			Service.Notifications.history.values.forEach(n => n.read = true);
+			Service.Notifications.clearallToasts();
+		}
 		content: Style.PageLayout { id: content
 			header: RowLayout {
 				width: content.width
@@ -74,9 +77,68 @@ Ctrl.Widget { id: root
 					tooltip: "clear all"
 				}
 			}
-			body: Item {
-				width: 480
-				height: 10
+			body: Ctrl.List {
+				onItemClicked: (item, mouse) => { Service.Notifications.dismiss(item.modelData.notif.id); }
+				model: Service.Notifications.history
+				delegate: Item { id: delegate
+					required property var modelData
+
+					width: 480 -Globals.Controls.spacing *2
+					height: toastLayout.height +Globals.Controls.spacing *2
+
+					RowLayout { id: toastLayout
+						anchors.centerIn: parent
+						width: parent.width  -Globals.Controls.spacing *2
+						spacing: Globals.Controls.padding
+
+						// icon
+						Image {
+							visible: (delegate.modelData.notif?.image || false) || Globals.Settings.debug
+							Layout.preferredWidth: height
+							Layout.preferredHeight: toastBodyLayout.height
+							source: delegate.modelData.notif?.image || ''
+							mipmap: true
+
+							Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; }
+						}
+
+						ColumnLayout { id: toastBodyLayout
+							spacing: Globals.Controls.spacing
+
+							RowLayout {
+								// app icon
+								IconImage {
+									visible: delegate.modelData.notif?.appIcon || false
+									implicitSize: Globals.Controls.iconSize
+									source: Quickshell.iconPath(delegate.modelData.notif?.appIcon, "notifications")
+								}
+
+								// app name and summary
+								Text {
+									Layout.fillWidth: true
+									text: `<b>${delegate.modelData.notif?.appName}</b> ${delegate.modelData.notif?.summary}`
+									color: Globals.Colours.text
+									font.pointSize: 8
+									font.weight: 600
+									wrapMode: Text.Wrap
+									maximumLineCount: 2
+									elide: Text.ElideRight
+								}
+							}
+
+							// body
+							Text {
+								Layout.fillWidth: true
+								text: delegate.modelData.notif?.body || null
+								color: Globals.Colours.text
+								font.pointSize: 8
+								wrapMode: Text.Wrap
+								maximumLineCount: 4
+								elide: Text.ElideRight
+							}
+						}
+					}
+				}
 			}
 		}
 	}

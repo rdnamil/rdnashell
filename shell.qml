@@ -3,7 +3,6 @@ import Quickshell
 import qs.components
 import qs.widgets
 import qs.services
-import qs.controls
 
 ShellRoot { id: root
 	Bar {
@@ -21,8 +20,7 @@ ShellRoot { id: root
 			Test {}
 		]
 	}
-	// NotificationToasts {}
-	NotifTest {}
+	NotificationToasts {}
 
 	Component.onCompleted: {
 		ShellUtils.init();
