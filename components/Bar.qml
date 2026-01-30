@@ -98,7 +98,7 @@ Variants { id: root
 		Row { id: rowLeft
 			anchors.verticalCenter: parent.verticalCenter
 			leftPadding: Globals.Controls.padding
-			spacing: Globals.Controls.spacing
+			spacing: Globals.Controls.spacing *2
 			height: parent.height
 
 			Component.onCompleted: { for (let w of root.left) {
@@ -113,7 +113,7 @@ Variants { id: root
 				horizontalCenter: parent.horizontalCenter
 				verticalCenter: parent.verticalCenter
 			}
-			spacing: Globals.Controls.spacing
+			spacing: Globals.Controls.spacing *2
 			height: parent.height
 
 			Component.onCompleted: { for (let w of root.centre) {
@@ -129,7 +129,7 @@ Variants { id: root
 				verticalCenter: parent.verticalCenter
 			}
 			rightPadding: Globals.Controls.padding
-			spacing: Globals.Controls.spacing
+			spacing: Globals.Controls.spacing *2
 			height: parent.height
 
 			Component.onCompleted: { for (let w of root.right) {
