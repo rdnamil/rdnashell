@@ -5,91 +5,72 @@
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import "../globals.js" as Globals
 
-ColumnLayout { id: root
+Item { id: root
 	property Item header
 	property Item body
 	property Item footer
 
-	spacing: 0
+	width: layout.width
+	height: layout.height
+	layer.enabled: true
+	layer.effect: OpacityMask { maskSource: Rectangle {
+		width: root.width; height: root.height;
+		radius: Globals.Controls.radius
+	}}
 
-	Item { id: headerWrapper
-		visible: root.header
-		Layout.fillWidth: true
-		Layout.minimumWidth: root.header?.width || 0
-		Layout.preferredHeight: root.header?.height || null
-
-		RectangularShadow {
-			anchors.fill: parent
-			blur: 30
-			opacity: 0.6
-		}
-
-		Rectangle {
-			anchors.fill: parent
-			topLeftRadius: Globals.Controls.radius
-			topRightRadius: Globals.Controls.radius
-			color: Globals.Colours.base
-		}
-
-		Component.onCompleted: if (root.header) root.header.parent = headerWrapper;
+	Rectangle {
+		anchors.fill: layout
+		color: Globals.Colours.base
 	}
 
-	Item { id: bodyWrapper
-		z: 1
-		visible: root.body
-		Layout.fillWidth: true
-		Layout.minimumWidth: root.body?.width || 0
-		Layout.preferredHeight: root.body?.height || null
-		Layout.minimumHeight: root.body? Globals.Controls.radius *3 : 0
+	ColumnLayout { id: layout
+		spacing: 0
 
-		Rectangle {
-			anchors.fill: parent
-			radius: Globals.Controls.radius
-			color: Globals.Colours.mid
+		Item { id: headerWrapper
+			visible: root.header
+			Layout.fillWidth: true
+			Layout.minimumWidth: root.header?.width || 0
+			Layout.preferredHeight: root.header?.height || null
+
+			Component.onCompleted: if (root.header) root.header.parent = headerWrapper;
+		}
+
+		Item { id: bodyWrapper
+			z: 1
+			visible: root.body
+			Layout.fillWidth: true
+			Layout.minimumWidth: root.body?.width || 0
+			Layout.preferredHeight: root.body?.height || null
+			Layout.minimumHeight: root.body? Globals.Controls.radius *3 : 0
 
 			Rectangle {
-				z: -1
-				width: parent.width
-				height: parent.radius
-				color: Globals.Colours.base
-			}
-
-			Rectangle {
-				anchors.bottom: parent.bottom
-				z: -1
-				width: parent.width
-				height: parent.radius
-				color: Globals.Colours.base
-			}
-
-			RectangularShadow {
 				anchors.fill: parent
-				z: -1
-				radius: parent.radius
-				blur: 30
-				opacity: 0.8
-				color: Globals.Colours.dark
+				radius: Globals.Controls.radius
+				color: Globals.Colours.mid
+
+				RectangularShadow {
+					anchors.fill: parent
+					z: -1
+					radius: parent.radius
+					blur: 30
+					color: Globals.Colours.dark
+					opacity: (root.header || root.footer)? 0.8 : 0.0
+				}
 			}
+
+			Component.onCompleted: if (root.body) root.body.parent = bodyWrapper;
 		}
 
-		Component.onCompleted: if (root.body) root.body.parent = bodyWrapper;
-	}
+		Item { id: footerWrapper
+			visible: root.footer
+			Layout.fillWidth: true
+			Layout.minimumWidth: root.footer?.width || 0
+			Layout.preferredHeight: root.footer?.height || null
 
-	Item { id: footerWrapper
-		visible: root.footer
-		Layout.fillWidth: true
-		Layout.minimumWidth: root.footer?.width || 0
-		Layout.preferredHeight: root.footer?.height || null
-
-		Rectangle {
-			anchors.fill: parent
-			bottomLeftRadius: Globals.Controls.radius
-			bottomRightRadius: Globals.Controls.radius
-			color: Globals.Colours.base
+			Component.onCompleted: if (root.footer) root.footer.parent = footerWrapper;
 		}
-
-		Component.onCompleted: if (root.footer) root.footer.parent = footerWrapper;
 	}
 }
