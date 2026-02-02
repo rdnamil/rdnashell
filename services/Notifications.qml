@@ -49,6 +49,10 @@ Singleton { id: root
 	signal expire(int id)
 	signal dismiss(int id)
 
+	function clearall() {
+		[...root.server.trackedNotifications.values].forEach(n => n.dismiss());
+	}
+
 	IpcHandler {
 		target: "notification"
 	}

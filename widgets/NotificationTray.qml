@@ -71,7 +71,7 @@ Ctrl.Widget { id: root
 				Ctrl.Button {
 					Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 					Layout.margins: Globals.Controls.spacing
-					// onClicked: Service.Notifications.clearall();
+					onClicked: Service.Notifications.clearall();
 					icon: IconImage {
 						implicitSize: Globals.Controls.iconSize
 						source: Quickshell.iconPath("edit-clear-history")
