@@ -11,6 +11,9 @@ Slider { id: root
 	leftPadding: 0
 	rightPadding: 0
 	wheelEnabled: true
+	from: 0.0
+	to: 1.0
+	stepSize: 0.05
 	background: Rectangle {
 		x: root.leftPadding
 		y: root.topPadding + root.availableHeight /2 -height /2
@@ -36,7 +39,10 @@ Slider { id: root
 				leftMargin: 2
 				verticalCenter: parent.verticalCenter
 			}
-			width: Math.max((parent.width -4) *root.visualPosition, height)
+			width: {
+				if (root.visualPosition === 0) return 0;
+				else return Math.max((parent.width -4) *root.visualPosition, height)
+			}
 			height: parent.height -4
 			radius: height /2
 			color: Globals.Colours.accent
