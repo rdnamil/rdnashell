@@ -2,27 +2,26 @@ import QtQuick
 import Quickshell
 import qs.components
 import qs.widgets
-import qs.services
+import qs.services as Service
 
 ShellRoot { id: root
 	Bar {
 		left: [
-			Test {}
+			MusicPlayer {}
 		]
 		centre: [
-			NotificationTray {},
-			Test {},
-			MusicPlayer {},
-			Test {}
 		]
 		right: [
-
-			Test {}
+			DateTime {},
+			PowerManagement {},
+			NotificationTray {}
 		]
 	}
+
 	NotificationToasts {}
 
 	Component.onCompleted: {
-		ShellUtils.init();
+		Service.ShellUtils.init();
+		Service.AppLauncher.init();
 	}
 }
