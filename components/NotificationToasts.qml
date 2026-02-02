@@ -23,181 +23,228 @@ Variants { id: root
 		anchors {
 			right: true
 			top: true
-			// bottom: true
 		}
-		exclusiveZone: 0
 		mask: Region {
-			x: view.x; y: view.y
-			width: view.width; height: view.height
+			x: 30
+			y: Globals.Controls.padding
+			width: window.width -30 -Globals.Controls.padding
+			height: window.height -30 -Globals.Controls.padding
 		}
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:notifications"
+		implicitWidth: Math.min(...model.values.map((elem, index) => { return repeater.itemAt(index).width })) +30 +Globals.Controls.padding;
+		implicitHeight: {
+			let h = Globals.Controls.padding +30
+
+			model.values.forEach((elem, index) => {
+				h += repeater.itemAt(index).height +Globals.Controls.spacing
+			});
+
+			return h;
+		}
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
-		implicitWidth: 480 +Globals.Controls.padding +30
-		implicitHeight: view.height +Globals.Controls.padding +30
 
 		Repeater {
-			model: view.count
+			model: repeater.count
 			delegate: RectangularShadow { id: shadow
 				required property int index
 
-				x: view.itemAtIndex(shadow.index).x +view.x
-				y: view.itemAtIndex(shadow.index).y +view.y
+				x: repeater.itemAt(index).x
 				z: -999
-				width: view.itemAtIndex(shadow.index).width
-				height: view.itemAtIndex(shadow.index).height
+				width: repeater.itemAt(index).width
+				height: repeater.itemAt(index).height
+				radius: Globals.Controls.radius
+				transform: Translate { y: repeater.itemAt(shadow.index).toastTrans.y; }
 				blur: 30
-				// color: "red"
-				opacity: view.itemAtIndex(shadow.index).opacity *0.4
-				transform: Translate { x: view.itemAtIndex(shadow.index).trans.x; }
+				opacity: repeater.itemAt(index).opacity *0.4
 			}
 		}
 
-		ListView { id: view
-			x: 30
-			y: Globals.Controls.padding
-			width: parent.width
-			height: contentHeight
-			spacing: Globals.Controls.spacing
-			model: Service.Notifications.toast
-			delegate: Item { id: delegate
+		Repeater { id: repeater
+			model: ScriptModel { id: model
+				values: []
+				objectProp: "id"
+			}
+			delegate: Rectangle { id: delegate
 				required property var modelData
+				required property int index
 
-				readonly property Translate trans: delegateTrans
+				readonly property Translate toastTrans: toastTrans
+				readonly property int delta: timer.height +Globals.Controls.padding
 
-				width: 480
-				height: toastLayout.height
-				transform: Translate { id: delegateTrans; }
-				ListView.onRemove: rmAnim.start();
-
-				ParallelAnimation {
-					running: true
-
-					NumberAnimation {
-						target: delegate
-						property: "opacity"
-						from: 0.0; to: 1.0;
-						duration: 250; easing.type: Easing.InCirc;
-					}
-					NumberAnimation {
-						target: delegateTrans
-						property: "x"; from: window.width -Globals.Controls.padding;
-						to: 0
-						duration: 250; easing.type: Easing.OutCirc;
-					}
+				function add(id, height) {
+					if (delegate.modelData.id === id) addAnim.start();
+					else toastTrans.y += height +Globals.Controls.spacing;
 				}
 
-				ParallelAnimation { id: rmAnim
-					onStarted: delegate.ListView.delayRemove = true;
-					onFinished: delegate.ListView.delayRemove = false;
-
-					NumberAnimation {
-						target: delegate
-						property: "opacity"
-						from: 1.0; to: 0.0;
-						duration: 250; easing.type: Easing.OutCirc;
-					}
-					NumberAnimation {
-						target: delegateTrans
-						property: "x"
-						from: 0; to: window.width -Globals.Controls.padding;
-						duration: 250; easing.type: Easing.InCirc;
-					}
+				function remove(id, height) {
+					toastTrans.y -= height +Globals.Controls.spacing;
+					if (delegate.modelData.id === id) rmAnim.start();
 				}
 
-				Rectangle { id: toast
-					anchors.fill: toastLayout
+				x: 30
+				z: -index
+				width: 480; height: toastLayout.height +delta +Globals.Controls.padding;
+				transform: Translate { id: toastTrans
+					Behavior on y { NumberAnimation { id: toastTransBehavior; duration: 250; easing.type: Easing.OutCirc; }}
+				}
+				color: Globals.Colours.base
+				layer.enabled: true
+				layer.effect: OpacityMask { maskSource: Rectangle {
+					width: delegate.width; height: delegate.height;
 					radius: Globals.Controls.radius
-					color: Globals.Settings.debug? "#4000ff00" : Globals.Colours.dark
+				}}
+
+				Rectangle { id: timer
+					width: parent.width
+					height: 3
+					transform: Scale { id: timerScale; }
+					color: Globals.Colours.accent
+
+					NumberAnimation { id: timerAnim
+						onFinished: Service.Notifications.expire(delegate.modelData.id);
+						running: true
+						target: timerScale
+						property: "xScale"
+						to: 0.0
+						duration: 5000
+					}
 				}
 
-				ColumnLayout { id: toastLayout
-					width: parent.width
-					spacing: 0
-					layer.enabled: true
-					layer.effect: OpacityMask {
-						maskSource: Rectangle {
-							width: toastLayout.width
-							height: toastLayout.height
-							radius: Globals.Controls.radius
-						}
-					}
+				RowLayout { id: toastLayout
+					y: delegate.delta
+					x: parent.width /2 -width /2
+					width: parent.width -Globals.Controls.padding *2
+					spacing: Globals.Controls.padding
 
-					// expiration timer
-					Rectangle {
-						Layout.fillWidth: true
-						Layout.preferredHeight: 3
-						color: Globals.Settings.debug? "#ff0000ff" : Globals.Colours.accent
-						transform: Scale { id: expScale; }
+					Item {
+						visible: icon.visible || image.visible
+						Layout.preferredWidth: height
+						Layout.preferredHeight: toastBodyLayout.height
 
-						NumberAnimation { id: expAnim
-							running: true
-							target: expScale; property: "xScale"; from: 1.0; to: 0;
-							duration: delegate.modelData.notif?.expireTimeout > 0? delegate.modelData.notif.expireTimeout : 5000;
-							onFinished: Service.Notifications.expire(delegate.modelData.notif.id);
-						}
-					}
+						// app icon
+						Image { id: icon
+							readonly property url src: delegate.modelData?.notif?.appIcon || ''
+							readonly property url icon: Quickshell.iconPath(delegate.modelData?.notif?.appIcon, true)
 
-					RowLayout {
-						Layout.margins: Globals.Controls.padding
-						spacing: Globals.Controls.padding
-
-						// icon
-						Image {
-							visible: (delegate.modelData.notif?.image || false) || Globals.Settings.debug
-							Layout.preferredWidth: height
-							Layout.preferredHeight: toastBodyLayout.height
-							source: delegate.modelData.notif?.image || ''
+							visible: (delegate.modelData?.notif?.appIcon && !image.visible) || false
+							anchors.fill: parent
+							source: Quickshell.iconPath(delegate.modelData?.notif?.appIcon, true) || delegate.modelData?.notif?.appIcon || ''
 							mipmap: true
+						}
+
+						// app image
+						Image { id: image
+							visible: (delegate.modelData?.notif?.image || false) || Globals.Settings.debug
+							anchors.fill: parent
+							source: delegate.modelData?.notif?.image || ''
+							mipmap: true
+
+							// app icon
+							IconImage {
+								anchors {
+									right: parent.right
+									rightMargin: -Globals.Controls.spacing
+									bottom: parent.bottom
+									bottomMargin: -Globals.Controls.spacing
+								}
+								visible: delegate.modelData?.notif?.appIcon || false
+								implicitSize: 14
+								source: Quickshell.iconPath(delegate.modelData?.notif?.appIcon, "notifications")
+							}
 
 							Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; }
 						}
+					}
 
-						ColumnLayout { id: toastBodyLayout
-							spacing: Globals.Controls.spacing
+					ColumnLayout { id: toastBodyLayout
+						spacing: 0
 
-							RowLayout {
-								// app icon
-								IconImage {
-									visible: delegate.modelData.notif?.appIcon || false
-									implicitSize: Globals.Controls.iconSize
-									source: Quickshell.iconPath(delegate.modelData.notif?.appIcon, "notifications")
-								}
+						// app name and summary
+						Text {
+							Layout.fillWidth: true
+							text: `<b>${delegate.modelData?.notif?.appName}</b> ${delegate.modelData?.notif?.summary}`
+							color: Globals.Colours.text
+							font.pointSize: 8
+							font.weight: 600
+							wrapMode: Text.Wrap
+							maximumLineCount: 2
+							elide: Text.ElideRight
+						}
 
-								// app name and summary
-								Text {
-									Layout.fillWidth: true
-									text: `<b>${delegate.modelData.notif?.appName}</b> ${delegate.modelData.notif?.summary}`
-									color: Globals.Colours.text
-									font.pointSize: 8
-									font.weight: 600
-									wrapMode: Text.Wrap
-									maximumLineCount: 2
-									elide: Text.ElideRight
-								}
-							}
-
-							// body
-							Text {
-								Layout.fillWidth: true
-								text: delegate.modelData.notif?.body || null
-								color: Globals.Colours.text
-								font.pointSize: 8
-								wrapMode: Text.Wrap
-								maximumLineCount: 4
-								elide: Text.ElideRight
-							}
+						// body
+						Text {
+							Layout.fillWidth: true
+							text: delegate.modelData?.notif?.body || null
+							color: Globals.Colours.text
+							font.pointSize: 8
+							wrapMode: Text.Wrap
+							maximumLineCount: 4
+							elide: Text.ElideRight
 						}
 					}
 				}
 
 				MouseArea {
-					visible: expAnim.running
+					visible: !rmAnim.running
 					anchors.fill: parent
 					hoverEnabled: true
-					onEntered: expAnim.pause();
-					onExited: expAnim.resume();
-					onClicked: Service.Notifications.dismiss(delegate.modelData.notif.id);
+					onEntered: timerAnim.pause(); // pause the expiration timer while hovering over toast
+					onExited: timerAnim.resume();
+					onClicked: if (!toastTransBehavior.running) delegate.modelData.notif.dismiss();
+				}
+
+				ParallelAnimation { id: addAnim
+					NumberAnimation {
+						target: delegate
+						property: "opacity"
+						from: 0.0
+						to: 0.975
+						duration: 250
+						easing.type: Easing.InOutCirc;
+					}
+					NumberAnimation {
+						target: toastTrans
+						property: "y"
+						from: Globals.Controls.padding -delegate.height -Globals.Controls.spacing
+						to: Globals.Controls.padding
+						duration: 250
+						easing.type: Easing.OutCirc;
+					}
+				}
+
+				NumberAnimation { id: rmAnim
+					onFinished: model.values.splice(delegate.index, 1);
+					target: delegate
+					property: "opacity"
+					to: 0.0
+					duration: 250
+					easing.type: Easing.InOutCirc;
+				}
+			}
+		}
+
+		Connections {
+			target: Service.Notifications
+
+			function onNotify(notif) {
+				if (!Service.Notifications.dnd) {
+					model.values.splice(0, 0, {
+						"notif": notif,
+						"id": notif.id
+					});
+
+					for (let i = 0; i < repeater.count; i++) {
+						repeater.itemAt(i).add(notif.id, repeater.itemAt(0).height);
+					}
+				}
+			}
+
+			function onExpire(id) {
+				const idx = model.values.findIndex(n => n.id === id);
+
+				if (idx !== -1) for (let i = idx; i < repeater.count; i++) {
+					repeater.itemAt(i).remove(id, repeater.itemAt(idx).height);
 				}
 			}
 		}
