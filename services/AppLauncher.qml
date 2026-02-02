@@ -1,3 +1,7 @@
+/*-------------------------------
+--- AppLauncher.qml by andrel ---
+-------------------------------*/
+
 pragma Singleton
 pragma ComponentBehavior: Bound
 
@@ -14,17 +18,18 @@ import "../globals.js" as Globals
 import "../fuse.js" as FuseLib
 
 Singleton { id: root
-	function init() {}
+	function init() {
+		loader.active = false;
+	}
 
 	function close() {
 		loader.active = false;
 		fileview.writeAdapter();
 	}
 
+	// save app stats
 	FileView { id: fileview
 		path: Qt.resolvedUrl("../apps.json")
-		// watchChanges: true
-		// onFileChanged: reload();
 
 		JsonAdapter { id: jsonAdapter
 			property list<var> applications
@@ -32,7 +37,7 @@ Singleton { id: root
 	}
 
 	Loader { id: loader
-		active: false
+		active: true
 		sourceComponent: PanelWindow {
 			anchors {
 				left: true
@@ -43,7 +48,7 @@ Singleton { id: root
 			exclusiveZone: -1
 			focusable: true
 			WlrLayershell.layer: WlrLayer.Overlay
-			// WlrLayershell.namespace: "qs:launcher"
+			WlrLayershell.namespace: "qs:launcher"
 			color: Globals.Settings.debug? "#40ff0000" : "transparent"
 			implicitWidth: layout.width +60
  			implicitHeight: layout.height +60
@@ -57,7 +62,7 @@ Singleton { id: root
 
 			MouseArea {
 				anchors.fill: parent
-				onClicked: root.close();
+				onClicked: root.close(); // close the launcher on outside click
 			}
 
 			Style.PageLayout { id: layout
@@ -113,6 +118,7 @@ Singleton { id: root
 								}
 							}
 
+							// placeholder text
 							Text {
 								visible: !parent.text
 								leftPadding: Globals.Controls.spacing
@@ -126,6 +132,7 @@ Singleton { id: root
 					}
 				}
 				body: Ctrl.List { id: list
+					// show up to 10 dekstop entries max
 					height: Math.min(view.contentHeight, (32 +Globals.Controls.spacing *2) *10 -Globals.Controls.spacing) +Globals.Controls.padding
 					onItemClicked: item => {
 						// add an etry if none exist
@@ -240,12 +247,14 @@ Singleton { id: root
 								spacing: 0
 
 								Text {
+									Layout.fillWidth: true
 									text: delegate.modelData.name
 									color: Globals.Colours.text
 									font.pointSize: 10
 								}
 
 								Text {
+									visible: delegate.modelData.comment
 									Layout.fillWidth: true
 									text: delegate.modelData.comment
 									color: Globals.Colours.light
