@@ -29,11 +29,11 @@ Ctrl.Widget { id: root
 			break;
 	}}
 	icon: RowLayout {
-		width: 300
+		width: 320
 
 		Ctrl.Marquee {
 			Layout.fillWidth: true
-			Layout.maximumWidth: width
+			Layout.maximumWidth: Math.min(content.width, 210)
 			scrolling: width < content.width && root.containsMouse
 			content: RowLayout {
 				spacing: Globals.Controls.spacing
@@ -55,8 +55,7 @@ Ctrl.Widget { id: root
 
 		Rectangle {
 			Layout.fillWidth: true
-			Layout.preferredHeight: 16
-			Layout.minimumWidth: 150
+			Layout.preferredHeight: 14
 		}
 	}
 
