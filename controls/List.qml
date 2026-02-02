@@ -18,7 +18,6 @@ ScrollView { id: root
 	padding: Globals.Controls.padding /2
 	width: 480
 	height: Math.min(360, listView.contentHeight +padding *2)
-	// background: Rectangle { anchors.fill: parent; radius: Globals.Controls.radius; color: Globals.Colours.dark; }
 	ScrollBar.vertical: ScrollBar { id: scrollBar
 		x: root.width -width /2 -Globals.Controls.padding
 		y: root.padding
@@ -27,7 +26,6 @@ ScrollView { id: root
 			implicitWidth: scrollBar.active? 6 : 4
 			radius: width /2
 			color: scrollBar.active? Globals.Colours.text : Globals.Colours.mid
-			// opacity: root.height < 360? 0 : 0.75
 			opacity: (scrollBar.active && scrollBar.size < 1.0) ? 0.75 : 0
 
 			Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
@@ -41,15 +39,10 @@ ScrollView { id: root
 		model: root.model
 		delegate: root.delegate
 		clip: true
-		// currentIndex: mouseArea.containsMouse? listView.indexAt(mouseArea.mouseX, mouseArea.mouseY +listView.contentY) : -1
-		currentIndex: -1
-		onContentHeightChanged: currentIndex = mouseArea.containsMouse? listView.indexAt(mouseArea.mouseX, mouseArea.mouseY +listView.contentY) : -1;
 		boundsBehavior: Flickable.StopAtBounds
 		highlightMoveDuration: 0
-		highlightFollowsCurrentItem: false
+		highlightFollowsCurrentItem: true
 		highlight: Rectangle {
-			x: listView.currentItem?.x || 0
-			y: listView.currentItem?.y || 0
 			width: listView.width
 			height: listView.currentItem?.height || 0
 			radius: Globals.Controls.radius *(3 /4)
