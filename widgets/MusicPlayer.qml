@@ -53,9 +53,14 @@ Ctrl.Widget { id: root
 			}
 		}
 
-		Rectangle {
+		// display the elapsed time of the track as a % of the total track length
+		Style.Slider {
 			Layout.fillWidth: true
-			Layout.preferredHeight: 14
+			from: 0.0
+			value: Service.MPlayer.player?.position
+			to: Service.MPlayer.player?.length
+			onMoved: Service.MPlayer.player.position = value;
+			stepSize: 1
 		}
 	}
 
@@ -228,11 +233,22 @@ Ctrl.Widget { id: root
 					}
 				}
 
-				Rectangle {
+				RowLayout {
 					Layout.margins: Globals.Controls.padding
 					Layout.leftMargin: 0
-					Layout.fillWidth: true
-					Layout.preferredHeight: 16
+
+					Ctrl.Button {
+						icon: IconImage {
+							implicitSize: 16
+							source: Quickshell.iconPath("audio-volume-high-symbolic")
+						}
+					}
+
+					Style.Slider {
+						Layout.fillWidth: true
+						value: 1.0
+						// onMoved: volume = value;
+					}
 				}
 			}
 		}
