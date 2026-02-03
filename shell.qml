@@ -7,6 +7,7 @@ import qs.services as Service
 ShellRoot { id: root
 	Bar {
 		left: [
+			Audio {},
 			MusicPlayer {}
 		]
 		centre: [
