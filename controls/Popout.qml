@@ -13,6 +13,8 @@ import "../globals.js" as Globals
 Item { id: root
 	required property Item content
 
+	readonly property PopupWindow window: window
+
 	property bool isOpen
 
 	signal open()
