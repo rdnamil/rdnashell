@@ -75,7 +75,6 @@ Singleton { id: root
 					RectangularShadow {
 						anchors.fill: textInputLayout
 						radius: Globals.Controls.radius *(3 /4)
-						blur: 10
 						opacity: 0.4
 					}
 
@@ -83,7 +82,6 @@ Singleton { id: root
 						anchors.fill: textInputLayout
 						radius: Globals.Controls.radius *(3 /4)
 						color: Globals.Colours.dark
-						border { width: 1; color: Globals.Colours.base; }
 					}
 
 					RowLayout { id: textInputLayout
