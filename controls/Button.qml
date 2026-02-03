@@ -5,6 +5,8 @@ import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
+	readonly property Item background: bak
+
 	property bool enabled: true
 
 	width: icon.width +Globals.Controls.padding
