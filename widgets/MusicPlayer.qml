@@ -31,24 +31,29 @@ Ctrl.Widget { id: root
 	icon: RowLayout {
 		width: 320
 
-		Ctrl.Marquee {
+		Item {
 			Layout.fillWidth: true
-			Layout.maximumWidth: Math.min(content.width, 210)
-			scrolling: width < content.width && root.containsMouse
-			content: RowLayout {
-				spacing: Globals.Controls.spacing
+			Layout.maximumWidth: Math.min(childrenRect.width, 210)
+			Layout.preferredHeight: childrenRect.height
+			clip: true
 
-				Text {
-					text: Service.MPlayer.title
-					color: Globals.Colours.text
-					font.pointSize: 8
-				}
+			Ctrl.Marquee {
+				scrolling: parent.width < content.width && root.containsMouse
+				content: Row {
+					spacing: Globals.Controls.spacing
 
-				Text {
-					text: Service.MPlayer.artist
-					color: Globals.Colours.light
-					font.pointSize: 8
-					font.italic: true
+					Text {
+						text: Service.MPlayer.title
+						color: Globals.Colours.text
+						font.pointSize: 8
+					}
+
+					Text {
+						text: Service.MPlayer.artist
+						color: Globals.Colours.light
+						font.pointSize: 8
+						font.italic: true
+					}
 				}
 			}
 		}
@@ -57,8 +62,8 @@ Ctrl.Widget { id: root
 		Style.Slider {
 			Layout.fillWidth: true
 			from: 0.0
-			value: Service.MPlayer.player?.position
-			to: Service.MPlayer.player?.length
+			value: Service.MPlayer.player?.position || 0.0
+			to: Service.MPlayer.player?.length || 1.0
 			onMoved: Service.MPlayer.player.position = value;
 			stepSize: 1
 		}
