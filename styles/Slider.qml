@@ -14,6 +14,8 @@ Slider { id: root
 	from: 0.0
 	to: 1.0
 	stepSize: 0.05
+	snapMode: Slider.NoSnap
+	// live: false
 	background: Rectangle {
 		x: root.leftPadding
 		y: root.topPadding + root.availableHeight /2 -height /2
