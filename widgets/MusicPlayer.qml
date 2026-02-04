@@ -47,12 +47,14 @@ Ctrl.Widget { id: root
 					spacing: Globals.Controls.spacing
 
 					Text {
+						anchors.verticalCenter: parent.verticalCenter
 						text: Service.MPlayer.title
 						color: Globals.Colours.text
 						font.pointSize: 8
 					}
 
 					Text {
+						anchors.verticalCenter: parent.verticalCenter
 						text: Service.MPlayer.artist
 						color: Globals.Colours.light
 						font.pointSize: 8
@@ -155,6 +157,7 @@ Ctrl.Widget { id: root
 								spacing: Globals.Controls.spacing
 
 								Text {
+									anchors.verticalCenter: parent.verticalCenter
 									text: Service.MPlayer.title
 									color: Globals.Colours.text
 									font.pointSize: 8
@@ -170,6 +173,7 @@ Ctrl.Widget { id: root
 								}
 
 								Text {
+									anchors.verticalCenter: parent.verticalCenter
 									text: Service.MPlayer.artist
 									color: Globals.Colours.text
 									font.pointSize: 8
