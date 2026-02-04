@@ -13,6 +13,7 @@ ShellRoot { id: root
 		centre: [
 		]
 		right: [
+			Weather {},
 			DateTime {},
 			PowerManagement {},
 			NotificationTray {}
