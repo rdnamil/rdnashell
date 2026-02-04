@@ -14,7 +14,7 @@ Singleton { id: root
 	function init() {}
 
 	FloatingWindow { id: window
-		visible: true
+		visible: false
 
 		Rectangle {
 			anchors.fill: parent
