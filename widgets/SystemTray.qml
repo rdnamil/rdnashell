@@ -21,6 +21,7 @@ Row { id: root
 
 			onClicked: delegate.modelData.activate()
 			height: root.parent.height
+			tooltip: `${delegate.modelData.tooltipTitle}\n${delegate.modelData.tooltipDescription}`
 			icon: IconImage {
 				implicitSize: Globals.Controls.iconSize
 				source: Quickshell.iconPath(delegate.modelData.id.toLowerCase(), true) || delegate.modelData.icon
