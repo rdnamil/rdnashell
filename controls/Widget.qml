@@ -34,7 +34,7 @@ MouseArea { id: root
 	}
 
 	Timer { id: ttTimer
-		running: root.containsMouse && root.tooltip
+		running: root.containsMouse && root.tooltip.trim()
 		interval: 1000
 		onTriggered: {window.setRect(); window.visible = true;}
 	}
