@@ -12,6 +12,7 @@ MouseArea { id: root
 	required property Item icon
 
 	property string tooltip
+	property ShaderEffectSource displayedIcon: source
 
 	width: icon.width
 	height: parent.height
@@ -28,6 +29,7 @@ MouseArea { id: root
 		sourceItem: root.icon;
 		width: root.icon.width
 		height: root.icon.height
+		layer.enabled: true
 	}
 
 	Timer { id: ttTimer
