@@ -1,0 +1,9 @@
+{
+	"base": "#3b4252",
+	"accent": "#8fbcbb",
+	"dark": "#2e3440",
+	"light": "#d8dee9",
+	"mid": "#4c566a",
+	"text": "#eceff4",
+	"text_inactive": "#e5e9f0"
+}
