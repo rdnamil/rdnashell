@@ -39,15 +39,16 @@ Ctrl.Widget { id: root
 				spacing: 0
 				width: 480
 
-				Ctrl.Dropdown {
+				Ctrl.Dropdown { id: drop
 					readonly property list<PwNode> audioSinks: Pipewire.nodes.values.filter(n => n.isSink && n.description)
 
 					Layout.fillWidth: true
 					Layout.margins: Globals.Controls.spacing
 					Layout.bottomMargin: 0
 					tooltip: "select default device"
-					model: audioSinks.map(n => n.description)
 					currentIndex: audioSinks.findIndex(n => n === Pipewire.defaultAudioSink)
+					onSelected: index => { Pipewire.preferredDefaultAudioSink = drop.audioSinks[index]; }
+					model: audioSinks.map(n => n.description)
 				}
 
 				RowLayout { id: bodyLayout
