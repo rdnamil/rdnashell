@@ -1,4 +1,6 @@
-//@ pragma UseQApplication
+/*-------------------------
+--- shell.qml by andrel ---
+-------------------------*/
 
 import QtQuick
 import Quickshell
@@ -13,9 +15,11 @@ ShellRoot { id: root
 			MusicPlayer {}
 		]
 		centre: [
+			NiriWorkspaces {}
 		]
 		right: [
 			SystemTray {},
+			ColourPicker {},
 			Weather {},
 			DateTime {},
 			PowerManagement {},
