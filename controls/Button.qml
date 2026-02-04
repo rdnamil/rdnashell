@@ -1,14 +1,22 @@
+/*--------------------------
+--- Button.qml by andrel ---
+--------------------------*/
+
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import Qt5Compat.GraphicalEffects
 import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
 	readonly property Item background: bak
+	readonly property Component greyscale: Component { Colorize { saturation: 0; lightness: 0; }}
 
 	property bool enabled: true
+	property bool faded
 
+	displayedIcon.layer.effect: root.faded? root.greyscale : null
 	width: icon.width +Globals.Controls.padding
 	height: icon.height +Globals.Controls.padding
 	onPressed: pressAnim.restart();
