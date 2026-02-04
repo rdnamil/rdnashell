@@ -67,7 +67,7 @@ Ctrl.Button { id: root
 				width: popup.width
 				height: popup.height
 				radius: Globals.Controls.radius
-				color: Globals.Colours.base
+				color: Globals.Colours.dark
 			}
 
 			Ctrl.List { id: list
