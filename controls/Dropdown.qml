@@ -29,6 +29,7 @@ Ctrl.Button { id: root
 			Layout.leftMargin: Globals.Controls.padding /2
 			Layout.fillWidth: true
 			text: root.currentIndex !== -1? root.model[root.currentIndex] : ""
+			elide: Text.ElideRight
 			color: Globals.Colours.text
 			font.pointSize: 10
 		}
@@ -41,14 +42,25 @@ Ctrl.Button { id: root
 	}
 	background.z: 1
 
+	PanelWindow {
+		visible: loader.item?.visible || false
+		anchors {
+			left: true
+			right: true
+			top: true
+			bottom: true
+		}
+		focusable: true
+		color: Globals.Settings.debug? "#40ff0000" : "transparent"
+	}
+
 	Loader { id: loader
+		Keys.onPressed: event => { if (event.key == Qt.Key_Escape) loader.item.visible = false; }
 		active: parent.visible
 		sourceComponent: Popup { id: popup
 			enabled: true
 			margins: 0
-			x: -Globals.Controls.spacing
-			y: -Globals.Controls.spacing *1.5
-			width: root.width +Globals.Controls.spacing *2
+			width: root.width
 			height: list.height
 			popupType: Popup.Window
 			background: Rectangle {
@@ -72,6 +84,7 @@ Ctrl.Button { id: root
 					padding: Globals.Controls.spacing
 					width: list.availableWidth
 					text: modelData
+					elide: Text.ElideRight
 					color: Globals.Colours.text
 					font.pointSize: 10
 				}
