@@ -46,7 +46,7 @@ Singleton { id: root
 				bottom: true
 			}
 			exclusiveZone: -1
-			focusable: true
+			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.namespace: "qs:launcher"
 			color: Globals.Settings.debug? "#40ff0000" : "transparent"
@@ -228,6 +228,7 @@ Singleton { id: root
 					}
 					delegate: Item { id: delegate
 						required property var modelData
+						required property int index
 
 						width: list.availableWidth
 						height: appLayout.height +Globals.Controls.spacing
@@ -255,7 +256,7 @@ Singleton { id: root
 									visible: delegate.modelData.comment
 									Layout.fillWidth: true
 									text: delegate.modelData.comment
-									color: Globals.Colours.light
+									color: list.view.currentIndex === delegate.index? Globals.Colours.mid :  Globals.Colours.light
 									elide: Text.ElideRight
 									font.pointSize: 6
 									font.letterSpacing: 0.6
