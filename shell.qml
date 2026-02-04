@@ -24,6 +24,7 @@ ShellRoot { id: root
 
 	Component.onCompleted: {
 		Service.ShellUtils.init();
+		Service.Settings.init();
 		Service.AppLauncher.init();
 	}
 }
