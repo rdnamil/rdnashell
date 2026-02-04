@@ -26,13 +26,12 @@ Row { id: root
 		delegate: Item { id: workspaceDelegate
 			required property var modelData
 
-			anchors.verticalCenter: parent.verticalCenter
 			width: childrenRect.width
-			height: childrenRect.height
+			height: 10
 
 			Rectangle {
-				anchors.verticalCenter: parent.verticalCenter
 				visible: windowRepeater.count == 0 || !workspaceDelegate.modelData.is_active
+				anchors.verticalCenter: parent.verticalCenter
 				width: workspaceDelegate.modelData.is_active? 20 : 8
 				height: workspaceDelegate.modelData.is_active? 10 : 8
 				radius: height /2
@@ -40,7 +39,6 @@ Row { id: root
 			}
 
 			Row {
-				anchors.verticalCenter: parent.verticalCenter
 				visible: workspaceDelegate.modelData.is_active
 				spacing: Globals.Controls.spacing
 				width: visible? childrenRect.width : 0
@@ -60,16 +58,21 @@ Row { id: root
 						})
 						objectProp: "id"
 					}
-					delegate: Rectangle { id: windowDelegate
+					delegate: Item {id: windowDelegate
 						required property var modelData
 
 						readonly property bool isActiveWindow: windowDelegate.modelData.id === workspaceDelegate.modelData.active_window_id
 
-						anchors.verticalCenter: parent.verticalCenter
-						width: windowDelegate.isActiveWindow? 20 : 8
-						height: windowDelegate.isActiveWindow? 10 : 8
-						radius: height /2
-						color: Globals.Colours.text
+						width: childrenRect.width
+						height: 10
+
+						Rectangle {
+							anchors.verticalCenter: parent.verticalCenter
+							width: windowDelegate.isActiveWindow? 20 : 8
+							height: windowDelegate.isActiveWindow? 10 : 8
+							radius: height /2
+							color: Globals.Colours.text
+						}
 					}
 				}
 			}
