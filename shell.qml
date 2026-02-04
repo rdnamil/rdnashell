@@ -1,3 +1,5 @@
+//@ pragma UseQApplication
+
 import QtQuick
 import Quickshell
 import qs.components
@@ -13,6 +15,7 @@ ShellRoot { id: root
 		centre: [
 		]
 		right: [
+			SystemTray {},
 			Weather {},
 			DateTime {},
 			PowerManagement {},
