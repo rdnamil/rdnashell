@@ -1,3 +1,7 @@
+/*---------------------------------
+--- Notifications.qml by andrel ---
+---------------------------------*/
+
 pragma Singleton
 pragma ComponentBehavior: Bound
 

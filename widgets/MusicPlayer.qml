@@ -1,3 +1,7 @@
+/*-------------------------------
+--- MusicPlayer.qml by andrel ---
+-------------------------------*/
+
 pragma ComponentBehavior: Bound
 
 import QtQuick

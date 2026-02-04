@@ -1,3 +1,7 @@
+/*------------------------------
+--- ShellUtils.qml by andrel ---
+------------------------------*/
+
 pragma Singleton
 
 import QtQuick
