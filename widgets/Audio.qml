@@ -2,6 +2,8 @@
 --- Audio.qml by andrel ---
 -------------------------*/
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -66,8 +68,7 @@ Ctrl.Widget { id: root
 					}
 
 					Style.Slider {
-						Layout.margins: Globals.Controls.padding
-						Layout.leftMargin: 0
+						Layout.rightMargin: Globals.Controls.padding
 						Layout.fillWidth: true
 						value: Pipewire.defaultAudioSink?.audio.volume || 0.0
 						onMoved: Pipewire.defaultAudioSink.audio.volume = value;
@@ -75,24 +76,28 @@ Ctrl.Widget { id: root
 				}
 			}
 			footer: ColumnLayout {
+				spacing: 0
 				width: content.body.width
 
-				Repeater {
+				Repeater { id: repeater
 					model: Pipewire.nodes.values.filter(n => n.isStream)
 					delegate: RowLayout { id: delegate
 						required property var modelData
+						required property int index
 
 						spacing: 0
 
-						Ctrl.Button {
+						Ctrl.Button { id: btn
+							readonly property string iconUrl: Quickshell.iconPath(delegate.modelData.properties["application.icon-name"], true)
+
 							Layout.margins: Globals.Controls.spacing
+							Layout.bottomMargin: delegate.index !== repeater.count -1? 0 : Globals.Controls.spacing
 							onClicked: delegate.modelData.audio.muted = !delegate.modelData.audio.muted;
+							faded: iconUrl !== '' && delegate.modelData.audio.muted
 							icon: IconImage {
 								implicitSize: Globals.Controls.iconSize
 								source: {
-									const i = Quickshell.iconPath(delegate.modelData.properties["application.icon-name"], true);
-
-									if (i !== "") return i;
+									if (btn.iconUrl !== '') return btn.iconUrl;
 									else if (delegate.modelData.audio.muted) return Quickshell.iconPath("audio-volume-off");
 									else return Quickshell.iconPath("audio-volume-high");
 								}
@@ -103,11 +108,12 @@ Ctrl.Widget { id: root
 						}
 
 						Style.Slider {
-							Layout.margins: Globals.Controls.padding
+							Layout.alignment: Qt.AlignVCenter
+							Layout.rightMargin: Globals.Controls.padding
 							Layout.leftMargin: 0
 							Layout.fillWidth: true
-							value: Pipewire.defaultAudioSink?.audio.volume || 0.0
-							onMoved: Pipewire.defaultAudioSink.audio.volume = value;
+							value: delegate.modelData.audio.volume || 0.0
+							onMoved: delegate.modelData.audio.volume = value;
 						}
 					}
 				}
