@@ -29,6 +29,7 @@ MouseArea { id: root
 		sourceItem: root.icon;
 		width: root.icon.width
 		height: root.icon.height
+		mipmap: true
 		layer.enabled: true
 	}
 
