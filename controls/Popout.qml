@@ -8,6 +8,8 @@ import QtQuick
 import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
+import Quickshell.Wayland
+import qs.services as Service
 import "../globals.js" as Globals
 
 Item { id: root
@@ -23,9 +25,34 @@ Item { id: root
 	function toggle() { root.isOpen = !root.isOpen; }
 
 	anchors.fill: parent
-	onIsOpenChanged: root.isOpen? root.open() : root.close();
+	onIsOpenChanged: {
+		if (root.isOpen) {
+			root.open();
+			Service.PopoutManager.whosOpen = root;
+		} else root.close();
+	}
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
+
+	PanelWindow {
+		visible: root.isOpen
+		screen: window.screen
+		anchors {
+			left: true
+			right: true
+			top: true
+			bottom: true
+		}
+		color: Globals.Settings.debug? "#40ff0000" : "transparent"
+		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+
+		MouseArea {
+			anchors.fill: parent
+			focus: true
+			onClicked: root.isOpen = false;
+			Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.isOpen = false; }
+		}
+	}
 
 	PopupWindow { id: window
 		mask: Region {
@@ -100,5 +127,11 @@ Item { id: root
 		}
 
 		Component.onCompleted: { root.content.parent = contentWrapper; }
+	}
+
+	Connections {
+		target: Service.PopoutManager
+
+		function onWhosOpenChanged() { root.isOpen = (Service.PopoutManager.whosOpen === root); }
 	}
 }
