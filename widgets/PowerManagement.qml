@@ -23,7 +23,7 @@ Ctrl.Widget { id: root
 		Ctrl.Battery { id: battery
 			visible: UPower.displayDevice.isLaptopBattery
 			percentage: UPower.displayDevice.percentage
-			isCharging: UPower.displayDevice.timeToEmpty > 0
+			isCharging: UPower.displayDevice.state === UPowerDeviceState.Charging || UPower.displayDevice.state === UPowerDeviceState.FullyCharged
 		}
 
 		Item { id: performanceProfile
@@ -53,7 +53,7 @@ Ctrl.Widget { id: root
 
 		IconImage {
 			visible: !battery.visible && !performanceProfile.visible
-			implicitSize: Globals.Controls.iconSize
+			implicitSize: visible? Globals.Controls.iconSize : 0
 			source: Quickshell.iconPath("battery");
 		}
 	}
@@ -118,17 +118,22 @@ Ctrl.Widget { id: root
 								layer.effect: OpacityMask { maskSource: Item {
 									width: deviceIcon.width; height: deviceIcon.height
 
-									Ctrl.Battery {
+									Rectangle {
 										anchors {
-											right: parent.right; rightMargin: smBattery.anchors.rightMargin
-											bottom: parent.bottom; bottomMargin: smBattery.anchors.bottomMargin
+											right: parent.right; rightMargin: smBattery.anchors.rightMargin -2;
+											bottom: parent.bottom; bottomMargin: smBattery.anchors.bottomMargin -2;
 										}
-										width: smBattery.width +2; height: smBattery.height +1;
+										width: smBattery.width +4
+										height: smBattery.height +3
+										radius: 4
+
+										Rectangle { anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.top; } width: 8; height: 1; }
 									}
 								} invert: true; }
 							}
 
 							Ctrl.Battery { id: smBattery
+								// visible: false
 								anchors {
 									right: deviceIcon.right
 									rightMargin: -4
@@ -138,7 +143,7 @@ Ctrl.Widget { id: root
 								width: 10
 								height: 14
 								percentage: delegate.modelData.percentage
-								isCharging: delegate.modelData.timeToEmpty > 0
+								isCharging: delegate.modelData.state === UPowerDeviceState.Charging || UPowerDeviceState.FullyCharged
 							}
 						}
 
