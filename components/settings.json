@@ -1,14 +1,14 @@
 {
-	"settings": [
-		{
-			"name": "Display",
-			"icon": "display",
-			"component": "Wallpaper"
-		},
-		{
-			"name": "Wallpaper",
-			"icon": "livewallpaper",
-			"component": "Wallpaper"
-		}
-	]
+    "settings": [
+        {
+            "component": "Wallpaper",
+            "icon": "display",
+            "name": "Display"
+        },
+        {
+            "component": "Wallpaper",
+            "icon": "livewallpaper",
+            "name": "Wallpaper"
+        }
+    ]
 }
