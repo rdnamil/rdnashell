@@ -7,6 +7,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Widgets
 import qs.controls as Ctrl
@@ -60,13 +61,24 @@ Ctrl.Button { id: root
 		sourceComponent: Popup { id: popup
 			enabled: true
 			focus: true
-			margins: 0
-			width: root.width
+			margins: Globals.Controls.spacing
+			x: -list.padding +Globals.Controls.spacing /2; y: -list.padding;
+			width: root.width +list.padding *2 -Globals.Controls.spacing
 			height: list.height
+			clip: false
 			popupType: root.compatibilityMode? Popup.Item : Popup.Native
-			background: Rectangle {
-				width: popup.width
-				height: popup.height
+			background: Item {}
+
+			RectangularShadow {
+				visible: root.compatibilityMode
+				anchors.fill: list
+				radius: Globals.Controls.radius
+				blur: 30
+				opacity: 0.4
+			}
+
+			Rectangle {
+				anchors.fill: list
 				radius: Globals.Controls.radius
 				color: Globals.Colours.dark
 			}
