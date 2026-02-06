@@ -85,7 +85,7 @@ Singleton { id: root
 				Text {
 					anchors.centerIn: parent
 					padding: Globals.Controls.padding /2
-					text: `Settings -> ${list.model[root.currentIndex].name}`
+					text: `Settings -> ${list.model[root.currentIndex]?.name || ''}`
 					color: Globals.Colours.text
 					font.pointSize: 10
 					font.weight: 600
