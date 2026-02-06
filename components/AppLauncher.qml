@@ -15,7 +15,7 @@ import Quickshell.Io
 import qs.controls as Ctrl
 import qs.styles as Style
 import "../globals.js" as Globals
-import "../fuse.js" as FuseLib
+import "./fuse.js" as FuseLib
 
 Singleton { id: root
 	function init() {
