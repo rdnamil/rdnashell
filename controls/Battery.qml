@@ -61,8 +61,8 @@ Item { id: root
 				visible: text !== ""
 				anchors.centerIn: parent
 				text: {
-					if (root.isLow) return "󱈸";
-					else if (root.isCharging) return "󱐋";
+					if (root.isCharging) return "󱐋"
+					else if (root.isLow) return "󱈸";
 					else return "";
 				}
 				style: Text.Outline
