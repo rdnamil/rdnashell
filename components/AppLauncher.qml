@@ -29,7 +29,7 @@ Singleton { id: root
 
 	// save app stats
 	FileView { id: fileview
-		path: Qt.resolvedUrl("../apps.json")
+		path: Qt.resolvedUrl("./apps.json")
 
 		JsonAdapter { id: jsonAdapter
 			property list<var> applications
