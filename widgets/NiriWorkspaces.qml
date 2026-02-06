@@ -41,7 +41,7 @@ Row { id: root
 			Row {
 				visible: workspaceDelegate.modelData.is_active
 				spacing: Globals.Controls.spacing
-				width: visible? childrenRect.width : 0
+				width: visible? implicitWidth : 0
 
 				Repeater { id: windowRepeater
 					model: ScriptModel { id: windowModel
