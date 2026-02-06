@@ -1,0 +1,14 @@
+{
+	"settings": [
+		{
+			"name": "Display",
+			"icon": "display",
+			"component": "Wallpaper"
+		},
+		{
+			"name": "Wallpaper",
+			"icon": "livewallpaper",
+			"component": "Wallpaper"
+		}
+	]
+}
