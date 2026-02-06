@@ -13,6 +13,7 @@ import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Ctrl.Button { id: root
+	property bool compatibilityMode
 	property list<var> model: []
 	property int currentIndex: model.length > 0? 0 : -1
 
@@ -20,6 +21,7 @@ Ctrl.Button { id: root
 
 	width: 320
 	height: icon.height
+	onSelected: index => { root.currentIndex = index; }
 	onClicked: loader.item.visible = true;
 	icon: RowLayout { id: boxLayout
 		width: root.width
@@ -40,17 +42,15 @@ Ctrl.Button { id: root
 			source: Quickshell.iconPath("arrow-down")
 		}
 	}
-	background.z: 1
 
 	PanelWindow {
-		visible: loader.item?.visible || false
+		visible: (loader.item?.visible || false) && !root.compatibilityMode
 		anchors {
 			left: true
 			right: true
 			top: true
 			bottom: true
 		}
-		focusable: true
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
 	}
 
@@ -59,10 +59,11 @@ Ctrl.Button { id: root
 		active: parent.visible
 		sourceComponent: Popup { id: popup
 			enabled: true
+			focus: true
 			margins: 0
 			width: root.width
 			height: list.height
-			popupType: Popup.Window
+			popupType: root.compatibilityMode? Popup.Item : Popup.Native
 			background: Rectangle {
 				width: popup.width
 				height: popup.height
@@ -72,6 +73,7 @@ Ctrl.Button { id: root
 
 			Ctrl.List { id: list
 				anchors.centerIn: parent
+				view.currentIndex: root.currentIndex
 				width: popup.width
 				onItemClicked: {
 					root.selected(list.view.currentIndex);
