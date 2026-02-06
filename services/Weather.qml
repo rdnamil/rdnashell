@@ -10,6 +10,7 @@ import Quickshell.Io
 
 Singleton { id: root
 	property var forecast: null
+	property string location: ''
 
 	function getIcon(weatherCode = root.forecast?.current.weather_code, isDay = root.forecast?.current.is_day) {
 		let i = "app";
@@ -54,11 +55,12 @@ Singleton { id: root
 
 	Process { id: getLocation
 		running: true
-		command: ["sh", "-c", 'curl "http://ip-api.com/json?fields=lat,lon"']
+		command: ["sh", "-c", 'curl "http://ip-api.com/json?fields=lat,lon,city,region"']
 		stdout: StdioCollector {
 			onStreamFinished: {
 				const l = JSON.parse(text);
 				root.getWeatherFrom(l.lon, l.lat);
+				root.location = `${l.city}, ${l.region}`;
 			}
 		}
 	}

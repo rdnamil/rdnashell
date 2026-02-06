@@ -12,6 +12,7 @@ import qs.services as Service
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
+	tooltip: Service.Weather.location
 	icon: Item {
 		width: childrenRect.width -temp.anchors.rightMargin
 		height: childrenRect.height -temp.anchors.bottomMargin
