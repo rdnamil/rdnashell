@@ -32,8 +32,8 @@ Row { id: root
 			Rectangle {
 				visible: windowRepeater.count == 0 || !workspaceDelegate.modelData.is_active
 				anchors.verticalCenter: parent.verticalCenter
-				width: workspaceDelegate.modelData.is_active? 20 : 8
-				height: workspaceDelegate.modelData.is_active? 10 : 8
+				width: workspaceDelegate.modelData.is_active? 10 : 6
+				height: workspaceDelegate.modelData.is_active? 10 : 6
 				radius: height /2
 				color: Globals.Colours.mid
 			}
