@@ -33,7 +33,7 @@ Ctrl.Widget { id: root
 			break;
 	}}
 	icon: RowLayout {
-		width: 320
+		width: Service.MPlayer.active? 320 : 0
 
 		Item {
 			Layout.fillWidth: true
