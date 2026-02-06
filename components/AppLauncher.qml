@@ -31,7 +31,7 @@ Singleton { id: root
 	FileView { id: fileview
 		path: Qt.resolvedUrl("./apps.json")
 
-		JsonAdapter { id: jsonAdapter
+		JsonAdapter {
 			property list<var> applications
 		}
 	}
@@ -134,8 +134,8 @@ Singleton { id: root
 					height: Math.min(view.contentHeight, (32 +Globals.Controls.spacing *2) *10 -Globals.Controls.spacing) +Globals.Controls.padding
 					onItemClicked: item => {
 						// add an etry if none exist
-						if (!jsonAdapter.applications.find(a => a.id === item.modelData.id)) {
-							jsonAdapter.applications.push({
+						if (!fileview.adapter.applications.find(a => a.id === item.modelData.id)) {
+							fileview.adapter.applications.push({
 								"id": item.modelData.id,
 								"count": 1,
 								"lastOpened": Date.now()
@@ -143,8 +143,8 @@ Singleton { id: root
 							// console.log("Startmenu: Added entry.");
 							// update entry if there's already one
 						} else {
-							jsonAdapter.applications.find(a => a.id === item.modelData.id).count += 1;
-							jsonAdapter.applications.find(a => a.id === item.modelData.id).lastOpened = Date.now();
+							fileview.adapter.applications.find(a => a.id === item.modelData.id).count += 1;
+							fileview.adapter.applications.find(a => a.id === item.modelData.id).lastOpened = Date.now();
 							// console.log("Startmenu: Updated entry.");
 						}
 						item.modelData.execute();
@@ -155,10 +155,10 @@ Singleton { id: root
 						.filter(a => !a.noDisplay) // remove entries that request to not be displayed
 						.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id)) // dedupe list BUG
 
-						const countMin = Math.min(...jsonAdapter.applications.filter(a => a.count).map(a => a.count));
-						const countNormalDevisor = Math.max(...jsonAdapter.applications.filter(a => a.count).map(a => a.count)) -countMin;
-						const ageMin = Math.min(...jsonAdapter.applications.filter(a => a.lastOpened).map(a => a.lastOpened)) -Date.now();
-						const ageNormalDevisor = Math.max(...jsonAdapter.applications.filter(a => a.lastOpened).map(a => a.lastOpened)) -Date.now() -ageMin
+						const countMin = Math.min(...fileview.adapter.applications.filter(a => a.count).map(a => a.count));
+						const countNormalDevisor = Math.max(...fileview.adapter.applications.filter(a => a.count).map(a => a.count)) -countMin;
+						const ageMin = Math.min(...fileview.adapter.applications.filter(a => a.lastOpened).map(a => a.lastOpened)) -Date.now();
+						const ageNormalDevisor = Math.max(...fileview.adapter.applications.filter(a => a.lastOpened).map(a => a.lastOpened)) -Date.now() -ageMin
 						const recencyWeight = 0.4;
 
 						function calcRelevance(app, now = Date.now()) {
@@ -168,7 +168,7 @@ Singleton { id: root
 						}
 
 						const relevanceMap = new Map(
-							jsonAdapter.applications.map(app => [app.id, calcRelevance(app)])
+							fileview.adapter.applications.map(app => [app.id, calcRelevance(app)])
 						);
 
 						if (textInput.text) {
@@ -184,8 +184,8 @@ Singleton { id: root
 							.sort((a, b) => { // return search results sorted based on score and relevance
 								const scoreWeight = 0.6;
 
-								const a_App = jsonAdapter.applications.find(app => app.id === a.item.id);
-								const b_App = jsonAdapter.applications.find(app => app.id === b.item.id);
+								const a_App = fileview.adapter.applications.find(app => app.id === a.item.id);
+								const b_App = fileview.adapter.applications.find(app => app.id === b.item.id);
 
 								function calcWeightedMatch(app, score, now = Date.now()) {
 									const relevance = calcRelevance(app);
@@ -203,8 +203,8 @@ Singleton { id: root
 							.map(r => r.item);
 						} else return list
 							.sort((a, b) => {
-								const a_App = jsonAdapter.applications.find(app => app.id === a.id);
-								const b_App = jsonAdapter.applications.find(app => app.id === b.id);
+								const a_App = fileview.adapter.applications.find(app => app.id === a.id);
+								const b_App = fileview.adapter.applications.find(app => app.id === b.id);
 
 								const a_Fav = a_App? a_App.isFavourite : null;
 								const b_Fav = b_App? b_App.isFavourite : null;
