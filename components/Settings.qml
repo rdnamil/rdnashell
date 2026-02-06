@@ -7,6 +7,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
@@ -14,7 +15,7 @@ import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Singleton { id: root
-	readonly property list<var> settings: jsonAdapter.settings
+	readonly property list<var> settings: fileview.adapter.settings
 
 	property int currentIndex: 0
 
@@ -23,23 +24,50 @@ Singleton { id: root
 	FileView { id: fileview
 		path: Qt.resolvedUrl("./settings.json")
 
-		JsonAdapter { id: jsonAdapter
+		JsonAdapter {
 			property list<var> settings
 		}
 	}
 
 	FloatingWindow { id: window
 		visible: true
+		minimumSize: "740x436"
 		onClosed: fileview.writeAdapter();
 
-		Rectangle {
-			anchors.fill: parent
-			color: Globals.Colours.base
+		Rectangle { anchors.fill: parent; color: Globals.Colours.base; }
+
+		Grid { id: move
+			anchors {
+				right: parent.right; rightMargin: Globals.Controls.spacing;
+				bottom: parent.bottom; bottomMargin: Globals.Controls.spacing;
+			}
+			spacing: Globals.Controls.spacing /2
+			rows: 3; columns: 3;
+
+			Repeater {
+				model: 3 *3
+				delegate: Rectangle {
+					required property int index
+
+					opacity: switch (index) {
+						case 2:
+						case 4:
+						case 5:
+						case 6:
+						case 7:
+						case 8:
+							return 1.0;
+						default:
+							return 0.0;
+					}
+					width: 3; height: width; radius: height /2;
+					color: Globals.Colours.mid
+				}
+			}
 		}
 
 		MouseArea {
-			anchors { right: parent.right; bottom: parent.bottom; }
-			width: 10; height: width;
+			anchors.fill: move
 			cursorShape: Qt.SizeFDiagCursor
 			onPressed: window.startSystemResize(Edges.Right | Edges.Bottom)
 		}
@@ -55,10 +83,10 @@ Singleton { id: root
 
 				Text {
 					anchors.centerIn: parent
-					padding: Globals.Controls.padding
-					text: "Settings"
+					padding: Globals.Controls.padding /2
+					text: `Settings -> ${list.model[root.currentIndex].name}`
 					color: Globals.Colours.text
-					font.pointSize: 12
+					font.pointSize: 10
 					font.weight: 600
 				}
 
@@ -77,8 +105,11 @@ Singleton { id: root
 					anchors.fill: parent
 
 					Ctrl.List { id: list
-						Layout.preferredWidth: 210
+						Layout.preferredWidth: 240
 						Layout.fillHeight: true
+						Layout.margins: Globals.Controls.padding -list.padding
+						Layout.leftMargin: 0
+						Layout.rightMargin: 0
 						onItemClicked: root.currentIndex = view.currentIndex;
 						view.currentIndex: -1
 						model: root.settings
@@ -99,6 +130,7 @@ Singleton { id: root
 
 							Row {
 								padding: Globals.Controls.spacing /2
+								spacing: Globals.Controls.spacing
 
 								IconImage {
 									anchors.verticalCenter: parent.verticalCenter
@@ -110,22 +142,35 @@ Singleton { id: root
 									padding: Globals.Controls.spacing
 									text: delegate.modelData.name
 									color: Globals.Colours.text
-									font.pointSize: 12
-									font.weight: 500
+									font.pointSize: 10
+									font.weight: 600
 								}
 							}
 						}
 					}
 
-					Loader {
+					ScrollView { id: scrollview
+						Layout.margins: Globals.Controls.padding
+						Layout.leftMargin: Globals.Controls.padding -list.padding
 						Layout.fillWidth: true
 						Layout.fillHeight: true
 
-						active: source
-						source: fileview.loaded? Qt.resolvedUrl(`./settings/${root.settings[root.currentIndex].component}.qml`) : ''
+						Loader {
+							readonly property string component: root.settings[root.currentIndex]?.component || ''
+
+							width: scrollview.availableWidth
+							height: scrollview.availableHeight
+							active: source
+							source: fileview.loaded && component? Qt.resolvedUrl(`./settings/${component}.qml`) : ''
+						}
 					}
 				}
 			}
 		}
+	}
+
+	IpcHandler {
+		target: "settings"
+		function launch(): void { window.visible = true; }
 	}
 }
