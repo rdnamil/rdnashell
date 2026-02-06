@@ -8,6 +8,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Controls.Basic
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
@@ -31,7 +32,7 @@ Singleton { id: root
 
 	FloatingWindow { id: window
 		visible: true
-		minimumSize: "740x436"
+		minimumSize: Qt.size(756, 440)
 		onClosed: fileview.writeAdapter();
 
 		Rectangle { anchors.fill: parent; color: Globals.Colours.base; }
@@ -154,6 +155,34 @@ Singleton { id: root
 						Layout.leftMargin: Globals.Controls.padding -list.padding
 						Layout.fillWidth: true
 						Layout.fillHeight: true
+						ScrollBar.vertical: ScrollBar { id: scrollBarV
+							x: scrollview.width -width /2 +Globals.Controls.padding /2
+							height: scrollview.availableHeight
+							contentItem: Rectangle {
+								implicitWidth: scrollBarV.active? 6 : 4
+								radius: width /2
+								color: scrollBarV.active? Globals.Colours.text : Globals.Colours.mid
+								opacity: (scrollBarV.active && scrollBarV.size < 1.0) ? 0.75 : 0
+
+								Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+								Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+								Behavior on color { ColorAnimation { duration: 250; }}
+							}
+						}
+						ScrollBar.horizontal: ScrollBar { id: scrollBarH
+							y: scrollview.height -height /2 +Globals.Controls.padding /2
+							width: scrollview.availableWidth
+							contentItem: Rectangle {
+								implicitHeight: scrollBarH.active? 6 : 4
+								radius: height /2
+								color: scrollBarH.active? Globals.Colours.text : Globals.Colours.mid
+								opacity: (scrollBarH.active && scrollBarH.size < 1.0) ? 0.75 : 0
+
+								Behavior on implicitHeight { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+								Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+								Behavior on color { ColorAnimation { duration: 250; }}
+							}
+						}
 
 						Loader {
 							readonly property string component: root.settings[root.currentIndex]?.component || ''
