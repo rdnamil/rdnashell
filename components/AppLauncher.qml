@@ -20,6 +20,7 @@ import "./fuse.js" as FuseLib
 Singleton { id: root
 	function init() {
 		loader.active = false;
+		fileview.reload();
 	}
 
 	function close() {
@@ -46,6 +47,7 @@ Singleton { id: root
 				bottom: true
 			}
 			exclusiveZone: -1
+			focusable: true
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.namespace: "qs:launcher"
