@@ -9,6 +9,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
+import qs.components
 import qs.controls as Ctrl
 import qs.styles as Style
 import "../globals.js" as Globals
@@ -103,8 +104,13 @@ Ctrl.Widget { id: root
 									else return Quickshell.iconPath("audio-volume-high");
 								}
 							}
-							tooltip: { if (delegate.modelData.audio.muted) return "unmute";
-								else return "mute";
+							tooltip: {
+								let str = '';
+
+								if (delegate.modelData.audio.muted) str = "unmute";
+								else str = "mute";
+
+								return `${str} ${delegate.modelData.properties["application.name"]}`;
 							}
 						}
 
@@ -113,12 +119,45 @@ Ctrl.Widget { id: root
 							Layout.rightMargin: Globals.Controls.padding
 							Layout.leftMargin: 0
 							Layout.fillWidth: true
-							value: delegate.modelData.audio.volume || 0.0
+							value: delegate.modelData?.audio.volume || 0.0
 							onMoved: delegate.modelData.audio.volume = value;
 						}
 					}
 				}
 			}
+		}
+	}
+
+	Connections {
+		readonly property Item osd: Row {
+			spacing: Globals.Controls.spacing *2
+
+			IconImage {
+				implicitSize: Globals.Controls.iconSize
+				source: {
+					if (Pipewire.defaultAudioSink?.audio.muted) return Quickshell.iconPath("audio-volume-off");
+					else if (Pipewire.defaultAudioSink?.audio.volume < (1 /3)) return Quickshell.iconPath("audio-volume-low");
+					else if (Pipewire.defaultAudioSink?.audio.volume < (2 /3)) return Quickshell.iconPath("audio-volume-medium");
+					else return Quickshell.iconPath("audio-volume-high");
+				}
+			}
+
+			Style.Slider {
+				anchors.verticalCenter: parent.verticalCenter
+				width: 100
+				height: Globals.Controls.iconSize -2
+				value: Pipewire.defaultAudioSink?.audio.volume || 0.0
+			}
+		}
+
+		target: Pipewire.defaultAudioSink?.audio || null
+
+		function onVolumeChanged() {
+			OSD.display(osd);
+		}
+
+		function onMutedChanged() {
+			OSD.display(osd);
 		}
 	}
 
