@@ -69,6 +69,7 @@ ColumnLayout { id: root
 
 	ScrollView { id: recentScrollView
 		Layout.fillWidth: true
+		Layout.maximumWidth: preview.width
 		Layout.preferredHeight: 124
 		padding: Globals.Controls.padding
 		background: Rectangle {
@@ -81,6 +82,7 @@ ColumnLayout { id: root
 		ListView { id: listView
 			spacing: Globals.Controls.padding
 			orientation: ListView.Horizontal
+			clip: true
 			model: ScriptModel {
 				values: fileview.adapter.recent
 				objectProp: "filename"
