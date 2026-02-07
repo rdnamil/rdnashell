@@ -62,8 +62,8 @@ Item { id: root
 			height: contentWrapper.height
 		}
 		color: Globals.Settings.debug? "#80ff0000" : "transparent"
-		implicitWidth: root.content.width +Globals.Controls.padding *2 +30
-		implicitHeight: root.content.height +Globals.Controls.padding *2 +30
+		implicitWidth: root.content.width +Globals.Controls.padding *2 +shadow.blur *2
+		implicitHeight: root.content.height +Globals.Controls.padding *2 +shadow.blur *2
 		anchor {
 			item: root
 			// if the window would go off-screen, slideX until it is back on-screen
@@ -78,7 +78,7 @@ Item { id: root
 			adjustment: PopupAdjustment.None
 		}
 
-		RectangularShadow {
+		RectangularShadow { id: shadow
 			anchors.horizontalCenter: parent.horizontalCenter
 			y: contentWrapper.y
 			z: -999
