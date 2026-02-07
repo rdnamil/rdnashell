@@ -4,7 +4,9 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
+import Quickshell
 import Quickshell.Io
+import Quickshell.Widgets
 import qs.controls as Ctrl
 import "../../globals.js" as Globals
 
@@ -65,6 +67,54 @@ ColumnLayout { id: root
 		}
 	}
 
+	ScrollView { id: recentScrollView
+		Layout.fillWidth: true
+		Layout.preferredHeight: 124
+		padding: Globals.Controls.padding
+		background: Rectangle {
+			anchors.fill: parent
+			radius: Globals.Controls.radius
+			color: Globals.Colours.dark
+			opacity: 0.2
+		}
+
+		ListView { id: listView
+			spacing: Globals.Controls.padding
+			orientation: ListView.Horizontal
+			model: fileview.adapter.recent
+			delegate: Image { id: delegate
+				required property var modelData
+				required property int index
+
+				width: height *(sourceSize.width /sourceSize.height)
+				height: recentScrollView.availableHeight
+				source: modelData
+				fillMode: Image.PreserveAspectFit
+				mipmap: true
+				asynchronous: true
+
+				Rectangle {
+					visible: delegate.index == listView.currentIndex
+					anchors.fill: parent
+					color: "transparent"
+					border { width: 3; color: Globals.Colours.accent; }
+				}
+			}
+
+			MouseArea { id: mouseArea
+				anchors.fill: parent
+				onClicked: (mouse) => {
+					const idx = listView.indexAt(mouse.x +listView.contentX, mouse.y);
+
+					if (idx != -1) {
+						listView.currentIndex = idx;
+						root.wallpapers[display.currentIndex].path = listView.model[idx];
+					}
+				}
+			}
+		}
+	}
+
 	RowLayout {
 		Item {
 			Layout.fillWidth: true
@@ -81,12 +131,12 @@ ColumnLayout { id: root
 
 		Item { id: pathWrapper
 			readonly property TextMetrics metric: TextMetrics {
-				text: path.icon.text
-				font.pointSize: path.icon.font.pointSize
+				text: pathText.text
+				font.pointSize: pathText.font.pointSize
 			}
 
 			Layout.fillWidth: true
-			Layout.maximumWidth: Math.floor(metric.width) +1 +Globals.Controls.padding
+			Layout.maximumWidth: Globals.Controls.iconSize +Globals.Controls.spacing *3 +Globals.Controls.padding /2 +metric.width +1
 			Layout.preferredHeight: childrenRect.height
 
 			Rectangle { anchors.fill: parent; radius: Globals.Controls.radius *(3 /4); color: Globals.Colours.dark; opacity: 0.2; }
@@ -95,15 +145,25 @@ ColumnLayout { id: root
 				width: parent.width
 				height: icon.height
 				onClicked: if (!setWallpaper.running) setWallpaper.running = true;
-				icon: Text {
-					padding: Globals.Controls.spacing
-					leftPadding: 0; rightPadding: 0;
-					x: Globals.Controls.padding /2
-					width: pathWrapper.width -Globals.Controls.padding
-					text: root.wallpapers[0]?.path || ''
-					elide: Text.ElideLeft
-					color: Globals.Colours.text
-					font.pointSize: 10
+				icon: RowLayout {
+					spacing: 0
+					width: pathWrapper.width
+
+					IconImage {
+						Layout.margins: Globals.Controls.spacing
+						implicitSize: Globals.Controls.iconSize
+						source: Quickshell.iconPath("image-x-generic")
+					}
+
+					Text { id: pathText
+						Layout.margins: Globals.Controls.spacing
+						Layout.rightMargin: Globals.Controls.padding /2
+						Layout.fillWidth: true
+						text: root.wallpapers[0]?.path || ''
+						elide: Text.ElideLeft
+						color: Globals.Colours.text
+						font.pointSize: 10
+					}
 				}
 			}
 		}
@@ -146,14 +206,10 @@ ColumnLayout { id: root
 		}
 	}
 
-	Item { id: applyWrapper
-		readonly property TextMetrics metric: TextMetrics {
-			text: apply.icon.text
-			font.pointSize: apply.icon.font.pointSize
-		}
+	// Item { Layout.preferredHeight: 24; }
 
+	Item { id: applyWrapper
 		Layout.fillWidth: true
-		// Layout.maximumWidth: Math.floor(metric.width) +1 +Globals.Controls.padding
 		Layout.preferredHeight: childrenRect.height
 
 		Rectangle { anchors.fill: parent; radius: Globals.Controls.radius *(3 /4); color: Globals.Colours.dark; opacity: 0.2; }
@@ -177,6 +233,24 @@ ColumnLayout { id: root
 	}
 
 	Item { Layout.fillHeight: true; }
+
+	FileView { id: fileview
+		path: Qt.resolvedUrl("./wall.json")
+		onLoaded: {
+			position.currentIndex = fileview.adapter.position;
+			transition.currentIndex = fileview.adapter.transition;
+			root.fillColour = fileview.adapter.fill;
+		}
+
+		JsonAdapter {
+			property list<string> recent
+			property int position: position.currentIndex
+			property int transition: transition.currentIndex
+			property color fill: root.fillColour
+
+			onRecentChanged: if (recent.length > 10) recent.splice(10, 1);
+		}
+	}
 
 	Process { id: getWallpaper
 		running: true
@@ -208,10 +282,15 @@ ColumnLayout { id: root
 		command: ['zenity', '--file-selection']
 		stdout: StdioCollector {
 			onStreamFinished: {
-				if (text.trim()) {
-					root.wallpapers[display.currentIndex].path = text.trim()
+				const path = text.trim();
 
-					console.log(`Settings: Wallpaper on ${root.wallpapers[display.currentIndex].display} changed to ${root.wallpapers[display.currentIndex].path}`);
+				if (path.length > 0) {
+					root.wallpapers[display.currentIndex].path = path;
+
+					if (!fileview.adapter.recent.some(p => p === path)) fileview.adapter.recent.splice(0, 0, path);
+					else listView.currentIndex = fileview.adapter.recent.findIndex(p => p === path);
+
+					// console.log(`Settings: Wallpaper on ${root.wallpapers[display.currentIndex].display} changed to ${root.wallpapers[display.currentIndex].path}`);
 				}
 			}
 		}
@@ -227,6 +306,6 @@ ColumnLayout { id: root
 		'--fill-color', root.fillColour.toString().replace('#', ''),
 		'-t', transition.model[transition.currentIndex].toLowerCase(), '--transition-fps', '60',
 		root.wallpapers[display.currentIndex]?.path || '']
-		stdout: StdioCollector { onStreamFinished: getWallpaper.running = true; }
+		stdout: StdioCollector { onStreamFinished: { getWallpaper.running = true; fileview.writeAdapter(); }}
 	}
 }
