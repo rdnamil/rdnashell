@@ -31,9 +31,9 @@ Singleton { id: root
 	}
 
 	FloatingWindow { id: window
-		visible: true
+		visible: false
 		title: `Qs Settings - ${list.model[root.currentIndex]?.name || ''}`
-		minimumSize: Qt.size(756, 440)
+		minimumSize: Qt.size(756, 560)
 		onClosed: fileview.writeAdapter();
 
 		Rectangle { anchors.fill: parent; color: Globals.Colours.base; }
