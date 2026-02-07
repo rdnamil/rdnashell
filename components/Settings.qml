@@ -32,6 +32,7 @@ Singleton { id: root
 
 	FloatingWindow { id: window
 		visible: true
+		title: `Qs Settings - ${list.model[root.currentIndex]?.name || ''}`
 		minimumSize: Qt.size(756, 440)
 		onClosed: fileview.writeAdapter();
 
