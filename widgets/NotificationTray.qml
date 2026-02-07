@@ -43,7 +43,7 @@ Ctrl.Widget { id: root
 		onOpen: {
 			model.values.forEach(n => {
 				n.read = true;
-				// Service.Notifications.expire(n.id);
+				Service.Notifications.expire(-1);
 			});
 		}
 		content: Style.PageLayout { id: content

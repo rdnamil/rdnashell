@@ -241,11 +241,13 @@ Variants { id: root
 			}
 
 			function onExpire(id) {
-				const idx = model.values.findIndex(n => n.id === id);
+				if (id != -1) {
+					const idx = model.values.findIndex(n => n.id === id);
 
-				if (idx !== -1) for (let i = idx; i < repeater.count; i++) {
-					repeater.itemAt(i).remove(id, repeater.itemAt(idx).height);
-				}
+					if (idx !== -1) for (let i = idx; i < repeater.count; i++) {
+						repeater.itemAt(i).remove(id, repeater.itemAt(idx).height);
+					}
+				} else [...repeater.model.values].forEach(n => Service.Notifications.expire(n.id));
 			}
 		}
 	}
