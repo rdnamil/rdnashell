@@ -95,28 +95,37 @@ Ctrl.Widget { id: root
 						anchors.centerIn: parent
 						width: parent.width -Globals.Controls.spacing *2
 
-						Item {
-							visible: icon.visible || image.visible
+						Item { id: imageWrapper
+							visible: false
 							Layout.preferredWidth: height
 							Layout.preferredHeight: notifBodyLayout.height
 
 							// app icon
 							Image { id: icon
-								readonly property url src: delegate.modelData?.notif?.appIcon || ''
-								readonly property url icon: Quickshell.iconPath(delegate.modelData?.notif?.appIcon, true)
-
-								visible: (delegate.modelData?.notif?.appIcon && !image.visible) || false
+								// visible: (delegate.modelData?.notif?.appIcon && !image.visible) || false
+								visible: false
 								anchors.fill: parent
 								source: Quickshell.iconPath(delegate.modelData?.notif?.appIcon, true) || delegate.modelData?.notif?.appIcon || ''
 								mipmap: true
+								cache: true
+								onStatusChanged: if (icon.status === Image.Ready && !image.visible) {
+									icon.visible = true;
+									imageWrapper.visible = true;
+								}
 							}
 
 							// app image
 							Image { id: image
-								visible: (delegate.modelData?.notif?.image || false) || Globals.Settings.debug
+								// visible: (delegate.modelData?.notif?.image || false) || Globals.Settings.debug
+								visible: false
 								anchors.fill: parent
 								source: delegate.modelData?.notif?.image || ''
 								mipmap: true
+								cache: true
+								onStatusChanged: if (image.status === Image.Ready) {
+									image.visible = true;
+									imageWrapper.visible = true;
+								}
 
 								// app icon
 								IconImage {
