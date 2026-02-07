@@ -20,7 +20,7 @@ Slider { id: root
 		x: root.leftPadding
 		y: root.topPadding + root.availableHeight /2 -height /2
 		width: root.availableWidth
-		height: 10
+		height: root.height -2
 		radius: height /2
 		color: Globals.Colours.base
 
