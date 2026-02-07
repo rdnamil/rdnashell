@@ -81,14 +81,17 @@ ColumnLayout { id: root
 		ListView { id: listView
 			spacing: Globals.Controls.padding
 			orientation: ListView.Horizontal
-			model: fileview.adapter.recent
+			model: ScriptModel {
+				values: fileview.adapter.recent
+				objectProp: "filename"
+			}
 			delegate: Image { id: delegate
 				required property var modelData
 				required property int index
 
 				width: height *(sourceSize.width /sourceSize.height)
 				height: recentScrollView.availableHeight
-				source: modelData
+				source: modelData.path
 				fillMode: Image.PreserveAspectFit
 				mipmap: true
 				asynchronous: true
@@ -108,7 +111,7 @@ ColumnLayout { id: root
 
 					if (idx != -1) {
 						listView.currentIndex = idx;
-						root.wallpapers[display.currentIndex].path = listView.model[idx];
+						root.wallpapers[display.currentIndex].path = listView.model.values[idx].path;
 					}
 				}
 			}
@@ -243,7 +246,7 @@ ColumnLayout { id: root
 		}
 
 		JsonAdapter {
-			property list<string> recent
+			property list<var> recent
 			property int position: position.currentIndex
 			property int transition: transition.currentIndex
 			property color fill: root.fillColour
@@ -287,8 +290,14 @@ ColumnLayout { id: root
 				if (path.length > 0) {
 					root.wallpapers[display.currentIndex].path = path;
 
-					if (!fileview.adapter.recent.some(p => p === path)) fileview.adapter.recent.splice(0, 0, path);
-					else listView.currentIndex = fileview.adapter.recent.findIndex(p => p === path);
+					if (!fileview.adapter.recent.some(w => w.path === path)) {
+						fileview.adapter.recent.splice(0, 0, {
+							"path": path,
+							"filename": path.split('/').pop()
+						});
+						listView.currentIndex = 0;
+					}
+					else listView.currentIndex = fileview.adapter.recent.findIndex(w => w.path === path);
 
 					// console.log(`Settings: Wallpaper on ${root.wallpapers[display.currentIndex].display} changed to ${root.wallpapers[display.currentIndex].path}`);
 				}
