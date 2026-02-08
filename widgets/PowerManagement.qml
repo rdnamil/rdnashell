@@ -143,7 +143,7 @@ Ctrl.Widget { id: root
 								width: 10
 								height: 14
 								percentage: delegate.modelData.percentage
-								isCharging: delegate.modelData.state === UPowerDeviceState.Charging || UPowerDeviceState.FullyCharged
+								isCharging: delegate.modelData.state === UPowerDeviceState.Charging
 							}
 						}
 
