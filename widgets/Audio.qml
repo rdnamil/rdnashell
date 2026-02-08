@@ -162,6 +162,6 @@ Ctrl.Widget { id: root
 	}
 
 	PwObjectTracker {
-		objects: [Pipewire.defaultAudioSink, ...Pipewire.nodes.values.filter(n => n.isStream)]
+		objects: [Pipewire.defaultAudioSink, ...Pipewire.nodes.values.filter(n => n.isStream && n.isSink)]
 	}
 }

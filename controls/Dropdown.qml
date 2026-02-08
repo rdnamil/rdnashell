@@ -85,7 +85,6 @@ Ctrl.Button { id: root
 
 			Ctrl.List { id: list
 				anchors.centerIn: parent
-				view.currentIndex: root.currentIndex
 				width: popup.width
 				onItemClicked: {
 					root.selected(list.view.currentIndex);
