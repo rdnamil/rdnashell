@@ -87,7 +87,10 @@ Ctrl.Widget { id: root
 				view.spacing: Globals.Controls.spacing
 				view.clip: false
 				width: 320
-				model: UPower.devices.values.filter(d => d !== UPower.displayDevice)
+				model: UPower.devices.values
+					.filter(d => d !== UPower.displayDevice) // don't show display device
+					.filter(d => !d.isLaptopBattery) // don't display laptop battery
+					.filter(d => d.model) // remove devices with no model name
 				delegate: Item { id: delegate
 					required property var modelData
 					required property int index
@@ -113,7 +116,19 @@ Ctrl.Widget { id: root
 
 							IconImage { id: deviceIcon
 								implicitSize: 24
-								source: Quickshell.iconPath(`input-${UPowerDeviceType.toString(delegate.modelData.type).toLowerCase().split(' ')[0]}`)
+								source: switch (delegate.modelData.type) {
+									case UPowerDeviceType.Computer:
+										return Quickshell.iconPath("laptop");
+									case UPowerDeviceType.Mouse:
+										return Quickshell.iconPath("input-mouse");
+									case UPowerDeviceType.Keyboard:
+										return Quickshell.iconPath("input-keyboard");
+									case UPowerDeviceType.GamingInput:
+										return Quickshell.iconPath("input-gamepad");
+									default:
+										Quickshell.iconPath("device_pci");
+								}
+								onSourceChanged: console.log(UPowerDeviceType.toString(delegate.modelData.type))
 								layer.enabled: true
 								layer.effect: OpacityMask { maskSource: Item {
 									width: deviceIcon.width; height: deviceIcon.height
