@@ -13,8 +13,8 @@ import "../globals.js" as Globals
 Ctrl.Widget { id: root
 	property bool toggle
 
-	width: 40
-	height: 20
+	width: 36
+	height: 18
 	icon: Rectangle { id: icon
 		width: root.width; height: root.height; radius: height /2
 		color: root.toggle? "limegreen" : Globals.Colours.mid
