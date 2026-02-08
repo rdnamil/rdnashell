@@ -20,6 +20,8 @@ ShellRoot { id: root
 		right: [
 			SystemTray {},
 			ColourPicker {},
+			Caffeine {},
+			Redeye {},
 			Weather {},
 			DateTime {},
 			PowerManagement {},
@@ -34,5 +36,12 @@ ShellRoot { id: root
 		Service.Brightness.init();
 		Settings.init();
 		AppLauncher.init();
+		Service.Sunsetr.init(
+			3500, // temperature in K
+			95, // gamma (0-100)
+			true, // enable geo located sunset/sunrise times (static times will be ignored if 'true')
+			"19:00", // static start time
+			"7:00" // static end time
+		);
 	}
 }
