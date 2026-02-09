@@ -22,7 +22,7 @@ Ctrl.Widget { id: root
 		if (strength < (2 /5)) return Quickshell.iconPath(`network-wireless${secure}-signal-low`);
 		if (strength < (3 /5)) return Quickshell.iconPath(`network-wireless${secure}-signal-ok`);
 		if (strength < (4 /5)) return Quickshell.iconPath(`network-wireless${secure}-signal-good`);
-		if (strength < (5 /5)) return Quickshell.iconPath(`network-wireless${secure}-signal-excellent`);
+		else return Quickshell.iconPath(`network-wireless${secure}-signal-excellent`);
 	}
 
 	onClicked: popout.toggle();
@@ -37,14 +37,14 @@ Ctrl.Widget { id: root
 	}
 
 	Ctrl.Popout { id: popout
-		// window.onVisibleChanged: {
-		// 	if (window.visible) Networking.devices.values
-		// 		.find(d => d.type === DeviceType.Wifi)
-		// 		.scannerEnabled = true;
-		// 	else Networking.devices.values
-		// 		.find(d => d.type === DeviceType.Wifi)
-		// 		.scannerEnabled = false;
-		// }
+		window.onVisibleChanged: {
+			if (window.visible) Networking.devices.values
+				.find(d => d.type === DeviceType.Wifi)
+				.scannerEnabled = true;
+			else Networking.devices.values
+				.find(d => d.type === DeviceType.Wifi)
+				.scannerEnabled = false;
+		}
 		content: Style.PageLayout { id: content
 			header: RowLayout {
 				width: content.width
@@ -80,6 +80,7 @@ Ctrl.Widget { id: root
 					IconImage {
 						readonly property Component colourMid: Colorize { hue: Globals.Colours.mid; }
 
+						Layout.margins: Globals.Controls.spacing
 						implicitSize: 24
 						source: root.getSignalUrl(delegate.modelData.signalStrength, delegate.modelData.security)
 						layer.enabled: true
@@ -104,7 +105,8 @@ Ctrl.Widget { id: root
 							text: NetworkState.toString(delegate.modelData.state)
 							elide: Text.ElideRight
 							color: delegate.index === list.view.currentIndex? Globals.Colours.mid : Globals.Colours.light
-							font.pointSize: 8
+							font.pointSize: 6
+							font.letterSpacing: 0.6
 						}
 					}
 				}
