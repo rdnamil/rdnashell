@@ -107,7 +107,12 @@ Ctrl.Widget { id: root
 					IconImage {
 						Layout.margins: Globals.Controls.spacing
 						implicitSize: 24
-						source: Quickshell.iconPath(delegate.modelData.icon, "blueman-device")
+						source: switch (delegate.modelData.icon) {
+							case "input-gaming":
+								return Quickshell.iconPath("input-gamepad");
+							default:
+								return Quickshell.iconPath(delegate.modelData.icon, "blueman-device");
+						}
 					}
 
 					ColumnLayout {
