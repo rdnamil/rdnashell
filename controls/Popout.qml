@@ -68,9 +68,9 @@ Item { id: root
 			item: root
 			// if the window would go off-screen, slideX until it is back on-screen
 			// avoids Quickshell's default 12px padding and will touch the screen's edge
-			margins.left: if ((window.itemRect(root).x +root.content.width /2 +Globals.Controls.padding *2) > window.screen.width) {
+			margins.left: if ((window.itemRect(root).x +root.width /2 +root.content.width /2 +Globals.Controls.padding *2) > window.screen.width) {
 				return window.screen.width -window.itemRect(root).x -root.content.width /2 -Globals.Controls.padding;
-			} else if ((window.itemRect(root).x -root.content.width /2 -Globals.Controls.padding *2) < 0) {
+			} else if ((window.itemRect(root).x +root.width /2 -root.content.width /2 -Globals.Controls.padding *2) < 0) {
 				return root.content.width /2 -window.itemRect(root).x +Globals.Controls.padding;
 			} else return root.width /2;
 			edges: (Globals.Settings.barIsTop? Edges.Bottom : Edges.Top) | Edges.Left
