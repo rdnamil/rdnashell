@@ -99,7 +99,7 @@ Ctrl.Widget { id: root
 				RowLayout { id: bodyLayout
 					anchors.centerIn: parent
 					spacing: Globals.Controls.spacing
-					width: 320
+					width: 360
 
 					Item {
 						Layout.rightMargin: Globals.Controls.padding -parent.spacing
