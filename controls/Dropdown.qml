@@ -20,10 +20,12 @@ Ctrl.Button { id: root
 
 	signal selected(int index)
 
+	function open() { loader.item.visible = true; }
+
 	width: 320
 	height: icon.height
-	onSelected: index => { root.currentIndex = index; }
-	onClicked: loader.item.visible = true;
+	onSelected: index => { if (index !== -1) root.currentIndex = index; }
+	onClicked: root.open();
 	icon: RowLayout { id: boxLayout
 		width: root.width
 
@@ -68,6 +70,7 @@ Ctrl.Button { id: root
 			clip: false
 			popupType: root.compatibilityMode? Popup.Item : Popup.Native
 			background: Item {}
+			onAboutToHide: root.selected(-1);
 
 			RectangularShadow {
 				visible: root.compatibilityMode

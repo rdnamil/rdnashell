@@ -48,7 +48,7 @@ Ctrl.Widget { id: root
 					Layout.bottomMargin: 0
 					tooltip: "select default device"
 					currentIndex: audioSinks.findIndex(n => n === Pipewire.defaultAudioSink)
-					onSelected: index => { Pipewire.preferredDefaultAudioSink = drop.audioSinks[index]; }
+					onSelected: index => { if (index !== -1) Pipewire.preferredDefaultAudioSink = drop.audioSinks[index]; }
 					model: drop.audioSinks.map(n => n.description)
 				}
 
@@ -82,7 +82,7 @@ Ctrl.Widget { id: root
 				width: content.body.width
 
 				Repeater { id: repeater
-					model: Pipewire.nodes.values.filter(n => n.isStream)
+					model: Pipewire.nodes.values.filter(n => n.isStream && n.isSink)
 					delegate: RowLayout { id: delegate
 						required property var modelData
 						required property int index

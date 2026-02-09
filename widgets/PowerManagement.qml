@@ -78,7 +78,7 @@ Ctrl.Widget { id: root
 					Layout.fillWidth: true
 					tooltip: "Power profile"
 					currentIndex: drop.profiles.findIndex(p => p === PowerProfiles.profile)
-					onSelected: index => { PowerProfiles.profile = drop.profiles[index]; }
+					onSelected: index => { if (index !== -1) PowerProfiles.profile = drop.profiles[index]; }
 					model: [...drop.profiles].map(p => PowerProfile.toString(p))
 				}
 			}
@@ -127,7 +127,7 @@ Ctrl.Widget { id: root
 									default:
 										Quickshell.iconPath("device_pci");
 								}
-								onSourceChanged: console.log(UPowerDeviceType.toString(delegate.modelData.type))
+								// onSourceChanged: console.log(UPowerDeviceType.toString(delegate.modelData.type))
 								layer.enabled: true
 								layer.effect: OpacityMask { maskSource: Item {
 									width: deviceIcon.width; height: deviceIcon.height
