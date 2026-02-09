@@ -75,11 +75,11 @@ Singleton { id: root
 	Process { id: sunsetr
 		// running: true
 		command: ['sunsetr', '--config', `${Quickshell.shellDir}/services/`]
-		onRunningChanged: if (running) console.log("Redeye: Sunsetr starting...");
+		onRunningChanged: if (running) console.log("Sunsetr: Sunsetr starting...");
 		stdout: SplitParser {
 			onRead: message => {
 				if (message.includes("Successfully connected")) {
-					console.log("Redeye: Sunsetr started successfully!");
+					console.log("Sunsetr: Sunsetr started successfully!");
 					socket.connected = true;
 				}
 			}
@@ -92,7 +92,7 @@ Singleton { id: root
 		connected: false
 		path: `${Quickshell.env("XDG_RUNTIME_DIR")}/sunsetr-events.sock`
 		onConnectedChanged: {
-			console.log("Redeye: " + (connected ? "New connection!" : "Connection dropped!"))
+			console.log("Sunsetr: " + (connected ? "New connection!" : "Connection dropped!"))
 
 			if (!connected) connected = true;
 		}
