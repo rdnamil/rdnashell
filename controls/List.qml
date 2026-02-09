@@ -14,6 +14,7 @@ ScrollView { id: root
 	required property Component delegate
 
 	readonly property ListView view: listView
+	readonly property MouseArea mouse: mouseArea
 	readonly property ScrollBar scrollbar: scrollBar
 
 	signal itemClicked(Item item, MouseEvent mouse)
