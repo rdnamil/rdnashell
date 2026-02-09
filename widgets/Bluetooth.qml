@@ -73,8 +73,6 @@ Ctrl.Widget { id: root
 				property int lastValidIndex
 
 				mouse.acceptedButtons: Qt.LeftButton | Qt.RightButton
-				mouse.visible: !prompt.visible
-				view.onCurrentIndexChanged: if (view.currentIndex !== -1) list.lastValidIndex = view.currentIndex;
 				onItemClicked: (item, mouse) => {
 					const dev = list.model[view.currentIndex];
 
@@ -96,8 +94,6 @@ Ctrl.Widget { id: root
 							} else dev.pair();
 							break;
 						case Qt.RightButton:
-							prompt.visible = true;
-							prompt.open();
 							break;
 					}
 				}
@@ -147,23 +143,6 @@ Ctrl.Widget { id: root
 						}
 					}
 				}
-			}
-
-			Ctrl.Dropdown { id: prompt
-				visible: false
-				width: 65
-				onSelected: index => {
-					if (index === -1) prompt.visible = false;
-					else if (index === 0) list.model[list.lastValidIndex].forget();
-				}
-				onVisibleChanged: {
-					if (prompt.visible) {
-						const x = list.mouse.mouseX -prompt.width /2 +Globals.Controls.padding;
-						const y = list.mouse.mouseY +content.header.height;
-						prompt.x = x; prompt.y = y;
-					}
-				}
-				model: ['Forget', 'Cancel']
 			}
 		}
 	}
