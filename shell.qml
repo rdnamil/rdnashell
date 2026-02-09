@@ -11,6 +11,7 @@ import qs.services as Service
 ShellRoot { id: root
 	Bar {
 		left: [
+			Network {},
 			Bluetooth {},
 			Audio {},
 			MusicPlayer {}
