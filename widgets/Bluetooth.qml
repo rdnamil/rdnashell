@@ -9,6 +9,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Bluetooth
+import Quickshell.Wayland
 import qs.controls as Ctrl
 import qs.styles as Style
 import "../globals.js" as Globals
@@ -18,8 +19,8 @@ Ctrl.Widget { id: root
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		source: {
-			if (Bluetooth.defaultAdapter.devices.values.some(d => d.paired)) return Quickshell.iconPath("bluetooth-paired");
-			else if (Bluetooth.defaultAdapter.enabled) return Quickshell.iconPath("bluetooth-active");
+			if (Bluetooth.devices.values.some(d => d.connected)) return Quickshell.iconPath("bluetooth-paired");
+			else if (Bluetooth.defaultAdapter?.enabled || false) return Quickshell.iconPath("bluetooth-active");
 			else return Quickshell.iconPath("bluetooth-disabled");
 		}
 	}
@@ -42,7 +43,7 @@ Ctrl.Widget { id: root
 					}
 
 					Ctrl.Switch {
-						toggle: Bluetooth.defaultAdapter.enabled
+						toggle: Bluetooth.defaultAdapter?.enabled || false
 						onClicked: Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
 					}
 				}
@@ -69,25 +70,100 @@ Ctrl.Widget { id: root
 				}
 			}
 			body: Ctrl.List { id: list
-				model: Bluetooth.defaultAdapter.devices.values.filter(d => d.deviceName)
+				property int lastValidIndex
+
+				mouse.acceptedButtons: Qt.LeftButton | Qt.RightButton
+				mouse.visible: !prompt.visible
+				view.onCurrentIndexChanged: if (view.currentIndex !== -1) list.lastValidIndex = view.currentIndex;
+				onItemClicked: (item, mouse) => {
+					const dev = list.model[view.currentIndex];
+
+					switch (mouse.button) {
+						case Qt.LeftButton:
+							if (dev.pairing) {
+								dev.cancelPair();
+							} else if (dev.paired) {
+								switch (dev.state) {
+									case BluetoothDeviceState.Connected:
+										dev.disconnect();
+										break;
+									case BluetoothDeviceState.Disconnected:
+										dev.connect();
+										break;
+									default:
+										break;
+								}
+							} else dev.pair();
+							break;
+						case Qt.RightButton:
+							prompt.visible = true;
+							prompt.open();
+							break;
+					}
+				}
+				model: Bluetooth.devices.values.filter(d => d.deviceName) || []
 				delegate: RowLayout { id: delegate
 					required property var modelData
+					required property int index
 
 					width: list.availableWidth
 
 					IconImage {
+						Layout.margins: Globals.Controls.spacing
 						implicitSize: 24
 						source: Quickshell.iconPath(delegate.modelData.icon, "blueman-device")
 					}
 
-					Text {
-						Layout.fillWidth: true
-						text: delegate.modelData.deviceName
-						elide: Text.ElideRight
-						color: Globals.Colours.text
-						font.pointSize: 10
+					ColumnLayout {
+						spacing: 0
+
+						Text {
+							Layout.fillWidth: true
+							text: delegate.modelData.deviceName
+							elide: Text.ElideRight
+							color: Globals.Colours.text
+							font.pointSize: 10
+						}
+
+						Text {
+							visible: delegate.modelData.state !== BluetoothDeviceState.Disconnected
+							Layout.fillWidth: true
+							text: BluetoothDeviceState.toString(delegate.modelData.state)
+							elide: Text.ElideRight
+							color: delegate.index === list.view.currentIndex? Globals.Colours.mid : Globals.Colours.light
+							font.pointSize: 6
+							font.letterSpacing: 0.6
+						}
+					}
+
+					Connections {
+						target: delegate.modelData
+
+						function onPairedChanged() {
+							if (delegate.modelData.paired) {
+								delegate.modelData.trusted = true;
+								// delegate.modelData.connect();
+							}
+						}
 					}
 				}
+			}
+
+			Ctrl.Dropdown { id: prompt
+				visible: false
+				width: 65
+				onSelected: index => {
+					if (index === -1) prompt.visible = false;
+					else if (index === 0) list.model[list.lastValidIndex].forget();
+				}
+				onVisibleChanged: {
+					if (prompt.visible) {
+						const x = list.mouse.mouseX -prompt.width /2 +Globals.Controls.padding;
+						const y = list.mouse.mouseY +content.header.height;
+						prompt.x = x; prompt.y = y;
+					}
+				}
+				model: ['Forget', 'Cancel']
 			}
 		}
 	}
