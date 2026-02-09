@@ -127,9 +127,12 @@ Ctrl.Widget { id: root
 						}
 
 						Text {
-							visible: delegate.modelData.state !== BluetoothDeviceState.Disconnected
 							Layout.fillWidth: true
-							text: BluetoothDeviceState.toString(delegate.modelData.state)
+							text: {
+								if (delegate.modelData.state !== BluetoothDeviceState.Disconnected)
+									return BluetoothDeviceState.toString(delegate.modelData.state);
+								else return delegate.modelData.address;
+							}
 							elide: Text.ElideRight
 							color: delegate.index === list.view.currentIndex? Globals.Colours.mid : Globals.Colours.light
 							font.pointSize: 6
