@@ -62,7 +62,7 @@ Ctrl.Widget { id: root
 		content: Style.PageLayout { id: content
 			header: RowLayout {
 				spacing: 0
-				width: 320
+				width: content.width
 
 				IconImage {
 					Layout.margins: Globals.Controls.spacing *2
