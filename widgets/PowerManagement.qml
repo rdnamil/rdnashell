@@ -86,7 +86,6 @@ Ctrl.Widget { id: root
 				view.highlight: Item {}
 				view.spacing: Globals.Controls.spacing
 				view.clip: false
-				width: 320
 				model: UPower.devices.values
 					.filter(d => d !== UPower.displayDevice) // don't show display device
 					.filter(d => !d.isLaptopBattery) // don't display laptop battery

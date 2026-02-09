@@ -80,6 +80,7 @@ Ctrl.Widget { id: root
 				}
 			}
 			body: Ctrl.List { id: list
+				width: 480
 				onItemClicked: (item) => { item.modelData.notif.dismiss(); }
 				model: ScriptModel { id: model
 					values: []
