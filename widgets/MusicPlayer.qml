@@ -17,6 +17,16 @@ import qs.styles as Style
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
+	// format time from total seconds to hours:minutes:seconds
+	function formatTime(totalSeconds) {
+		var seconds = totalSeconds %60;
+		var totalMinutes = Math.floor(totalSeconds /60);
+		var hours = Math.floor(totalMinutes /60);
+		var minutes = totalMinutes -(hours *60);
+		return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
+	}
+
+	propagateComposedEvents: true
 	acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.BackButton | Qt.ForwardButton
 	onClicked: (mouse) => { switch (mouse.button) {
 		case Qt.LeftButton:
@@ -102,6 +112,7 @@ Ctrl.Widget { id: root
 					width: 360
 
 					Item {
+						visible: Service.MPlayer.artUrl.toString()
 						Layout.rightMargin: Globals.Controls.padding -parent.spacing
 						Layout.preferredWidth: height *(art.sourceSize.width /art.sourceSize.height)
 						Layout.fillHeight: true
@@ -138,55 +149,73 @@ Ctrl.Widget { id: root
 						}
 					}
 
-					IconImage { id: playerIcon
+					ColumnLayout {
 						Layout.alignment: Qt.AlignBottom
-						implicitSize: 24
-						source: Quickshell.iconPath(Service.MPlayer.player?.identity.toLowerCase())
-					}
 
-					Item {
-						Layout.alignment: Qt.AlignBottom
-						Layout.bottomMargin: playerIcon.height /2 -height /2
-						Layout.fillWidth: true
-						Layout.preferredHeight: childrenRect.height
-						clip: true
+						Item {
+							Layout.alignment: Qt.AlignBottom
+							Layout.fillWidth: true
+							Layout.preferredHeight: childrenRect.height
+							clip: true
 
-						Ctrl.Marquee {
-							scrolling: parent.width < width
-							content: Row {
-								spacing: Globals.Controls.spacing
+							Ctrl.Marquee {
+								scrolling: parent.width < width
+								content: Row {
+									spacing: Globals.Controls.spacing
 
-								Text {
-									anchors.verticalCenter: parent.verticalCenter
-									text: Service.MPlayer.title
-									color: Globals.Colours.text
-									font.pointSize: 8
-									font.weight: 600
-									font.letterSpacing: 1.0
-									layer.enabled: true
-									layer.effect: MultiEffect {
-										shadowEnabled: true
-										shadowVerticalOffset: 1
-										shadowOpacity: 0.8
-										blurMax: 12
+									Text {
+										anchors.verticalCenter: parent.verticalCenter
+										text: Service.MPlayer.title
+										color: Globals.Colours.text
+										font.pointSize: 8
+										font.weight: 600
+										font.letterSpacing: 1.0
+										layer.enabled: true
+										layer.effect: MultiEffect {
+											shadowEnabled: true
+											shadowVerticalOffset: 1
+											shadowOpacity: 0.8
+											blurMax: 12
+										}
+									}
+
+									Text {
+										anchors.verticalCenter: parent.verticalCenter
+										text: Service.MPlayer.artist
+										color: Service.MPlayer.accent
+										font.pointSize: 8
+										// font.weight: 600
+										font.letterSpacing: 1.0
+										layer.enabled: true
+										layer.effect: MultiEffect {
+											shadowEnabled: true
+											shadowVerticalOffset: 1
+											// shadowColor: Service.MPlayer.complementary
+											shadowOpacity: 0.8
+											blurMax: 12
+										}
 									}
 								}
+							}
+						}
 
-								Text {
-									anchors.verticalCenter: parent.verticalCenter
-									text: Service.MPlayer.artist
-									color: Globals.Colours.text
-									font.pointSize: 8
-									// font.weight: 600
-									font.letterSpacing: 1.0
-									layer.enabled: true
-									layer.effect: MultiEffect {
-										shadowEnabled: true
-										shadowVerticalOffset: 1
-										shadowOpacity: 0.8
-										blurMax: 12
-									}
-								}
+						RowLayout {
+							Text {
+								text: `${root.formatTime(parseInt(Service.MPlayer.player?.position || 0.0))}/${root.formatTime(parseInt(Service.MPlayer.player?.length || 0.0))}`
+								color: Globals.Colours.text
+								font.family: Globals.Font.mono
+								font.pointSize: 6.5
+								font.weight: 600
+								font.letterSpacing: 1.0
+							}
+
+							Style.Slider {
+								Layout.fillWidth: true
+								from: 0.0
+								value: Service.MPlayer.player?.position || 0.0
+								to: Service.MPlayer.player?.length || 1.0
+								onMoved: Service.MPlayer.player.position = value;
+								stepSize: 5
 							}
 						}
 					}
@@ -250,17 +279,20 @@ Ctrl.Widget { id: root
 					Layout.margins: Globals.Controls.padding
 					Layout.leftMargin: 0
 
-					Ctrl.Button {
+					Ctrl.Button { id: volumeBtn
+						enabled: false
 						icon: IconImage {
 							implicitSize: 16
 							source: Quickshell.iconPath("audio-volume-high-symbolic")
 						}
 					}
 
-					Style.Slider {
+					Style.Slider { id: volumeSlider
+						readonly property bool enabled: Service.MPlayer.player?.canControl && Service.MPlayer.player?.volumeSupported
+
 						Layout.fillWidth: true
-						value: 1.0
-						// onMoved: volume = value;
+						value: Service.MPlayer.player?.volume || 1.0
+						onMoved: if (enabled) { Service.MPlayer.player.volume = volumeSlider.value; }
 					}
 				}
 			}
