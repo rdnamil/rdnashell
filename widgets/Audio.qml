@@ -24,6 +24,12 @@ Ctrl.Widget { id: root
 			Pipewire.defaultAudioSink.audio.muted = !Pipewire.defaultAudioSink?.audio.muted || false;
 			break;
 	}}
+	onWheel: (wheel) => { // set volume on scroll
+		var vol = Pipewire.defaultAudioSink.audio.volume;
+
+		vol += (wheel.angleDelta.y /120) *0.05;
+		Pipewire.defaultAudioSink.audio.volume = Math.min(Math.max(vol, 0.0), 1.0);
+	}
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		source: {
@@ -38,7 +44,7 @@ Ctrl.Widget { id: root
 		content: Style.PageLayout { id: content
 			body: ColumnLayout {
 				spacing: 0
-				width: 480
+				// width: 480
 
 				Ctrl.Dropdown { id: drop
 					readonly property list<PwNode> audioSinks: Pipewire.nodes.values.filter(n => n.isSink && n.description)
