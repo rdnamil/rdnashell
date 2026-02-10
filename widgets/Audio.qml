@@ -101,7 +101,7 @@ Ctrl.Widget { id: root
 							Layout.margins: Globals.Controls.spacing
 							Layout.bottomMargin: delegate.index !== repeater.count -1? 0 : Globals.Controls.spacing
 							onClicked: delegate.modelData.audio.muted = !delegate.modelData.audio.muted;
-							faded: iconUrl !== '' && delegate.modelData.audio.muted
+							effectEnabled: iconUrl !== '' && delegate.modelData.audio.muted
 							icon: IconImage {
 								implicitSize: Globals.Controls.iconSize
 								source: {
