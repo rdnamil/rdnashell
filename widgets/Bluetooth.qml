@@ -15,7 +15,15 @@ import qs.styles as Style
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
-	onClicked: popout.toggle();
+	acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+	onClicked: event => { switch (event.button) {
+		case Qt.LeftButton:
+			popout.toggle();
+			break;
+		case Qt.MiddleButton:
+			Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
+			break;
+	}}
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		source: {
