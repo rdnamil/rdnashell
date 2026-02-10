@@ -48,7 +48,7 @@ Singleton { id: root
 		stdout: StdioCollector {
 			onStreamFinished: {
 				const c = JSON.parse(text);
-				root.colourPicked(Qt.rgba(c.rgb[0], c.rgb[1] , c.rgb[2], 1.0));
+				if (c) root.colourPicked(Qt.rgba(c.rgb[0], c.rgb[1] , c.rgb[2], 1.0));
 			}
 		}
 	}
