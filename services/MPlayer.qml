@@ -77,13 +77,33 @@ Singleton { id: root
 	property string artist
 	property url artUrl
 
+	function updateTrack() {
+		const t = player.trackTitle;
+		root.title = t;
+	}
+	function updateArtist() {
+		const a = player.trackArtist;
+		root.artist = a;
+	}
+	function updateArtUrl() {
+		const a = player.trackArtUrl;
+		root.artUrl = a;
+	}
+
 	function loopState() {
 		const states = [MprisLoopState.None, MprisLoopState.Playlist, MprisLoopState.Track];
 
 		return states[(states.findIndex(s => s === root.player.loopState) +1) %states.length];
 	}
 
-	onPlayerChanged: if (!root.player) grace.restart();
+	onPlayerChanged: {
+		if (!root.player) grace.restart();
+		else {
+			root.updateTrack();
+			root.updateArtist();
+			root.updateArtUrl();
+		}
+	}
 
 	// period where track props can be updated
 	Timer { id: hold; interval: 500; }
@@ -103,22 +123,12 @@ Singleton { id: root
 			grace.stop();
 			hold.restart();
 
-			// update track title
-			const t = player.trackTitle;
-			root.title = t;
+			root.updateTrack();
 		} else grace.restart(); }
 
-		function onTrackArtistChanged() { if (hold.running) {
-			// update artist if hold
-			const a = player.trackArtist;
-			root.artist = a;
-		}}
+		function onTrackArtistChanged() { if (hold.running) { root.updateArtist(); }}
 
-		function onTrackArtUrlChanged() { if (hold.running) {
-			// update artist if hold
-			const a = player.trackArtUrl;
-			root.artUrl = a;
-		}}
+		function onTrackArtUrlChanged() { if (hold.running) { root.updateArtUrl(); }}
 	}
 
 	// update the active player's position while playing
@@ -128,8 +138,9 @@ Singleton { id: root
 	}
 
 	Component.onCompleted: { if (root.player) {
-		root.title = player.trackTitle;
-		root.artist = player.trackArtist;
-		root.artUrl = player.trackArtUrl;
+		root.active = true;
+		root.updateTrack();
+		root.updateArtist();
+		root.updateArtUrl();
 	}}
 }
