@@ -58,9 +58,18 @@ Singleton { id: root
 		command: ["sh", "-c", 'curl "http://ip-api.com/json?fields=lat,lon,city,region"']
 		stdout: StdioCollector {
 			onStreamFinished: {
-				const l = JSON.parse(text);
-				root.getWeatherFrom(l.lon, l.lat);
-				root.location = `${l.city}, ${l.region}`;
+				let l = '';
+
+				try {
+					l = JSON.parse(text);
+				} catch (error) {
+					console.log(`Weather: ${error}`);
+				}
+
+				if (l) {
+					root.getWeatherFrom(l.lon, l.lat);
+					root.location = `${l.city}, ${l.region}`;
+				}
 			}
 		}
 	}
