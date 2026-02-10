@@ -10,13 +10,13 @@ import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
-	readonly property Item background: bak
-	readonly property Component greyscale: Component { Colorize { saturation: 0; lightness: 0; }}
+	readonly property Rectangle background: bak
 
+	property Component effect: Component { Colorize { saturation: 0; lightness: 0; }}
+	property bool effectEnabled
 	property bool enabled: true
-	property bool faded
 
-	displayedIcon.layer.effect: root.faded? root.greyscale : null
+	displayedIcon.layer.effect: root.effectEnabled? root.effect : null
 	width: icon.width +Globals.Controls.padding
 	height: icon.height +Globals.Controls.padding
 	onPressed: pressAnim.restart();
