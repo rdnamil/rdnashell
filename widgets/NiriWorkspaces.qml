@@ -14,13 +14,15 @@ Row { id: root
 
 	Repeater { id: workspaceRepeater
 		model: ScriptModel { id: workspaceModel
-			values: Service.Niri.workspaces?.filter(w => { // filter worskpaces on this.output
-				return QsWindow.window? w.output === QsWindow.window.screen.name : false;
-			})
-			 // sort in order of idx
-			.sort((a ,b) => {
-				return a.idx -b.idx;
-			}) || []
+			values: Service.Niri
+				// filter worskpaces on this.output
+				.workspaces?.filter(w => {
+					return QsWindow.window? w.output === QsWindow.window.screen.name : false;
+				})
+				// sort in order of idx
+				.sort((a ,b) => {
+					return a.idx -b.idx;
+				}) || []
 			objectProp: "id"
 		}
 		delegate: Item { id: workspaceDelegate
@@ -45,17 +47,19 @@ Row { id: root
 
 				Repeater { id: windowRepeater
 					model: ScriptModel { id: windowModel
-						values: Service.Niri.windows?.filter(w => { // filter for windows in workspace
-							return w.workspace_id === workspaceDelegate.modelData.id;
-						})
-						// filter out floating windows
-						.filter(w => w.layout.pos_in_scrolling_layout)
-						// sort in order of positiong in scrolling layout
-						.sort ((a ,b) => {
-							if (a.layout.pos_in_scrolling_layout[0] === b.layout.pos_in_scrolling_layout[0]) {
-								return a.layout.pos_in_scrolling_layout[1] -b.layout.pos_in_scrolling_layout[1];
-							} else return a.layout.pos_in_scrolling_layout[0] -b.layout.pos_in_scrolling_layout[0];
-						})
+						values: Service.Niri
+							// filter for windows in workspace
+							.windows?.filter(w => {
+								return w.workspace_id === workspaceDelegate.modelData.id;
+							})
+							// filter out floating windows
+							.filter(w => !w.is_floating)
+							// sort in order of positiong in scrolling layout
+							.sort ((a ,b) => {
+								if (a.layout.pos_in_scrolling_layout[0] === b.layout.pos_in_scrolling_layout[0]) {
+									return a.layout.pos_in_scrolling_layout[1] -b.layout.pos_in_scrolling_layout[1];
+								} else return a.layout.pos_in_scrolling_layout[0] -b.layout.pos_in_scrolling_layout[0];
+							}) || []
 						objectProp: "id"
 					}
 					delegate: Item {id: windowDelegate
