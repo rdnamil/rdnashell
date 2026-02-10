@@ -42,6 +42,14 @@ Ctrl.Widget { id: root
 			Service.MPlayer.player.next();
 			break;
 	}}
+	onWheel: {
+		const enabled = Service.MPlayer.player?.canSeek && Service.MPlayer.player?.positionSupported;
+		if (enabled) {
+			let position = Service.MPlayer.player.position;
+			position += (wheel.angleDelta.y /120) *5;
+			Service.MPlayer.player.position = Math.min(Math.max(position, 0.0), Service.MPlayer.player.length);
+		}
+	}
 	icon: RowLayout {
 		width: Service.MPlayer.active? 320 : 0
 
@@ -80,8 +88,6 @@ Ctrl.Widget { id: root
 			from: 0.0
 			value: Service.MPlayer.player?.position || 0.0
 			to: Service.MPlayer.player?.length || 1.0
-			onMoved: Service.MPlayer.player.position = value;
-			stepSize: 1
 		}
 	}
 
@@ -214,7 +220,10 @@ Ctrl.Widget { id: root
 								from: 0.0
 								value: Service.MPlayer.player?.position || 0.0
 								to: Service.MPlayer.player?.length || 1.0
-								onMoved: Service.MPlayer.player.position = value;
+								onMoved: {
+									const enabled = Service.MPlayer.player?.canSeek && Service.MPlayer.player?.positionSupported;
+									if (enabled) Service.MPlayer.player.position = value;
+								}
 								stepSize: 5
 							}
 						}
