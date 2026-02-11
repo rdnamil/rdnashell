@@ -174,7 +174,7 @@ Ctrl.Widget { id: root
 						{ "icon": 'action-unavailable', "text": 'cancel' },
 					]
 					onSelected: index => {
-						if (index !== -1) menuAnchor.modelData.forget();
+						if (index === 0) menuAnchor.modelData.forget();
 						menuAnchor = null;
 					}
 				}
