@@ -30,14 +30,14 @@ ShellRoot { id: root
 			NotificationTray {}
 		]
 	}
-
+	Dock {}
 	NotificationToasts {}
 
 	Component.onCompleted: {
 		Service.ShellUtils.init();
-		Service.Brightness.init();
 		Settings.init();
 		AppLauncher.init();
+		Service.Brightness.init();
 		Service.Sunsetr.init(
 			3500, // temperature in K
 			95, // gamma (0-100)
