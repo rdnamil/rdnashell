@@ -16,8 +16,14 @@ import "../globals.js" as Globals
 Ctrl.PopupMenu { id: root
 	readonly property Ctrl.Button button: btn
 
+	property string tooltip
+
 	width: 320
 	height: btn.height
+	onLoaded: {
+		root.item.x = Globals.Controls.spacing /2 -Globals.Controls.padding /2;
+		root.item.y = -Globals.Controls.padding /2;
+	}
 
 	Ctrl.Button { id: btn
 		width: root.width
@@ -26,12 +32,22 @@ Ctrl.PopupMenu { id: root
 
 		icon: RowLayout { id: boxLayout
 			width: btn.width
+			spacing: 0
 
-			Text {
+			IconImage { id: selectIcon
+				visible: root.model[root.currentIndex]?.icon? true : false
 				Layout.margins: Globals.Controls.spacing
 				Layout.leftMargin: Globals.Controls.padding /2
+				Layout.rightMargin: 0
+				implicitSize: selectText.height
+				source: visible? Quickshell.iconPath(root.model[root.currentIndex]?.icon, true) : ''
+			}
+
+			Text { id: selectText
+				Layout.margins: Globals.Controls.spacing
+				Layout.leftMargin: selectIcon.visible? 0 : Globals.Controls.padding /2
 				Layout.fillWidth: true
-				text: root.currentIndex !== -1? root.model[root.currentIndex] : ""
+				text: root.currentIndex !== -1? root.model[root.currentIndex].text : ""
 				elide: Text.ElideRight
 				color: Globals.Colours.text
 				font.pointSize: 10

@@ -2,9 +2,12 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuick.Effects
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Widgets
 import qs.controls as Ctrl
 import "../globals.js" as Globals
 
@@ -13,33 +16,23 @@ Loader { id: root
 	property bool compatibilityMode
 	property int currentIndex: model.length > 0? 0 : -1
 
+	signal opened()
 	signal selected(int index)
 
-	function open() { root.item.visible = true; }
+	function open() {
+		root.opened();
+		root.item.visible = true;
+	}
 
 	onSelected: index => { if (index !== -1) root.currentIndex = index; }
 	width: 240
-
-	PanelWindow { id: window
-		visible: (root.item?.visible || false) && !root.compatibilityMode
-		anchors {
-			left: true
-			right: true
-			top: true
-			bottom: true
-		}
-		exclusiveZone: -1
-		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-		color: Globals.Settings.debug? "#400000ff" : "transparent"
-	}
-
 	Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.item.visible = false; }
 	active: parent.visible
 	sourceComponent: Popup { id: popup
 		enabled: true
 		focus: true
 		margins: Globals.Controls.spacing
-		x: -list.padding +Globals.Controls.spacing /2; y: -list.padding;
+
 		width: root.width +list.padding *2 -Globals.Controls.spacing
 		height: list.height
 		clip: false
@@ -69,16 +62,51 @@ Loader { id: root
 				popup.visible = false;
 			}
 			model: root.model
-			delegate: Text {
+			delegate: RowLayout { id: delegate
 				required property var modelData
 
-				padding: Globals.Controls.spacing
 				width: list.availableWidth
-				text: modelData
-				elide: Text.ElideRight
-				color: Globals.Colours.text
-				font.pointSize: 10
+				spacing: 0
+
+				IconImage {
+					visible: delegate.modelData.icon? true : false
+					Layout.margins: Globals.Controls.spacing
+					Layout.rightMargin: 0
+					implicitSize: text.height -Globals.Controls.spacing
+					source: Quickshell.iconPath(delegate.modelData.icon)
+					layer.enabled: true
+					layer.effect: Colorize {
+						hue: Qt.alpha(Globals.Colours.light, 1.0).hslHue
+						saturation: Qt.alpha(Globals.Colours.light, 1.0).hslSaturation
+						lightness: Qt.alpha(Globals.Colours.light, 1.0).hslLightness
+					}
+				}
+
+				Text { id: text
+					Layout.margins: Globals.Controls.spacing
+					Layout.fillWidth: true
+					// padding: Globals.Controls.spacing
+					// width: list.availableWidth
+					text: delegate.modelData.text? delegate.modelData.text : ''
+					// textFormat: Text.RichText
+					elide: Text.ElideRight
+					color: Globals.Colours.text
+					font.pointSize: 10
+				}
 			}
 		}
+	}
+
+	PanelWindow { id: window
+		visible: (root.item?.visible || false) && !root.compatibilityMode
+		anchors {
+			left: true
+			right: true
+			top: true
+			bottom: true
+		}
+		exclusiveZone: -1
+		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+		color: Globals.Settings.debug? "#400000ff" : "transparent"
 	}
 }

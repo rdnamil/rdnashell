@@ -5,6 +5,7 @@ import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
+import qs.controls as Ctrl
 import qs.services as Service
 import "../globals.js" as Globals
 
@@ -24,23 +25,33 @@ Variants { id: root
 		mask: Region {
 			x: window.width /2 -width /2
 			y: window.height -height
-			height: Math.max(1, dock.height -dockTrans.y)
-			width: dock.width
+			width: window.width *(2 /3)
+			height: 1
+
+			Region {
+				x: window.width /2 -width /2
+				y: window.height -height
+				height: dock.height -dockTrans.y
+				width: dock.width
+			}
 		}
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:dock"
 		implicitHeight: dock.height +30
-		color: Globals.Controls.debug? "#80ff0000" : "transparent"
+		color: Globals.Settings.debug? "#40ff0000" : "transparent"
 
 		MouseArea { id: hotArea
 			anchors.bottom: parent.bottom
 			width: parent.width
 			height: 1
 			hoverEnabled: true
-			onEntered: dockTrans.y = 0;
+			onEntered: {
+				dockTrans.y = 0;
+				grace.restart();
+			}
 		}
 
-		Item { id: dock
+		Rectangle { id: dock
 			x: parent.width /2 -width /2
 			y: 30
 			width: view.contentWidth +Globals.Controls.padding
@@ -50,6 +61,7 @@ Variants { id: root
 
 				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutCirc; }}
 			}
+			color: Globals.Settings.debug? "#40ff0000" : "transparent"
 
 			RectangularShadow {
 				anchors.fill: background
@@ -137,7 +149,7 @@ Variants { id: root
 				hoverEnabled: true
 				onEntered: grace.stop();
 				onExited: {
-					grace.restart();
+					if (!pinPrompt.item.visible) grace.restart();
 					tooltipTimer.stop();
 					tooltipTimer.interval = 2000;
 					tooltip.visible = false;
@@ -150,11 +162,21 @@ Variants { id: root
 						tooltip.visible = false;
 					}
 				}
-				onClicked: {
-					// console.log(view.indexAt(mouseX -view.x, mouseY -view.y))
-					if (view.indexAt(mouseX -view.x, mouseY -view.y) !== -1)
-						view.itemAt(mouseX -view.x, mouseY -view.y).activate();
-				}
+				acceptedButtons: Qt.LeftButton | Qt.RightButton
+				onClicked: mouse => { if (view.indexAt(mouseX -view.x, mouseY -view.y) !== -1) {
+					const itm = view.itemAt(mouseX -view.x, mouseY -view.y);
+
+					switch (mouse.button) {
+						case Qt.LeftButton:
+							itm.activate();
+							break;
+						case Qt.RightButton:
+							pinPrompt.x = mouseX;
+							pinPrompt.y = mouseY -pinPrompt.item.height;
+							pinPrompt.open();
+							break;
+					}
+				}}
 
 				Timer { id: tooltipTimer
 					interval: 2000
@@ -197,6 +219,15 @@ Variants { id: root
 						font.italic: true
 						color: Globals.Colours.light
 					}
+				}
+
+				Ctrl.PopupMenu { id: pinPrompt
+					width: 64
+					model: [
+						{ "icon": 'view-pin-symbolic', "text": 'pin' },
+						{ "icon": 'dialog-close', "text": 'close' },
+					]
+					onSelected: grace.restart();
 				}
 			}
 

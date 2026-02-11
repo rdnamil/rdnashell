@@ -79,7 +79,9 @@ Ctrl.Widget { id: root
 					button.tooltip: "Power profile"
 					currentIndex: drop.profiles.findIndex(p => p === PowerProfiles.profile)
 					onSelected: index => { if (index !== -1) PowerProfiles.profile = drop.profiles[index]; }
-					model: [...drop.profiles].map(p => PowerProfile.toString(p))
+					model: [...drop.profiles].map(p => {
+						return {"text":PowerProfile.toString(p)};
+					})
 				}
 			}
 			body: Ctrl.List { id: list

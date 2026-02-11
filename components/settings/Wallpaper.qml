@@ -42,16 +42,16 @@ ColumnLayout { id: root
 			Image { id: previewImage
 				anchors.centerIn: parent
 				width: {
-					if (position.model[position.currentIndex].toLowerCase() === "no") return parent.width *(sourceSize.width /preview.resolution.width);
+					if (position.model[position.currentIndex].text.toLowerCase() === "no") return parent.width *(sourceSize.width /preview.resolution.width);
 					else return parent.width;
 				}
 				height: {
-					if (position.model[position.currentIndex].toLowerCase() === "no") return parent.height *(sourceSize.height /preview.resolution.height);
+					if (position.model[position.currentIndex].text.toLowerCase() === "no") return parent.height *(sourceSize.height /preview.resolution.height);
 					else return parent.height;
 				}
 				source: root.wallpapers[display.currentIndex]?.path || ''
 				mipmap: true
-				fillMode: switch (position.model[position.currentIndex].toLowerCase()) {
+				fillMode: switch (position.model[position.currentIndex].text.toLowerCase()) {
 					case "no":
 						return Image.Stretch;
 					case "crop":
@@ -130,7 +130,9 @@ ColumnLayout { id: root
 			Ctrl.Dropdown { id: display
 				width: parent.width
 				compatibilityMode: true
-				model: [...root.wallpapers.map(w => w.display)]
+				model: root.wallpapers.map(w => {
+					return {"text": w.display};
+				})
 			}
 		}
 
@@ -184,7 +186,7 @@ ColumnLayout { id: root
 			Ctrl.Dropdown { id: position
 				width: parent.width
 				compatibilityMode: true
-				model: ['Crop', 'Fit', 'Stretch', 'No']
+				model: [{"text":"Crop"}, {"text":"Fit"}, {"text":"Stretch"}, {"text":"No"}]
 			}
 		}
 
@@ -206,7 +208,7 @@ ColumnLayout { id: root
 			Ctrl.Dropdown { id: transition
 				width: parent.width
 				compatibilityMode: true
-				model: ['None', 'Simple', 'Fade', 'Left', 'Right', 'Top', 'Bottom', 'Wipe', 'Wave', 'Grow', 'Center', 'Any', 'Outer', 'Random']
+				model: [{"text":"None"}, {"text":"Simple"}, {"text":"Fade"}, {"text":"Left"}, {"text":"Right"}, {"text":"Top"}, {"text":"Bottom"}, {"text":"Wipe"}, {"text":"Wave"}, {"text":"Grow"}, {"text":"Center"}, {"text":"Any"}, {"text":"Outer"}, {"text":"Random"}]
 			}
 		}
 	}
@@ -313,9 +315,9 @@ ColumnLayout { id: root
 	}
 
 	Process { id: applyWallpaper
-		command: ['swww', 'img', '--resize', position.model[position.currentIndex].toLowerCase(),
+		command: ['swww', 'img', '--resize', position.model[position.currentIndex].text.toLowerCase(),
 		'--fill-color', root.fillColour.toString().replace('#', ''),
-		'-t', transition.model[transition.currentIndex].toLowerCase(), '--transition-fps', '60',
+		'-t', transition.model[transition.currentIndex].text.toLowerCase(), '--transition-fps', '60',
 		root.wallpapers[display.currentIndex]?.path || '']
 		stdout: StdioCollector { onStreamFinished: { getWallpaper.running = true; fileview.writeAdapter(); }}
 	}
