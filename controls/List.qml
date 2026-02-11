@@ -27,6 +27,7 @@ ScrollView { id: root
 		x: root.width -width /2 -Globals.Controls.padding
 		y: root.padding
 		height: root.availableHeight
+		hoverEnabled: listView.contentHeight > root.height
 		contentItem: Rectangle {
 			implicitWidth: scrollBar.active? 6 : 4
 			radius: width /2
@@ -60,10 +61,10 @@ ScrollView { id: root
 			hoverEnabled: true
 			onExited: listView.currentIndex = -1;
 			onPositionChanged: (mouse) => {
-				const idx = listView.indexAt(mouse.x, mouse.y +listView.contentY);
+				const idx = listView.indexAt(mouse.x +listView.contentX, mouse.y +listView.contentY);
 				listView.currentIndex = idx;
 			}
-			onClicked: (mouse) => { if (listView.indexAt(mouse.x, mouse.y +listView.contentY) !== -1) {
+			onClicked: (mouse) => { if (listView.indexAt(mouse.x +listView.contentX, mouse.y +listView.contentY) !== -1) {
 				root.itemClicked(listView.currentItem, mouse);
 			}}
 		}
