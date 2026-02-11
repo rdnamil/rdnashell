@@ -57,6 +57,7 @@ Loader { id: root
 
 		Ctrl.List { id: list
 			anchors.centerIn: parent
+			view.spacing: 0
 			width: popup.width
 			onItemClicked: {
 				root.selected(list.view.currentIndex);
@@ -71,7 +72,8 @@ Loader { id: root
 
 				IconImage {
 					visible: delegate.modelData.icon? true : false
-					Layout.margins: Globals.Controls.spacing
+					Layout.margins: Globals.Controls.spacing /2
+					Layout.leftMargin: Globals.Controls.spacing
 					Layout.rightMargin: 0
 					implicitSize: text.height -Globals.Controls.spacing
 					source: Quickshell.iconPath(delegate.modelData.icon)
@@ -84,7 +86,9 @@ Loader { id: root
 				}
 
 				Text { id: text
-					Layout.margins: Globals.Controls.spacing
+					Layout.margins: Globals.Controls.spacing /2
+					Layout.leftMargin: Globals.Controls.spacing
+					Layout.rightMargin: Globals.Controls.spacing
 					Layout.fillWidth: true
 					// padding: Globals.Controls.spacing
 					// width: list.availableWidth
