@@ -44,7 +44,7 @@ Ctrl.Widget { id: root
 		content: Style.PageLayout { id: content
 			body: ColumnLayout {
 				spacing: 0
-				// width: 480
+				width: 480
 
 				Ctrl.Dropdown { id: drop
 					readonly property list<PwNode> audioSinks: Pipewire.nodes.values.filter(n => n.isSink && n.description)
