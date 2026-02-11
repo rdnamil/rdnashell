@@ -137,7 +137,7 @@ Singleton { id: root
 		onTriggered: player.positionChanged();
 	}
 
-	Component.onCompleted: { if (root.player) {
+	Component.onCompleted: { if (frameAnim.running) {
 		root.active = true;
 		root.updateTrack();
 		root.updateArtist();
