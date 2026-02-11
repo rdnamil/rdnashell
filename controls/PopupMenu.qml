@@ -78,7 +78,7 @@ Loader { id: root
 					Layout.leftMargin: Globals.Controls.spacing
 					Layout.rightMargin: 0
 					implicitSize: text.height -Globals.Controls.spacing
-					source: Quickshell.iconPath(delegate.modelData.icon)
+					source: Quickshell.iconPath(delegate.modelData.icon, true)
 					layer.enabled: true
 					layer.effect: Colorize {
 						hue: Qt.alpha(Globals.Colours.light, 1.0).hslHue
