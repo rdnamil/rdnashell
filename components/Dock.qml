@@ -149,7 +149,7 @@ Variants { id: root
 				hoverEnabled: true
 				onEntered: grace.stop();
 				onExited: {
-					if (!pinPrompt.item.visible) grace.restart();
+					if (!popupMenu.item.visible) grace.restart();
 					tooltipTimer.stop();
 					tooltipTimer.interval = 2000;
 					tooltip.visible = false;
@@ -171,9 +171,9 @@ Variants { id: root
 							itm.activate();
 							break;
 						case Qt.RightButton:
-							pinPrompt.x = mouseX;
-							pinPrompt.y = mouseY -pinPrompt.item.height;
-							pinPrompt.open();
+							popupMenu.x = mouseX -Globals.Controls.radius *2 *0.1464;
+							popupMenu.y = mouseY -popupMenu.item.height +(Globals.Controls.radius *0.1464);
+							popupMenu.open();
 							break;
 					}
 				}}
@@ -221,11 +221,11 @@ Variants { id: root
 					}
 				}
 
-				Ctrl.PopupMenu { id: pinPrompt
-					width: 64
+				Ctrl.PopupMenu { id: popupMenu
+					width: 72
 					model: [
 						{ "icon": 'view-pin-symbolic', "text": 'pin' },
-						{ "icon": 'dialog-close', "text": 'close' },
+						{ "icon": 'action-unavailable', "text": 'cancel' },
 					]
 					onSelected: grace.restart();
 				}

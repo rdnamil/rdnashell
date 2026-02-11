@@ -81,6 +81,7 @@ Ctrl.Widget { id: root
 				property int lastValidIndex
 
 				mouse.acceptedButtons: Qt.LeftButton | Qt.RightButton
+				view.onCountChanged: forget.close();
 				onItemClicked: (item, mouse) => {
 					const dev = list.model[view.currentIndex];
 
@@ -102,6 +103,10 @@ Ctrl.Widget { id: root
 							} else dev.pair();
 							break;
 						case Qt.RightButton:
+							forget.x = mouse.x -Globals.Controls.radius *2 *0.1464;
+							forget.y = mouse.y -Globals.Controls.radius *2 *0.1464;
+							forget.menuAnchor = item;
+							forget.open();
 							break;
 					}
 				}
@@ -137,7 +142,8 @@ Ctrl.Widget { id: root
 						Text {
 							Layout.fillWidth: true
 							text: {
-								if (delegate.modelData.state !== BluetoothDeviceState.Disconnected)
+								if (delegate.modelData.pairing) return "Pairing";
+								else if (delegate.modelData.state !== BluetoothDeviceState.Disconnected)
 									return BluetoothDeviceState.toString(delegate.modelData.state);
 								else return delegate.modelData.address;
 							}
@@ -151,12 +157,25 @@ Ctrl.Widget { id: root
 					Connections {
 						target: delegate.modelData
 
-						function onPairedChanged() {
+						function onConnectedChanged() {
 							if (delegate.modelData.paired) {
 								delegate.modelData.trusted = true;
-								// delegate.modelData.connect();
 							}
 						}
+					}
+				}
+
+				Ctrl.PopupMenu { id: forget
+					property Item menuAnchor: null
+
+					width: 72
+					model: [
+						{ "icon": 'dialog-question', "text": 'forget' },
+						{ "icon": 'action-unavailable', "text": 'cancel' },
+					]
+					onSelected: index => {
+						if (index !== -1) menuAnchor.modelData.forget();
+						menuAnchor = null;
 					}
 				}
 			}
