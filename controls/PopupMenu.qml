@@ -23,7 +23,9 @@ Loader { id: root
 		root.opened();
 		root.item.visible = true;
 	}
-	function close() { root.item.visible = false; }
+	function close() {
+		if (root.item) root.item.visible = false;
+	}
 
 	onSelected: index => { if (index !== -1) root.currentIndex = index; }
 	width: 240
