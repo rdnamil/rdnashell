@@ -1,0 +1,84 @@
+pragma ComponentBehavior: Bound
+
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Effects
+import Quickshell
+import Quickshell.Wayland
+import qs.controls as Ctrl
+import "../globals.js" as Globals
+
+Loader { id: root
+	property list<var> model: []
+	property bool compatibilityMode
+	property int currentIndex: model.length > 0? 0 : -1
+
+	signal selected(int index)
+
+	function open() { root.item.visible = true; }
+
+	onSelected: index => { if (index !== -1) root.currentIndex = index; }
+	width: 240
+
+	PanelWindow { id: window
+		visible: (root.item?.visible || false) && !root.compatibilityMode
+		anchors {
+			left: true
+			right: true
+			top: true
+			bottom: true
+		}
+		exclusiveZone: -1
+		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+		color: Globals.Settings.debug? "#400000ff" : "transparent"
+	}
+
+	Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.item.visible = false; }
+	active: parent.visible
+	sourceComponent: Popup { id: popup
+		enabled: true
+		focus: true
+		margins: Globals.Controls.spacing
+		x: -list.padding +Globals.Controls.spacing /2; y: -list.padding;
+		width: root.width +list.padding *2 -Globals.Controls.spacing
+		height: list.height
+		clip: false
+		popupType: root.compatibilityMode? Popup.Item : Popup.Native
+		background: Item {}
+		onAboutToHide: root.selected(-1);
+
+		RectangularShadow {
+			visible: root.compatibilityMode
+			anchors.fill: list
+			radius: Globals.Controls.radius
+			blur: 30
+			opacity: 0.4
+		}
+
+		Rectangle {
+			anchors.fill: list
+			radius: Globals.Controls.radius
+			color: Globals.Colours.dark
+		}
+
+		Ctrl.List { id: list
+			anchors.centerIn: parent
+			width: popup.width
+			onItemClicked: {
+				root.selected(list.view.currentIndex);
+				popup.visible = false;
+			}
+			model: root.model
+			delegate: Text {
+				required property var modelData
+
+				padding: Globals.Controls.spacing
+				width: list.availableWidth
+				text: modelData
+				elide: Text.ElideRight
+				color: Globals.Colours.text
+				font.pointSize: 10
+			}
+		}
+	}
+}
