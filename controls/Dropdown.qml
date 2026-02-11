@@ -16,8 +16,6 @@ import "../globals.js" as Globals
 Ctrl.PopupMenu { id: root
 	readonly property Ctrl.Button button: btn
 
-	property string tooltip
-
 	width: 320
 	height: btn.height
 	onLoaded: {
@@ -59,6 +57,5 @@ Ctrl.PopupMenu { id: root
 				source: Quickshell.iconPath("arrow-down")
 			}
 		}
-		tooltip: parent.tooltip
 	}
 }
