@@ -117,12 +117,12 @@ Variants { id: root
 			function onWhosOpenChanged() {
 				if (root.widgets.some(w => w.children.includes(Service.PopoutManager.whosOpen))) {
 					if (!grace.locked) {
-						console.log("Dock: Lock grace timer");
+						// console.log("Dock: Lock grace timer");
 						grace.locked = true;
 					}
 				}
 				else if (grace.locked) {
-					console.log("Dock: Unlock grace timer");
+					// console.log("Dock: Unlock grace timer");
 					grace.locked = false;
 
 					if (!mousearea.containsMouse) grace.restart();
