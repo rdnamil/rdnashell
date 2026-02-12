@@ -67,6 +67,8 @@ ScrollView { id: root
 			onClicked: (mouse) => { if (listView.indexAt(mouse.x +listView.contentX, mouse.y +listView.contentY) !== -1) {
 				root.itemClicked(listView.currentItem, mouse);
 			}}
+
+			Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#4000ff00"; }
 		}
 	}
 }
