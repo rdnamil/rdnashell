@@ -29,7 +29,10 @@ Item { id: root
 		if (root.isOpen) {
 			root.open();
 			Service.PopoutManager.whosOpen = root;
-		} else root.close();
+		} else {
+			root.close();
+			if (Service.PopoutManager.whosOpen === root) Service.PopoutManager.whosOpen = null;
+		}
 	}
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }

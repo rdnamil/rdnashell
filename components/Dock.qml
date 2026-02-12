@@ -8,6 +8,7 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
+import qs.services as Service
 import "../globals.js" as Globals
 
 Variants { id: root
@@ -35,11 +36,13 @@ Variants { id: root
 			hoverEnabled: true
 			onEntered: {
 				dockTrans.y = 0;
-				grace.restart();
+				if (!grace.locked) grace.restart();
 			}
 		}
 
 		Timer { id: grace
+			property bool locked
+
 			interval: 1000
 			onTriggered: dockTrans.y = dock.height +Globals.Controls.padding;
 		}
@@ -63,7 +66,8 @@ Variants { id: root
 				width: dock.width
 				height: dock.height +Globals.Controls.padding
 			}
-			implicitWidth: dock.width +shadow.blur *2
+			// implicitWidth: dock.width +shadow.blur *2
+			implicitWidth: window.screen.width
 			implicitHeight: dock.height +Globals.Controls.padding +shadow.blur
 			color: Globals.Settings.debug? "#4000ff00" : "transparent"
 
@@ -97,13 +101,32 @@ Variants { id: root
 				}}
 			}
 
-			MouseArea {
+			MouseArea { id: mousearea
 				anchors.fill: parent
 				hoverEnabled: true
 				propagateComposedEvents: true
 				acceptedButtons: Qt.NoButton
 				onEntered: grace.stop();
-				onExited: grace.restart();
+				onExited: if (!grace.locked) grace.restart();
+			}
+		}
+
+		Connections {
+			target: Service.PopoutManager
+
+			function onWhosOpenChanged() {
+				if (root.widgets.some(w => w.children.includes(Service.PopoutManager.whosOpen))) {
+					if (!grace.locked) {
+						console.log("Dock: Lock grace timer");
+						grace.locked = true;
+					}
+				}
+				else if (grace.locked) {
+					console.log("Dock: Unlock grace timer");
+					grace.locked = false;
+
+					if (!mousearea.containsMouse) grace.restart();
+				}
 			}
 		}
 	}
