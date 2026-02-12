@@ -11,7 +11,7 @@ import Quickshell.Wayland
 import "../globals.js" as Globals
 
 Variants { id: root
-	readonly property Timer grace: grace
+	// readonly property Timer timer: grace
 
 	property list<Item> widgets: []
 
@@ -84,8 +84,10 @@ Variants { id: root
 
 			Row { id: dock
 				padding: Globals.Controls.padding
+				spacing: Globals.Controls.spacing
 				x: dockWindow.width /2 -width /2
 				y: shadow.blur
+				height: 48
 				opacity: dock.y /dockTrans.y
 				transform: dockTrans
 
@@ -98,6 +100,8 @@ Variants { id: root
 			MouseArea {
 				anchors.fill: parent
 				hoverEnabled: true
+				propagateComposedEvents: true
+				acceptedButtons: Qt.NoButton
 				onEntered: grace.stop();
 				onExited: grace.restart();
 			}
