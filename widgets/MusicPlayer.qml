@@ -297,7 +297,7 @@ Ctrl.Widget { id: root
 					}
 
 					Style.Slider { id: volumeSlider
-						readonly property bool enabled: Service.MPlayer.player?.canControl && Service.MPlayer.player?.volumeSupported
+						readonly property bool enabled: Service.MPlayer.player?.canControl && Service.MPlayer.player?.volumeSupported || false
 
 						Layout.fillWidth: true
 						value: Service.MPlayer.player?.volume || 1.0
