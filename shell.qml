@@ -30,7 +30,11 @@ ShellRoot { id: root
 			NotificationTray {}
 		]
 	}
-	Dock {}
+	Dock {
+		widgets: [
+			NiriWorkspaces {}
+		]
+	}
 	NotificationToasts {}
 
 	Component.onCompleted: {
