@@ -60,6 +60,7 @@ Loader { id: root
 		Ctrl.List { id: list
 			anchors.centerIn: parent
 			view.spacing: 0
+			view.currentIndex: -1
 			width: popup.width
 			onItemClicked: {
 				root.selected(list.view.currentIndex);
@@ -113,6 +114,7 @@ Loader { id: root
 			bottom: true
 		}
 		exclusiveZone: -1
+		WlrLayershell.layer: WlrLayer.Overlay
 		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 		color: Globals.Settings.debug? "#400000ff" : "transparent"
 	}
