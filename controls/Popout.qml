@@ -76,12 +76,13 @@ Item { id: root
 			} else if ((window.itemRect(root).x +root.width /2 -root.content.width /2 -Globals.Controls.padding *2) < 0) {
 				return root.content.width /2 -window.itemRect(root).x +Globals.Controls.padding;
 			} else return root.width /2;
-			edges: (Globals.Settings.barIsTop? Edges.Bottom : Edges.Top) | Edges.Left
-			gravity: Globals.Settings.barIsTop? Edges.Bottom : Edges.Top | Edges.Left
+			edges: Edges.Bottom | Edges.Left
+			gravity: Edges.Bottom
 			adjustment: PopupAdjustment.None
 		}
 		Component.onCompleted: { root.content.parent = contentWrapper; }
 
+		Translate { id: trans; }
 
 		RectangularShadow { id: shadow
 			anchors.horizontalCenter: parent.horizontalCenter
@@ -92,7 +93,7 @@ Item { id: root
 			radius: Globals.Controls.radius
 			blur: 30
 			opacity: 0.4 *contentWrapper.opacity
-			transform: Translate { y: contentTrans.y; }
+			transform: trans
 		}
 
 		Item { id: contentWrapper
@@ -100,7 +101,7 @@ Item { id: root
 			y: (Globals.Settings.barIsTop? 0 : window.width -width) +Globals.Controls.padding *(Globals.Settings.barIsTop? 1 : -1)
 			width: root.content.width
 			height: root.content.height
-			transform: Translate { id: contentTrans; }
+			transform: trans
 			layer.enabled: true
 			layer.effect: OpacityMask { maskSource: Rectangle {
 				width: contentWrapper.width
@@ -111,24 +112,24 @@ Item { id: root
 
 		ParallelAnimation { id: contentAnim
 			onStarted: if (root.isOpen) window.visible = true;
+			onFinished: if (!root.isOpen) window.visible = false;
 			NumberAnimation {
 				target: contentWrapper; property: "opacity"; duration: 250; easing.type: Easing.OutCirc;
 				from: root.isOpen? 0.0 : 0.975
-				to: root.isOpen? 0.975 : 0.0
+				to: !root.isOpen? 0.0 : 0.975
 			}
 			NumberAnimation {
-				target: contentTrans; property: "y"; duration: 250;
-				easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc;
-				from: root.isOpen? (window.height +Globals.Controls.padding) *(Globals.Settings.barIsTop? -1 : 1) : 0
-				to: root.isOpen? 0 : (window.height +Globals.Controls.padding) *(Globals.Settings.barIsTop? -1 : 1)
+				target: trans; property: "y"; duration: 250;
+				easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc
+				from: root.isOpen? -(root.content.height +Globals.Controls.padding) : Globals.Controls.padding
+				to: !root.isOpen? -(root.content.height +Globals.Controls.padding) : Globals.Controls.padding
 			}
-			onFinished: if (!root.isOpen) window.visible = false;
 		}
 
 		Connections {
 			target: root
 
-			function onIsOpenChanged() { contentAnim.restart(); }
+			function onIsOpenChanged() { contentAnim.start(); }
 		}
 	}
 
