@@ -36,6 +36,7 @@ ShellRoot { id: root
 	Component.onCompleted: {
 		Service.ShellUtils.init();
 		Settings.init();
+		Lockscreen.init();
 		AppLauncher.init();
 		Service.Brightness.init(); // uses brightnessctl
 		Service.Sunsetr.init(
