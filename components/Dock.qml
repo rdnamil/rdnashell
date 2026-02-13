@@ -6,14 +6,13 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Effects
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
-import qs.services as Service
+import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Variants { id: root
-	// readonly property Timer timer: grace
-
 	property list<Item> widgets: []
 
 	model: Quickshell.screens
@@ -22,12 +21,35 @@ Variants { id: root
 
 		screen: modelData
 		anchors.bottom: true
+		mask: Region {
+			x: window.width /2 -width /2; y: window.height -height
+			width: window.width *(2 /3); height: 1;
+
+			Region { x: dock.x; y: trans.y; width: dock.width; height: dock.height; }
+		}
 		exclusiveZone: 0
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:dock"
-		implicitWidth: screen.width *(2 /3)
-		implicitHeight: 1
+		implicitWidth: screen.width
+		implicitHeight: dock.height +shadow.blur
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
+
+		Rectangle {
+			visible: Globals.Settings.debug
+			anchors.fill: parent
+			color: "#8000ff00"
+			layer.enabled: true
+			layer.effect: OpacityMask { maskSource: Item {
+				width: window.width; height: window.height;
+
+				Rectangle {
+					x: window.width /2 -width /2; y: window.height -height
+					width: window.width *(2 /3); height: 1;
+				}
+
+				Rectangle { x: dock.x; y: trans.y; width: dock.width; height: dock.height; }
+			}}
+		}
 
 		MouseArea {
 			anchors.bottom: parent.bottom
@@ -35,99 +57,52 @@ Variants { id: root
 			height: 1
 			hoverEnabled: true
 			onEntered: {
-				dockTrans.y = 0;
-				if (!grace.locked) grace.restart();
+				trans.y = shadow.blur;
+				grace.restart();
+			}
+		}
+
+		Item { id: dock
+			x: window.width /2 -width /2
+			width: windows.width; height: windows.height +Globals.Controls.padding;
+			transform: Translate { id: trans
+				y: window.height +Globals.Controls.padding
+
+				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutCirc; }}
+			}
+			opacity: 0.975
+
+			RectangularShadow { id: shadow
+				anchors.fill: windows
+				blur: 30
+				radius: Globals.Controls.radius
+				opacity: dock.opacity *0.4
+			}
+
+			Rectangle {
+				anchors.fill: windows
+				radius: Globals.Controls.radius
+				color: Globals.Colours.mid
+			}
+
+			Row { id: windows
+				padding: Globals.Controls.padding
+				spacing: Globals.Controls.spacing
+
+				Item { width: 10; height: 10; }
+			}
+
+			MouseArea {
+				anchors.fill: parent
+				hoverEnabled: true
+				onEntered: grace.stop();
+				onExited: grace.start();
 			}
 		}
 
 		Timer { id: grace
-			property bool locked
-
 			interval: 1000
-			onTriggered: dockTrans.y = dock.height +Globals.Controls.padding;
-		}
-
-		PopupWindow { id: dockWindow
-			readonly property Translate dockTrans: Translate { id: dockTrans
-				y: dock.height +Globals.Controls.padding
-
-				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutCirc; }}
-			}
-
-			visible: true
-			anchor {
-				window: window
-				rect { x: window.width /2 -width /2; y: window.height -height; }
-				adjustment: PopupAdjustment.None
-			}
-			mask: Region {
-				x: dockWindow.width /2 -width /2
-				y: shadow.blur +(dockTrans.y)
-				width: dock.width
-				height: dock.height +Globals.Controls.padding
-			}
-			// implicitWidth: dock.width +shadow.blur *2
-			implicitWidth: window.screen.width
-			implicitHeight: dock.height +Globals.Controls.padding +shadow.blur
-			color: Globals.Settings.debug? "#4000ff00" : "transparent"
-
-			RectangularShadow { id: shadow
-				anchors.fill: dock
-				radius: Globals.Controls.radius
-				blur: 30
-				opacity: dock.opacity *0.4
-				transform: dockTrans
-			}
-
-			Rectangle {
-				anchors.fill: dock
-				radius: Globals.Controls.radius
-				color: Globals.Colours.base
-				transform: dockTrans
-			}
-
-			Row { id: dock
-				padding: Globals.Controls.padding
-				spacing: Globals.Controls.spacing
-				x: dockWindow.width /2 -width /2
-				y: shadow.blur
-				height: 48
-				opacity: dock.y /dockTrans.y
-				transform: dockTrans
-
-				Component.onCompleted: { for (let w of root.widgets) {
-					w.parent = dock;
-					w.anchors.verticalCenter = dock.verticalCenter;
-				}}
-			}
-
-			MouseArea { id: mousearea
-				anchors.fill: parent
-				hoverEnabled: true
-				propagateComposedEvents: true
-				acceptedButtons: Qt.NoButton
-				onEntered: grace.stop();
-				onExited: if (!grace.locked) grace.restart();
-			}
-		}
-
-		Connections {
-			target: Service.PopoutManager
-
-			function onWhosOpenChanged() {
-				if (root.widgets.some(w => w.children.includes(Service.PopoutManager.whosOpen))) {
-					if (!grace.locked) {
-						// console.log("Dock: Lock grace timer");
-						grace.locked = true;
-					}
-				}
-				else if (grace.locked) {
-					// console.log("Dock: Unlock grace timer");
-					grace.locked = false;
-
-					if (!mousearea.containsMouse) grace.restart();
-				}
-			}
+			onTriggered: trans.y = window.height +Globals.Controls.padding;
 		}
 	}
 }

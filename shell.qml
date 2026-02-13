@@ -30,18 +30,14 @@ ShellRoot { id: root
 			NotificationTray {}
 		]
 	}
-	Dock {
-		widgets: [
-			NiriWorkspaces {}
-		]
-	}
+	Dock {}
 	NotificationToasts {}
 
 	Component.onCompleted: {
 		Service.ShellUtils.init();
 		Settings.init();
 		AppLauncher.init();
-		Service.Brightness.init();
+		Service.Brightness.init(); // uses brightnessctl
 		Service.Sunsetr.init(
 			3500, // temperature in K
 			95, // gamma (0-100)
