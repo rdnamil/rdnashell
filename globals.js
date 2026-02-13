@@ -4,8 +4,6 @@
 
 var Settings = {
 	debug: false,
-	animationsEnabled: true,
-	opaque: false,
 	barIsTop: true
 };
 
