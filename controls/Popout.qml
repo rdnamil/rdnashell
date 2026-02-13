@@ -80,6 +80,8 @@ Item { id: root
 			gravity: Globals.Settings.barIsTop? Edges.Bottom : Edges.Top | Edges.Left
 			adjustment: PopupAdjustment.None
 		}
+		Component.onCompleted: { root.content.parent = contentWrapper; }
+
 
 		RectangularShadow { id: shadow
 			anchors.horizontalCenter: parent.horizontalCenter
@@ -128,8 +130,6 @@ Item { id: root
 
 			function onIsOpenChanged() { contentAnim.restart(); }
 		}
-
-		Component.onCompleted: { root.content.parent = contentWrapper; }
 	}
 
 	Connections {
