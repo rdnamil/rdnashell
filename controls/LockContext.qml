@@ -6,27 +6,34 @@ import Quickshell
 import Quickshell.Services.Pam
 
 Scope { id: root
+	readonly property bool unlockInProgress: pam.unlockInProgress
+
+	property bool showFailure
+
 	signal unlocked()
 	signal failed()
 
-	property string passwd
-	property bool unlockInProgress
-	property bool showFailure
-
-	function tryUnlock() {
+	function tryUnlock(passwd) {
 		if (passwd === "") return;
 
-		root.unlockInProgress = true;
+		pam.unlockInProgress = true;
+		pam.passwd = passwd;
 		pam.start();
 	}
 
 	PamContext { id: pam
-		onPamMessage: if (this.responseRequired) this.respond(root.passwd);
+		property string passwd
+		property bool unlockInProgress
+
+		onPamMessage: if (this.responseRequired) this.respond(pam.passwd);
 		onCompleted: result => {
 			if (result == PamResult.Success) root.unlocked();
-			else root.failed();
+			else {
+				root.failed();
+				root.showFailure = true;
+			}
 
-			root.unlockInProgress = false;
+			pam.unlockInProgress = false;
 		}
 	}
 }

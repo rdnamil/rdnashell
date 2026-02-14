@@ -25,7 +25,7 @@ Singleton { id: root
 		surface: WlSessionLockSurface { id: surface
 			Ctrl.LockSurface {
 				context: context
-				wallpaper: root.wallpapers.find(w => w.display === surface.screen.name).path
+				wallpaper: root.wallpapers.find(w => w.display === surface.screen?.name)?.path || ''
 			}
 		}
 	}
@@ -39,6 +39,7 @@ Singleton { id: root
 			screen: modelData
 			anchors { left: true; right: true; top: true; bottom: true; }
 			exclusiveZone: -1
+			WlrLayershell.layer: WlrLayer.Overlay
 			mask: Region {}
 			color: "transparent"
 
