@@ -9,7 +9,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Bluetooth
-import Quickshell.Wayland
 import qs.controls as Ctrl
 import qs.styles as Style
 import "../globals.js" as Globals
