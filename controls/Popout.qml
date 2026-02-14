@@ -98,7 +98,6 @@ Item { id: root
 
 		Item { id: contentWrapper
 			x: window.width /2 -width /2
-			y: (Globals.Settings.barIsTop? 0 : window.width -width) +Globals.Controls.padding *(Globals.Settings.barIsTop? 1 : -1)
 			width: root.content.width
 			height: root.content.height
 			transform: trans
