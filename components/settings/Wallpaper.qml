@@ -8,10 +8,11 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
 import qs.controls as Ctrl
+import qs.services as Service
 import "../../globals.js" as Globals
 
 ColumnLayout { id: root
-	property list<var> wallpapers: []
+	property list<var> wallpapers: Service.Swww.wallpapers
 	property color fillColour: Globals.Colours.accent
 
 	width: parent.width
@@ -114,6 +115,15 @@ ColumnLayout { id: root
 					if (idx != -1) {
 						listView.currentIndex = idx;
 						root.wallpapers[display.currentIndex].path = listView.model.values[idx].path;
+					}
+				}
+				onDoubleClicked: (mouse) => {
+					const idx = listView.indexAt(mouse.x +listView.contentX, mouse.y);
+
+					if (idx != -1) {
+						listView.currentIndex = idx;
+						root.wallpapers[display.currentIndex].path = listView.model.values[idx].path;
+						if (!applyWallpaper.running) applyWallpaper.running = true;
 					}
 				}
 			}
@@ -259,32 +269,6 @@ ColumnLayout { id: root
 		}
 	}
 
-	Process { id: getWallpaper
-		running: true
-		command: ['swww', 'query']
-		stdout: StdioCollector {
-			onStreamFinished: {
-				var ws = text.trim().split('\n');
-
-				root.wallpapers = [];
-
-				for (let w of ws) {
-					const parts = w.match(/^:\s*(\S+):\s*([^,]+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)$/);
-
-					if (!parts) continue;
-
-					root.wallpapers.push({
-						display: parts[1],
-						resolution: parts[2],
-						scale: parts[3],
-						type: parts[4],
-						path: parts[5]
-					});
-				}
-			}
-		}
-	}
-
 	Process { id: setWallpaper
 		command: ['zenity', '--file-selection']
 		stdout: StdioCollector {
@@ -319,6 +303,6 @@ ColumnLayout { id: root
 		'--fill-color', root.fillColour.toString().replace('#', ''),
 		'-t', transition.model[transition.currentIndex].text.toLowerCase(), '--transition-fps', '60',
 		root.wallpapers[display.currentIndex]?.path || '']
-		stdout: StdioCollector { onStreamFinished: { getWallpaper.running = true; fileview.writeAdapter(); }}
+		stdout: StdioCollector { onStreamFinished: { Service.Swww.getWallpaper(); fileview.writeAdapter(); }}
 	}
 }
