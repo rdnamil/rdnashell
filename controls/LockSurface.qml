@@ -47,19 +47,19 @@ Item { id: root
 
 	Rectangle { anchors.fill: parent; color: Globals.Colours.mid; }
 
-	Image {
-		anchors.fill: parent
+	Image { id: wallpaper
+		anchors.centerIn: parent
+		width: parent.width +64
+		height: parent.height +64
 		source: Service.Swww.wallpapers.find(w => w.display === root.screen?.name)?.path || ''
 		layer.enabled: true
-		layer.effect: GaussianBlur {
-			samples: switch (root.state) {
-				case LockSurface.State.Cover:
-					return 0;
-				case LockSurface.State.SignIn:
-					return 64;
-			}
+		layer.effect: MultiEffect { id: multiEffect
+			blurEnabled: true
+			blur: root.state === LockSurface.State.Cover? 0.0 : 1.0
+			brightness: root.state === LockSurface.State.Cover? 0.0 : -0.05
 
-			Behavior on samples { NumberAnimation { duration: 500; easing.type: Easing.Linear; }}
+			Behavior on blur { NumberAnimation { duration: 500; easing.type: Easing.Linear; }}
+			Behavior on brightness { NumberAnimation { duration: 500; easing.type: Easing.Linear; }}
 		}
 	}
 
@@ -169,6 +169,8 @@ Item { id: root
 			text: getUserFullName.userFullName
 			color: Globals.Colours.text
 			font.pointSize: 16
+			layer.enabled: true
+			layer.effect: DropShadow { samples: 64; color: Qt.alpha("black", 0.4); }
 		}
 
 		Item { id: passwd
