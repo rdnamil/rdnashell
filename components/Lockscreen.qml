@@ -47,7 +47,7 @@ Singleton { id: root
 				anchors.fill: parent
 				sourceItem: Ctrl.LockSurface { id: sourceItem
 					context: context
-					width: window.width; height: window.height;
+					width: window.width; height: window.screen.height;
 				}
 				transform: Translate { id: trans; }
 			}
@@ -66,7 +66,7 @@ Singleton { id: root
 				}
 				NumberAnimation {
 					target: trans; property: "y";
-					from: -window.height; to: 0;
+					from: -window.screen.height; to: 0;
 					duration: 500; easing.type: Easing.OutCirc;
 				}
 			}
@@ -84,7 +84,7 @@ Singleton { id: root
 				}
 				NumberAnimation {
 					target: trans; property: "y";
-					to: -window.height; from: 0;
+					to: -window.screen.height; from: 0;
 					duration: 500; easing.type: Easing.OutCirc;
 				}
 			}
