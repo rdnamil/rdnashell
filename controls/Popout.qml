@@ -120,8 +120,8 @@ Item { id: root
 			NumberAnimation {
 				target: trans; property: "y"; duration: 250;
 				easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc
-				from: root.isOpen? -(root.content.height +Globals.Controls.padding) : Globals.Controls.padding
-				to: !root.isOpen? -(root.content.height +Globals.Controls.padding) : Globals.Controls.padding
+				from: root.isOpen? -(root.content.height +Globals.Controls.padding /2) : Globals.Controls.padding /2
+				to: !root.isOpen? -(root.content.height +Globals.Controls.padding /2) : Globals.Controls.padding /2
 			}
 		}
 
