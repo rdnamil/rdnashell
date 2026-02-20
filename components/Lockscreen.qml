@@ -25,7 +25,7 @@ Singleton { id: root
 		surface: WlSessionLockSurface { id: surface
 			Ctrl.LockSurface {
 				context: context
-				wallpaper: root.wallpapers.find(w => w.display === surface.screen?.name)?.path || ''
+				screen: surface.screen
 			}
 		}
 	}
@@ -45,17 +45,19 @@ Singleton { id: root
 
 			ShaderEffectSource { id: source
 				anchors.fill: parent
-				sourceItem: Ctrl.LockSurface {
+				sourceItem: Ctrl.LockSurface { id: sourceItem
 					context: context
-					wallpaper: root.wallpapers.find(w => w.display === window.screen.name)?.path || ''
 					width: window.width; height: window.height;
 				}
 				transform: Translate { id: trans; }
 			}
 
-			ParallelAnimation { id: anim
+			ParallelAnimation { id: lockAnim
 				onStarted: window.visible = true;
-				onFinished: lock.locked = true;
+				onFinished: {
+					lock.locked = true;
+					sourceItem.state = Ctrl.LockSurface.State.SignIn;
+				}
 
 				NumberAnimation {
 					target: source; property: "opacity";
@@ -69,37 +71,29 @@ Singleton { id: root
 				}
 			}
 
+			ParallelAnimation { id: unlockAnim
+				onFinished: {
+					window.visible = false;
+					sourceItem.state = Ctrl.LockSurface.State.Cover;
+				}
+
+				NumberAnimation {
+					target: source; property: "opacity";
+					to: 0.0; from: 1.0;
+					duration: 500; easing.type: Easing.InCirc;
+				}
+				NumberAnimation {
+					target: trans; property: "y";
+					to: -window.height; from: 0;
+					duration: 500; easing.type: Easing.OutCirc;
+				}
+			}
+
 			Connections {
 				target: root
 
-				function onLock() { anim.start(); }
-				function onUnlock() { window.visible = false; }
-			}
-		}
-	}
-
-	Process { id: getWallpaper
-		running: true
-		command: ['swww', 'query']
-		stdout: StdioCollector {
-			onStreamFinished: {
-				var ws = text.trim().split('\n');
-
-				root.wallpapers = [];
-
-				for (let w of ws) {
-					const parts = w.match(/^:\s*(\S+):\s*([^,]+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)$/);
-
-					if (!parts) continue;
-
-					root.wallpapers.push({
-						display: parts[1],
-						resolution: parts[2],
-						scale: parts[3],
-						type: parts[4],
-						path: parts[5]
-					});
-				}
+				function onLock() { lockAnim.start(); }
+				function onUnlock() { unlockAnim.start(); }
 			}
 		}
 	}
