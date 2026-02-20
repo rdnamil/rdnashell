@@ -10,6 +10,7 @@ import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Io
+import Quickshell.Widgets
 import qs.controls as Ctrl
 import qs.services as Service
 import "../globals.js" as Globals
@@ -33,6 +34,7 @@ Item { id: root
 	onStateChanged: switch (root.state) {
 		case LockSurface.State.Cover:
 			root.focus = true;
+			textInput.clear();
 			inactivity.stop();
 			coverAnim.start();
 			break;
@@ -57,7 +59,7 @@ Item { id: root
 					return 64;
 			}
 
-			Behavior on samples { NumberAnimation { duration: 250; easing.type: Easing.Linear; }}
+			Behavior on samples { NumberAnimation { duration: 500; easing.type: Easing.Linear; }}
 		}
 	}
 
@@ -202,6 +204,8 @@ Item { id: root
 					echoMode: TextInput.Password
 					inputMethodHints: Qt.ImhSensitiveData
 					color: enabled? Globals.Colours.text : Globals.Colours.light
+					selectedTextColor: Globals.Colours.accent
+					selectionColor: Qt.darker(Globals.Colours.accent, 1.4)
 					font.pointSize: 12
 					onTextChanged: if (root.context.showFailure) root.context.showFailure = false;
 					onAccepted: if (!root.context.unlockInProgress) root.context.tryUnlock(this.text);
@@ -226,6 +230,40 @@ Item { id: root
 					}
 				}
 			}
+		}
+	}
+
+	RowLayout {
+		anchors {
+			horizontalCenter: parent.horizontalCenter
+			bottom: parent.bottom; bottomMargin: Globals.Controls.padding;
+		}
+		opacity: root.state === LockSurface.State.SignIn? 1.0 : 0.0
+
+		Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.OutCirc; }}
+
+		Ctrl.Button {
+			icon: IconImage {
+				implicitSize: 32
+				source: Quickshell.iconPath("system-log-out")
+			}
+			onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'quit', '-s']);
+		}
+
+		Ctrl.Button {
+			icon: IconImage {
+				implicitSize: 32
+				source: Quickshell.iconPath("system-reboot")
+			}
+			onClicked: Quickshell.execDetached(['reboot']);
+		}
+
+		Ctrl.Button {
+			icon: IconImage {
+				implicitSize: 32
+				source: Quickshell.iconPath("system-shutdown")
+			}
+			onClicked: Quickshell.execDetached(['poweroff']);
 		}
 	}
 
