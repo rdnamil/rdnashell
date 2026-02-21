@@ -300,6 +300,7 @@ Item { id: root
 
 		Image { id: albumArt
 			Layout.margins: Globals.Controls.padding /2
+			Layout.rightMargin: Globals.Controls.padding /2 -Globals.Controls.spacing
 			Layout.preferredWidth: height *(sourceSize.width /sourceSize.height)
 			Layout.fillHeight: true
 			source: Service.MPlayer.artUrl
@@ -315,7 +316,7 @@ Item { id: root
 				height: parent.height
 				onClicked: Service.MPlayer.player.togglePlaying();
 				icon: IconImage {
-					implicitSize: albumArt.width
+					implicitSize: Globals.Controls.iconSize
 					source: Service.MPlayer.player?.isPlaying? Quickshell.iconPath("media-playback-pause-symbolic") : Quickshell.iconPath("media-playback-start-symbolic")
 				}
 				displayedIcon.visible: containsMouse
