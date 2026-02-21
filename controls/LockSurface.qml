@@ -53,7 +53,7 @@ Item { id: root
 		height: parent.height +64
 		source: Service.Swww.wallpapers.find(w => w.display === root.screen?.name)?.path || ''
 		layer.enabled: true
-		layer.effect: MultiEffect { id: multiEffect
+		layer.effect: MultiEffect {
 			blurEnabled: true
 			blur: root.state === LockSurface.State.Cover? 0.0 : 1.0
 			brightness: root.state === LockSurface.State.Cover? 0.0 : -0.05
@@ -117,7 +117,7 @@ Item { id: root
 	}
 
 	ColumnLayout { id: cover
-		readonly property real yOffset: root.height /2 -height /2 -time.y /2
+		readonly property real yOffset: root.height /2 -height +time.height /2
 
 		spacing: 0
 		x: root.width /2 -width /2
@@ -167,6 +167,7 @@ Item { id: root
 		Text {
 			Layout.alignment: Qt.AlignHCenter
 			text: getUserFullName.userFullName
+			renderType: Text.NativeRendering
 			color: Globals.Colours.text
 			font.pointSize: 16
 			layer.enabled: true
@@ -235,7 +236,14 @@ Item { id: root
 		}
 	}
 
-	RowLayout {
+	Rectangle {
+		visible: mPlayer.visible
+		anchors.fill: mPlayer
+		radius: Globals.Controls.radius
+		color: Globals.Colours.base
+	}
+
+	RowLayout { id: powerOptions
 		anchors {
 			horizontalCenter: parent.horizontalCenter
 			bottom: parent.bottom; bottomMargin: Globals.Controls.padding;
@@ -245,27 +253,109 @@ Item { id: root
 		Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.OutCirc; }}
 
 		Ctrl.Button {
+			enabled: root.state === LockSurface.State.SignIn
 			icon: IconImage {
 				implicitSize: 32
 				source: Quickshell.iconPath("system-log-out")
 			}
-			onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'quit', '-s']);
+			onClicked: if (enabled) Quickshell.execDetached(['niri', 'msg', 'action', 'quit', '-s']);
 		}
 
 		Ctrl.Button {
+			enabled: root.state === LockSurface.State.SignIn
 			icon: IconImage {
 				implicitSize: 32
 				source: Quickshell.iconPath("system-reboot")
 			}
-			onClicked: Quickshell.execDetached(['reboot']);
+			onClicked: if (enabled) Quickshell.execDetached(['reboot']);
 		}
 
 		Ctrl.Button {
+			enabled: root.state === LockSurface.State.SignIn
 			icon: IconImage {
 				implicitSize: 32
 				source: Quickshell.iconPath("system-shutdown")
 			}
-			onClicked: Quickshell.execDetached(['poweroff']);
+			onClicked: if (enabled) Quickshell.execDetached(['poweroff']);
+		}
+	}
+
+	RowLayout { id: mPlayer
+		property bool initialized
+
+		visible: Service.MPlayer.active
+		spacing: 0
+		x: root.width /2 -width /2
+		y: root.height -height -Globals.Controls.padding *2 -
+		(root.state === LockSurface.State.Cover? 0 : powerOptions.height +Globals.Controls.padding)
+		// width: 360
+		height: track.height +track.Layout.margins *2
+		onYChanged: if (y > height && !initialized) initialized = true;
+
+		Behavior on y {
+			enabled: mPlayer.initialized
+
+			NumberAnimation { duration: 500; easing.type: Easing.OutCirc; }
+		}
+
+		Image { id: albumArt
+			Layout.margins: Globals.Controls.padding /2
+			Layout.preferredWidth: height *(sourceSize.width /sourceSize.height)
+			Layout.fillHeight: true
+			source: Service.MPlayer.artUrl
+			layer.enabled: true
+			layer.effect: OpacityMask { maskSource: Rectangle {
+				width: albumArt.width
+				height: albumArt.height
+				radius: Globals.Controls.radius *(3 /4)
+			}}
+
+			Ctrl.Button { id: playbackControl
+				width: parent.width
+				height: parent.height
+				onClicked: Service.MPlayer.player.togglePlaying();
+				icon: IconImage {
+					implicitSize: albumArt.width
+					source: Service.MPlayer.player?.isPlaying? Quickshell.iconPath("media-playback-pause-symbolic") : Quickshell.iconPath("media-playback-start-symbolic")
+				}
+				displayedIcon.visible: containsMouse
+				effect: Component { Colorize { hue: Service.MPlayer.accent.hslHue; }}
+				effectEnabled: true
+			}
+		}
+
+		Column { id: track
+			Layout.margins: Globals.Controls.spacing
+			Layout.rightMargin: Globals.Controls.padding /2
+			spacing: Globals.Controls.spacing /2
+
+			Text {
+				text: "Now Playing"
+				color: Service.MPlayer.accent
+				font.pointSize: 8
+			}
+
+			Ctrl.Marquee {
+				width: Math.min(content.width, 240)
+				content: Row {
+					spacing: Globals.Controls.spacing
+
+					Text {
+						anchors.verticalCenter: parent.verticalCenter
+						text: Service.MPlayer.title
+						color: Globals.Colours.text
+						font.pointSize: 8
+					}
+
+					Text {
+						anchors.verticalCenter: parent.verticalCenter
+						text: Service.MPlayer.artist
+						color: Globals.Colours.light
+						font.pointSize: 8
+						font.italic: true
+					}
+				}
+			}
 		}
 	}
 
