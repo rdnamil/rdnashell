@@ -4,7 +4,6 @@ A simple and customizable shell, originally inspired by Waybar and with OOTB Nir
 ![screenshot](resources/Screenshot-01.png)
 
 ## Installation
----
 ### Dependencies
  - `quickshell-git` *must be the '-git' version*
  - `niri`
@@ -21,7 +20,6 @@ qs
 > > Ex. Niri: `spawn-at-startup "qs"`
 
 ## Configuration
----
 ### Shell config
 Most configuration can be done in the `shell.qml` file. there you can specify what features and services you want. It might look something like this: 
 

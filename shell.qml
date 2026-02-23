@@ -8,7 +8,7 @@ import qs.components
 import qs.widgets
 import qs.services as Service
 
-ShellRoot { id: root
+ShellRoot {
 	Bar {
 		left: [
 			Network {},
