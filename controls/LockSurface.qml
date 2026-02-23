@@ -35,12 +35,10 @@ Item { id: root
 		case LockSurface.State.Cover:
 			root.focus = true;
 			textInput.clear();
-			inactivity.stop();
 			coverAnim.start();
 			break;
 		case LockSurface.State.SignIn:
 			textInput.focus = true;
-			inactivity.start();
 			signInAnim.start();
 			break;
 	}
@@ -67,7 +65,6 @@ Item { id: root
 		anchors.fill: parent
 		hoverEnabled: true
 		onClicked: if (root.state !== LockSurface.State.SignIn) root.state = LockSurface.State.SignIn;
-		onPositionChanged: if (inactivity.running) inactivity.restart();
 	}
 
 	ParallelAnimation { id: signInAnim
@@ -358,11 +355,6 @@ Item { id: root
 				}
 			}
 		}
-	}
-
-	Timer { id: inactivity
-		interval: 3e5
-		onTriggered: root.state = LockSurface.State.Cover;
 	}
 
 	Process { id: getUserFullName
