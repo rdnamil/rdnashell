@@ -38,6 +38,9 @@ ShellRoot { id: root
 		Settings.init();
 		Lockscreen.init();
 		AppLauncher.init();
+		Service.Idle.init(
+			300 // timeout to idle in seconds
+		);
 		Service.Brightness.init(); // uses brightnessctl
 		Service.Sunsetr.init(
 			3500, // temperature in K

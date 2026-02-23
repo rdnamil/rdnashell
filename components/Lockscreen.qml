@@ -12,9 +12,7 @@ import Quickshell.Io
 import qs.controls as Ctrl
 
 Singleton { id: root
-	property list<var> wallpapers
-
-	signal lock()
+	signal lock(bool anim)
 	signal unlock()
 
 	function init() {}
@@ -23,9 +21,28 @@ Singleton { id: root
 
 	WlSessionLock { id: lock
 		surface: WlSessionLockSurface { id: surface
-			Ctrl.LockSurface {
+			Ctrl.LockSurface { id: locksurface
 				context: context
 				screen: surface.screen
+
+				IdleMonitor { id: monitor
+					timeout: 10
+					onIsIdleChanged: if (isIdle) {
+						if (locksurface.state === Ctrl.LockSurface.SignIn) {
+							locksurface.state = Ctrl.LockSurface.Cover;
+							inactive.start();
+						} else inactive.triggered();
+					}
+					else {
+						inactive.stop();
+						Quickshell.execDetached(['niri', 'msg', 'action', 'power-on-monitors']);
+					}
+				}
+
+				Timer { id: inactive
+					interval: monitor.timeout *1000
+					onTriggered: Quickshell.execDetached(['niri', 'msg', 'action', 'power-off-monitors']);
+				}
 			}
 		}
 	}
@@ -92,7 +109,14 @@ Singleton { id: root
 			Connections {
 				target: root
 
-				function onLock() { lockAnim.start(); }
+				function onLock(anim) {
+					if (anim) lockAnim.start();
+					else {
+						window.visible = true;
+						lock.locked = true;
+						sourceItem.state = Ctrl.LockSurface.State.SignIn;
+					}
+				}
 				function onUnlock() { unlockAnim.start(); }
 			}
 		}
@@ -100,7 +124,7 @@ Singleton { id: root
 
 	IpcHandler {
 		target: "lockscreen"
-		function lock(): void { root.lock(); }
+		function lock(anim: bool): void { root.lock(anim); }
 		function unlock(): void { context.unlocked(); }
 	}
 }
