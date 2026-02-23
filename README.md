@@ -1,7 +1,6 @@
 # rdnashell
 ---
 A simple and customizable shell, originally inspired by Waybar and with OOTB Niri support.
-![screenshot](resources/GIF-01.png)
 ![screenshot](resources/Screenshot-01.png)
 
 ## Installation
