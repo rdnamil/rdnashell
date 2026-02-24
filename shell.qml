@@ -21,6 +21,10 @@ ShellRoot {
 		]
 		right: [
 			SystemTray {},
+			Yay {
+				notifyOn: 15 // number of updates before notifying
+				updateCommmand: ['ghostty', '-e', 'yay'] // command to run to update
+			},
 			ColourPicker {},
 			Caffeine {},
 			Redeye {},
