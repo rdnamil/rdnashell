@@ -18,10 +18,6 @@ Ctrl.PopupMenu { id: root
 
 	width: 320
 	height: btn.height
-	onLoaded: {
-		root.item.x = Globals.Controls.spacing /2 -Globals.Controls.padding /2;
-		root.item.y = Globals.Controls.spacing /2 -Globals.Controls.padding /2;
-	}
 
 	Ctrl.Button { id: btn
 		width: root.width

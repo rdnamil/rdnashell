@@ -35,7 +35,7 @@ Loader { id: root
 		enabled: true
 		focus: true
 		margins: Globals.Controls.spacing
-		width: root.width +list.padding *2 -Globals.Controls.spacing
+		width: root.width/* +list.padding *2 -Globals.Controls.spacing*/
 		height: list.height
 		clip: false
 		popupType: root.compatibilityMode? Popup.Item : Popup.Native
