@@ -69,7 +69,6 @@ Ctrl.Widget { id: root
             body: Ctrl.List { id: list
                 view.highlight: Item {}
                 view.spacing: Globals.Controls.spacing
-                view.clip: false
                 model: root.updates
                     .filter(u => u.package)
                     .sort((a, b) => a.package.localeCompare(b.package))
