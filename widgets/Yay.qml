@@ -48,7 +48,8 @@ Ctrl.Widget { id: root
 
                 Ctrl.Button {
                     Layout.margins: Globals.Controls.spacing
-                    onClicked: if (!getUpdates.running) getUpdates.running = true;
+                    enabled: !getUpdates.running
+                    onClicked: if (enabled) getUpdates.running = true;
                     icon: IconImage {
                         implicitSize: Globals.Controls.iconSize
                         source: Quickshell.iconPath("view-refresh")
