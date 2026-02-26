@@ -7,6 +7,7 @@ Singleton { id: root
 	property list<var> wallpapers: []
 
 	function getWallpaper() { if (!getWallpaper.running) getWallpaper.running = true; }
+	function setWallpaper(path) { applyWallpaper.exec(['swww', 'img', path]); }
 
 	Process { id: getWallpaper
 		running: true
@@ -32,5 +33,16 @@ Singleton { id: root
 				}
 			}
 		}
+	}
+
+	Process { id: applyWallpaper
+		stdout: StdioCollector { onStreamFinished: getWallpaper.running = true; }
+	}
+
+
+	IpcHandler {
+		target: "swww"
+
+		function applyWallpaper(path: string): void { root.setWallpaper(path); }
 	}
 }
