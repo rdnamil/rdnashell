@@ -87,21 +87,24 @@ Ctrl.Widget { id: root
 
 					switch (mouse.button) {
 						case Qt.LeftButton:
-							switch (dev.state) {
+							if (dev.pairing) {
+								dev.cancelPair();
+							} else { switch (dev.state) {
 								case BluetoothDeviceState.Connected:
 									dev.disconnect();
 									break;
 								case BluetoothDeviceState.Disconnected:
-									dev.connect();
+									if (dev.paried) dev.connect();
+									else dev.pair();
 									break;
 								default: break;
-							}
+							}}
 							break;
 						case Qt.RightButton:
 							forget.x = mouse.x -Globals.Controls.radius *2 *0.1464;
 							forget.y = mouse.y -Globals.Controls.radius *2 *0.1464;
 							forget.menuAnchor = item;
-							forget.open();
+							if (dev.bonded) forget.open();
 							break;
 					}
 				}
@@ -166,7 +169,8 @@ Ctrl.Widget { id: root
 				Ctrl.PopupMenu { id: forget
 					property Item menuAnchor: null
 
-					width: 72
+					width: 96
+					colorize: true
 					model: [
 						{ "icon": 'dialog-question', "text": 'forget' },
 						// { "icon": 'action-unavailable', "text": 'cancel' },
