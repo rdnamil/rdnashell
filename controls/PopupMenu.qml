@@ -71,7 +71,8 @@ Loader { id: root
 			}
 			mouse.onPositionChanged: (mouse) => {
 				const idx = view.indexAt(mouse.x +view.contentX, mouse.y +view.contentY);
-				if (!view.itemAtIndex(idx).modelData.isSeparator) view.currentIndex = idx;
+				const itm = view.itemAtIndex(idx);
+				if (!itm.modelData.isSeparator && (itm.modelData.enabled ?? true)) view.currentIndex = idx;
 				else view.currentIndex = -1;
 			}
 			model: root.model
