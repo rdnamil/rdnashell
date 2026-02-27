@@ -70,9 +70,7 @@ Ctrl.Widget { id: root
             body: Ctrl.List { id: list
                 view.highlight: Item {}
                 view.spacing: Globals.Controls.spacing
-                model: root.updates
-                    .filter(u => u.package)
-                    .sort((a, b) => a.package.localeCompare(b.package))
+                model: []
                 delegate: Item { id: delegate
                     required property var modelData
                     required property int index
@@ -108,9 +106,19 @@ Ctrl.Widget { id: root
                         }
 
                         Text {
+							readonly property color flavour: switch (delegate.modelData.repo) {
+								case "endeavouros": return "#c6a0f6";
+								case "core": return "#eed49f";
+								case "extra": return "#a6da95";
+								case "multilib": return "#8bd5ca";
+								case "aur": return "#8aadf4"
+								default: return "#eed49f";
+							}
+
                             Layout.leftMargin: Globals.Controls.spacing
                             Layout.fillWidth: true
-                            text: `${delegate.modelData.package}`
+                            text: `<font color="${flavour}">${delegate.modelData.repo}</font>/${delegate.modelData.package}`
+                            elide: Text.ElideRight
                             color: Globals.Colours.text
                             font.pointSize: 8
                         }
@@ -143,56 +151,83 @@ Ctrl.Widget { id: root
 
     Process { id: update
         command: root.updateCommmand
-        stdout: StdioCollector { onStreamFinished: getInfo.running = true; }
-    }
-
-    Process { id: getInfo
-        // running: true
-        command: ['pacman', '-Si']
-        stdout: StdioCollector { onStreamFinished: {
-            // clear list
-            root.info = [];
-
-            const pkgs = text.trim()
-                .split(/\n\s*\n/)
-                .map(p => {
-                    const pkg = {};
-
-                    p.split('\n').forEach(line => {
-                        const match = line.match(/^([^:]+?)\s*:\s*(.*)$/);
-                        if (match) {
-                            const key = match[1].trim();
-                            const value = match[2].trim();
-                            pkg[key] = value;
-                        }
-                    });
-
-					return pkg;
-                });
-
-			// console.log(pkgs.map(p => p.Name));
-			root.info = pkgs;
-			getUpdates.running = true;
-        }}
+        stdout: StdioCollector { onStreamFinished: getUpdates.running = true; }
     }
 
     Process { id: getUpdates
         running: true
-        command: ['sh', '-c', 'checkupdates && yay -Qua']
+        command: ['checkupdates']
         stdout: StdioCollector { onStreamFinished: {
-            // clear list
-            root.updates = [];
-
-            text.split('\n').forEach(l => {
-                const p = l.split(' ');
-                root.updates.push({
-                    "package": p[0],
-                    "current": p[1],
-                    "new": p[3]
+            root.updates = text.trim()
+                .split('\n')
+                .map(l => {
+                    const p = l.split(' ');
+                    return {
+                        "package": p[0],
+                        "current": p[1],
+                        "new": p[3]
+                    }
                 });
-            });
+
+            getAurUpdates.running = true;
         }}
     }
+
+    Process { id: getAurUpdates
+		command: ['yay', '-Qua']
+		stdout: StdioCollector { onStreamFinished: {
+			text.trim()
+			.split('\n')
+			.map(l => {
+				const p = l.split(' ');
+				return {
+					"repo": "aur",
+					"package": p[0],
+					"current": p[1],
+					"new": p[3]
+				}
+			})
+			.forEach(u => root.updates.push(u));
+
+			getInfo.running = true;
+		}}
+	}
+
+	Process { id: getInfo
+		// running: true
+		command: ['pacman', '-Si']
+		stdout: StdioCollector { onStreamFinished: {
+			const updates = root.updates.map(p => p.package);
+			text.trim()
+			.split(/\n\s*\n/)
+			.map(e => {
+				const pkg = {};
+
+				e.split('\n').forEach(l => {
+					const match = l.match(/^([^:]+?)\s*:\s*(.*)$/);
+					if (match) {
+						const key = match[1].trim();
+						const value = match[2].trim();
+						pkg[key] = value;
+					}
+				});
+
+				return pkg;
+			})
+			.filter(p => updates.includes(p.Name))
+			.forEach(p => {
+				root.updates.find(u => u.package === p.Name).repo = p.Repository;
+			});
+
+			list.model = root.updates
+			.filter(u => u.package)
+			.sort((a, b) => {
+				if (a.repo.localeCompare(b.repo)) return a.repo.localeCompare(b.repo);
+				else return a.package.localeCompare(b.package);
+			});
+			// console.log(root.info.map(p => p.Name));
+		}}
+	}
 
     Timer {
         interval: 36e5
