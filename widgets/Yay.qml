@@ -11,6 +11,7 @@ import qs.styles as Style
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
+    property list<var> info: []
     property list<var> updates: []
     property int notifyOn: 0
     property list<string> updateCommmand: []
@@ -109,7 +110,7 @@ Ctrl.Widget { id: root
                         Text {
                             Layout.leftMargin: Globals.Controls.spacing
                             Layout.fillWidth: true
-                            text: delegate.modelData.package
+                            text: `${delegate.modelData.package}`
                             color: Globals.Colours.text
                             font.pointSize: 8
                         }
@@ -142,12 +143,42 @@ Ctrl.Widget { id: root
 
     Process { id: update
         command: root.updateCommmand
-        stdout: StdioCollector { onStreamFinished: getUpdates.running = true; }
+        stdout: StdioCollector { onStreamFinished: getInfo.running = true; }
+    }
+
+    Process { id: getInfo
+        // running: true
+        command: ['pacman', '-Si']
+        stdout: StdioCollector { onStreamFinished: {
+            // clear list
+            root.info = [];
+
+            const pkgs = text.trim()
+                .split(/\n\s*\n/)
+                .map(p => {
+                    const pkg = {};
+
+                    p.split('\n').forEach(line => {
+                        const match = line.match(/^([^:]+?)\s*:\s*(.*)$/);
+                        if (match) {
+                            const key = match[1].trim();
+                            const value = match[2].trim();
+                            pkg[key] = value;
+                        }
+                    });
+
+					return pkg;
+                });
+
+			// console.log(pkgs.map(p => p.Name));
+			root.info = pkgs;
+			getUpdates.running = true;
+        }}
     }
 
     Process { id: getUpdates
         running: true
-        command: ['yay', '-Qu']
+        command: ['sh', '-c', 'checkupdates && yay -Qua']
         stdout: StdioCollector { onStreamFinished: {
             // clear list
             root.updates = [];
