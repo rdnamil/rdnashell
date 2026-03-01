@@ -17,7 +17,7 @@ Ctrl.Widget { id: root
 	height: 18
 	icon: Rectangle { id: icon
 		width: root.width; height: root.height; radius: height /2
-		color: root.toggle? "limegreen" : Globals.Colours.mid
+		color: root.toggle? Globals.Colours.success : Globals.Colours.mid
 		clip: false
 
 		Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.OutCirc; }}
