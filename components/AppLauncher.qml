@@ -74,11 +74,11 @@ Singleton { id: root
 					width: list.width
 					height: textInputLayout.height +Globals.Controls.padding *2
 
-					RectangularShadow {
-						anchors.fill: textInputLayout
-						radius: Globals.Controls.radius *(3 /4)
-						opacity: 0.4
-					}
+					// RectangularShadow {
+					// 	anchors.fill: textInputLayout
+					// 	radius: Globals.Controls.radius *(3 /4)
+					// 	opacity: 0.4
+					// }
 
 					Rectangle {
 						anchors.fill: textInputLayout
