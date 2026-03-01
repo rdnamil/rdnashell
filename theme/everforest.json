@@ -5,5 +5,8 @@
 	"light": "#A7C080",
 	"mid": "#2E383C",
 	"text": "#D3C6AA",
-	"text_inactive": "#4C3743"
+	"text_inactive": "#4C3743",
+	"danger": "#e67e80",
+	"warning": "#e69875",
+	"success": "#acc080"
 }
