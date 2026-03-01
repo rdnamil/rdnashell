@@ -10,9 +10,9 @@ import "../globals.js" as Globals
 
 Item { id: root
 	readonly property color healthColour: {
-		if (percentage > (1 /3)) return "green";
-		else if (percentage > (1 /6)) return "orange";
-		else return "red";
+		if (percentage > (1 /3)) return Globals.Colours.success;
+		else if (percentage > (1 /6)) return Globals.Colours.warning;
+		else return Globals.Colours.danger;
 	}
 	readonly property bool isLow: percentage <= (1 /6)
 
