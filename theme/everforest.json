@@ -6,7 +6,7 @@
 	"mid": "#2E383C",
 	"text": "#D3C6AA",
 	"text_inactive": "#4C3743",
-	"danger": "#e67e80",
-	"warning": "#e69875",
-	"success": "#acc080"
+	"danger": "#f85552",
+	"warning": "#f57d26",
+	"success": "#8da101"
 }
