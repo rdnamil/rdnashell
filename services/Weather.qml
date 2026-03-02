@@ -10,7 +10,8 @@ import Quickshell.Io
 
 Singleton { id: root
 	property var forecast: null
-	property string location: ''
+	property var location: null
+	property bool running: getWeather.running
 
 	function getIcon(weatherCode = root.forecast?.current.weather_code, isDay = root.forecast?.current.is_day) {
 		let i = "app";
@@ -49,13 +50,15 @@ Singleton { id: root
 		return Quickshell.iconPath(`weather-${i}`, true)
 	}
 
-	function getWeatherFrom(lon, lat) {
+	function getWeatherFrom(lon = root.location.lon, lat = root.location.lat) {
 		getWeather.exec(["curl", "-s", `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min&current=weather_code,temperature_2m,is_day`]);
+
+		timer.restart();
 	}
 
 	Process { id: getLocation
 		running: true
-		command: ["sh", "-c", 'curl "http://ip-api.com/json?fields=lat,lon,city,region"']
+		command: ["sh", "-c", 'curl "http://ip-api.com/json?fields=lat,lon,offset,city,region,regionName"']
 		stdout: StdioCollector {
 			onStreamFinished: {
 				let l = '';
@@ -68,19 +71,20 @@ Singleton { id: root
 
 				if (l) {
 					root.getWeatherFrom(l.lon, l.lat);
-					root.location = `${l.city}, ${l.region}`;
+					root.location = l;
 				}
 			}
 		}
 	}
 
 	Process { id: getWeather
-		stdout: StdioCollector {
-			onStreamFinished: root.forecast = JSON.parse(text);
-		}
+		stdout: StdioCollector { onStreamFinished: {
+			root.forecast = JSON.parse(text);
+			// console.log(text);
+		}}
 	}
 
-	Timer {
+	Timer { id: timer
 		running: true
 		repeat: true
 		interval: 36e5
