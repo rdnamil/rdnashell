@@ -211,7 +211,7 @@ Item { id: root
 					onAccepted: if (!root.context.unlockInProgress) root.context.tryUnlock(this.text);
 					Keys.onPressed: event => {
 						if (event.key === Qt.Key_Escape) root.state = LockSurface.State.Cover;
-						else inactivity.restart();
+						// else inactivity.restart();
 					}
 
 					Text {
