@@ -56,9 +56,16 @@ Item { id: root
 					z: -1
 					radius: parent.radius
 					blur: 30
-					color: Globals.Colours.dark
-					opacity: (root.header || root.footer)? 0.8 : 0.0
+					opacity: (root.header || root.footer)? 0.4 : 0.0
 				}
+			}
+
+			Rectangle {
+				anchors.fill: parent
+				radius: Globals.Controls.radius
+				color: "transparent"
+				opacity: 0.2
+				border { width: 1; color: Globals.Colours.light; }
 			}
 
 			Component.onCompleted: if (root.body) root.body.parent = bodyWrapper;
@@ -72,5 +79,13 @@ Item { id: root
 
 			Component.onCompleted: if (root.footer) root.footer.parent = footerWrapper;
 		}
+	}
+
+	Rectangle {
+		anchors.fill: parent
+		radius: Globals.Controls.radius
+		color: "transparent"
+		opacity: 0.6
+		border { width: 1; color: Globals.Colours.mid; }
 	}
 }
