@@ -65,8 +65,8 @@ Item { id: root
 			height: contentWrapper.height
 		}
 		color: Globals.Settings.debug? "#80ff0000" : "transparent"
-		implicitWidth: root.content.width +Globals.Controls.padding *2 +shadow.blur *2
-		implicitHeight: root.content.height +Globals.Controls.padding *2 +shadow.blur *2
+		implicitWidth: root.content.width +Globals.Controls.padding +shadow.blur *2
+		implicitHeight: root.content.height +Globals.Controls.padding +shadow.blur
 		anchor {
 			item: root
 			// if the window would go off-screen, slideX until it is back on-screen
