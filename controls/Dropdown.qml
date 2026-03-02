@@ -6,8 +6,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
-import QtQuick.Effects
 import Quickshell
 import Quickshell.Widgets
 import qs.controls as Ctrl
