@@ -3,6 +3,7 @@
 ----------------------------*/
 
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import qs.controls as Ctrl
 import "../globals.js" as Globals
@@ -10,7 +11,7 @@ import "../globals.js" as Globals
 Ctrl.Widget { id: root
 	readonly property SystemClock clock: SystemClock { id: clock; precision: SystemClock.Seconds; }
 
-	icon: Row {
+	icon: RowLayout {
 		spacing: Globals.Controls.spacing
 
 		Text {
@@ -20,8 +21,8 @@ Ctrl.Widget { id: root
 			font.weight: 500
 		}
 		Rectangle {
-			anchors.verticalCenter: parent.verticalCenter
-			width: 4; height: width; radius: height /2;
+			Layout.alignment: Qt.AlignVCenter
+			Layout.preferredWidth: 4; Layout.preferredHeight: width; radius: height /2;
 			color: Globals.Colours.text
 		}
 		Text {
