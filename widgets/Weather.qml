@@ -70,7 +70,7 @@ Ctrl.Widget { id: root
 			readonly property var daily: Service.Weather.forecast?.daily || null
 
 			header: Item {
-				width: content.width
+				width: content.body.width
 				height: refresh.height +Globals.Controls.spacing *2
 
 				Row {
@@ -106,150 +106,158 @@ Ctrl.Widget { id: root
 					}
 				}
 			}
-			body: Row {
-				padding: Globals.Controls.padding
-				spacing: Globals.Controls.spacing
+			body: Item {
+				width: layout.width; height: layout.height;
 
-				IconImage {
-					visible: false
-					implicitSize: layout.height
-					source: Service.Weather.getIcon()
+				Rectangle {
+					x: current.x -(width -current.width) /2; y: current.y -(height -current.height) /2;
+					width: current.width +Globals.Controls.padding; height: current.height +Globals.Controls.padding;
+					radius: 6
+					color: Globals.Colours.base
 				}
 
-				Column { id: layout
-					spacing: Globals.Controls.spacing
+				Row {  id: layout
+					padding: Globals.Controls.padding
+					spacing: Globals.Controls.padding
 
-					Text {
-						visible: false
-						text: Qt.formatDateTime(content.daily?.time[0] || "2026-01-01", "dddd")
-						color: Globals.Colours.text
-						font.pointSize: 10
-						font.letterSpacing: 1.0
-						font.weight: 600
-					}
-
-					Row {
-						spacing: Globals.Controls.spacing
-
-						IconImage {
-							implicitSize: currentWeather.height
-							source: Service.Weather.getIcon()
-						}
-
-						Text { id: currentWeather
-							text: switch (Service.Weather.forecast?.current.weather_code || 0) {
-								case 0: return "Clear sky";
-								case 1: return "Mainly clear";
-								case 2: return "Partly cloudy";
-								case 3: return "Overcast";
-								case 45: case 48: return "Fog";
-								case 51: return "Light drizzle";
-								case 23: return "Moderate drizzle";
-								case 55: return "Dense drizzle";
-								case 56: return "Light freezing drizzle";
-								case 57: return "Dense freezing drizzle";
-								case 61: return "Slight rain";
-								case 63: return "Moderate rain";
-								case 65: return "Heavy rain";
-								case 71: return "Slight snow fall";
-								case 73: return "Moderate snow fall";
-								case 75: return "Heavy snow fall";
-								case 77: return "Snow grains";
-								case 80: return "Slight rain showers";
-								case 81: return "Moderate rain showers";
-								case 82: return "Violent rain showers";
-								case 85: return "Slight snow showers";
-								case 86: return "Heavy snow showers";
-								case 95: return "Thunderstorm";
-								case 96: return "Thunderstorm with slight hail";
-								case 99: return "Thunderstorm with heavy hail";
-							}
-							color: Globals.Colours.text
-							font.pointSize: 8
-							font.weight: 600
-						}
-					}
-
-					Row {
-						spacing: Globals.Controls.spacing
-
-						IconImage {
-							visible: false
-							anchors.verticalCenter: parent.verticalCenter
-							implicitSize: parent.height
-							source: Quickshell.iconPath("sensors-temperature-symbolic")
-						}
-
-						Text { id: currentTemp
-							anchors.verticalCenter: parent.verticalCenter
-							text: temp.text
-							color: Globals.Colours.text
-							font.pointSize: 16
-							font.weight: 600
-						}
-
-						Column {
-							Text {
-								text: `${parseInt(content.daily?.temperature_2m_min[0] || 0) > 0? '+' : ''}${parseInt(content.daily?.temperature_2m_min[0] || 0)}${Service.Weather.forecast?.daily_units.temperature_2m_min || ''}`
-								color: Globals.Colours.text
-								font.pointSize: 8
-								font.weight: 300
-							}
-
-							Text {
-								text: `${parseInt(content.daily?.temperature_2m_max[0] || 0) > 0? '+' : ''}${parseInt(content.daily?.temperature_2m_max[0] || 0)}${Service.Weather.forecast?.daily_units.temperature_2m_max || ''}`
-								color: Globals.Colours.text
-								font.pointSize: 8
-								font.weight: 600
-							}
-						}
-					}
-				}
-			}
-			footer: Row {
-				padding: Globals.Controls.padding
-				spacing: Globals.Controls.padding
-
-				Repeater {
-					model: 6
-					delegate: Column { id: delegate
-						required property int index
-
+					Column { id: current
 						spacing: Globals.Controls.spacing
 
 						Text {
 							anchors.horizontalCenter: parent.horizontalCenter
-							topPadding: -Globals.Controls.spacing
-							bottomPadding: -Globals.Controls.spacing
-							text: Qt.formatDateTime(content.daily?.time[delegate.index +1] || "2026-01-01", "ddd")
+							text: Qt.formatDateTime(content.daily?.time[0] || "2026-01-01", "dddd")
 							color: Globals.Colours.text
 							font.pointSize: 10
-							font.weight: 600
+							font.letterSpacing: 1.0
+							font.weight: 700
 						}
 
-						IconImage {
+						Rectangle {
 							anchors.horizontalCenter: parent.horizontalCenter
-							implicitSize: 32
-							source: Service.Weather.getIcon(content.daily?.weather_code[delegate.index +1] || 0, true)
+							width: parent.width -Globals.Controls.padding; height: 1
+							color: Globals.Colours.light
+							opacity: 0.4
 						}
 
-						Column {
+						Row {
 							anchors.horizontalCenter: parent.horizontalCenter
+							spacing: Globals.Controls.spacing
+
+							IconImage {
+								implicitSize: currentWeather.height
+								source: Service.Weather.getIcon()
+							}
+
+							Text { id: currentWeather
+								text: switch (Service.Weather.forecast?.current.weather_code || 0) {
+									case 0: return "Clear sky";
+									case 1: return "Mainly clear";
+									case 2: return "Partly cloudy";
+									case 3: return "Overcast";
+									case 45: case 48: return "Fog";
+									case 51: return "Light drizzle";
+									case 23: return "Moderate drizzle";
+									case 55: return "Dense drizzle";
+									case 56: return "Light freezing drizzle";
+									case 57: return "Dense freezing drizzle";
+									case 61: return "Slight rain";
+									case 63: return "Moderate rain";
+									case 65: return "Heavy rain";
+									case 71: return "Slight snow fall";
+									case 73: return "Moderate snow fall";
+									case 75: return "Heavy snow fall";
+									case 77: return "Snow grains";
+									case 80: return "Slight rain showers";
+									case 81: return "Moderate rain showers";
+									case 82: return "Violent rain showers";
+									case 85: return "Slight snow showers";
+									case 86: return "Heavy snow showers";
+									case 95: return "Thunderstorm";
+									case 96: return "Thunderstorm with slight hail";
+									case 99: return "Thunderstorm with heavy hail";
+								}
+								color: Globals.Colours.text
+								font.pointSize: 8
+								font.weight: 600
+							}
+						}
+
+						Row {
+							anchors.horizontalCenter: parent.horizontalCenter
+							spacing: Globals.Controls.spacing
+
+							IconImage {
+								visible: false
+								anchors.verticalCenter: parent.verticalCenter
+								implicitSize: parent.height
+								source: Quickshell.iconPath("sensors-temperature-symbolic")
+							}
+
+							Text { id: currentTemp
+								anchors.verticalCenter: parent.verticalCenter
+								text: temp.text
+								color: Globals.Colours.text
+								font.pointSize: 16
+								font.weight: 600
+							}
+
+							Column {
+								Text {
+									text: `${parseInt(content.daily?.temperature_2m_min[0] || 0) > 0? '+' : ''}${parseInt(content.daily?.temperature_2m_min[0] || 0)}${Service.Weather.forecast?.daily_units.temperature_2m_min || ''}`
+									color: Globals.Colours.text
+									font.pointSize: 8
+									font.weight: 300
+								}
+
+								Text {
+									text: `${parseInt(content.daily?.temperature_2m_max[0] || 0) > 0? '+' : ''}${parseInt(content.daily?.temperature_2m_max[0] || 0)}${Service.Weather.forecast?.daily_units.temperature_2m_max || ''}`
+									color: Globals.Colours.text
+									font.pointSize: 8
+									font.weight: 600
+								}
+							}
+						}
+					}
+
+					Item { width: 1; height: width; }
+
+					Repeater {
+						model: 5
+						delegate: Column { id: delegate
+							required property int index
+
+							spacing: Globals.Controls.spacing
 
 							Text {
 								anchors.horizontalCenter: parent.horizontalCenter
-								text: `${parseInt(content.daily?.temperature_2m_min[delegate.index +1] || 0) > 0? '+' : ''}${parseInt(content.daily?.temperature_2m_min[delegate.index +1] || 0)}${Service.Weather.forecast?.daily_units.temperature_2m_min || ''}`
+								text: Qt.formatDateTime(content.daily?.time[delegate.index +1] || "2026-01-01", "ddd")
 								color: Globals.Colours.text
-								font.pointSize: 8
-								font.weight: 300
+								font.pointSize: 10
+							}
+
+							IconImage {
+								anchors.horizontalCenter: parent.horizontalCenter
+								implicitSize: 28
+								source: Service.Weather.getIcon(content.daily?.weather_code[delegate.index +1] || 0, true)
 							}
 
 							Text {
 								anchors.horizontalCenter: parent.horizontalCenter
+								bottomPadding: -delegate.spacing
+								text: `${parseInt(content.daily?.temperature_2m_min[delegate.index +1] || 0) > 0? '+' : ''}${parseInt(content.daily?.temperature_2m_min[delegate.index +1] || 0)}${Service.Weather.forecast?.daily_units.temperature_2m_min || ''}`
+								color: Globals.Colours.text
+								font.pointSize: 6
+								font.letterSpacing: 0.5
+							}
+
+							Text {
+								anchors.horizontalCenter: parent.horizontalCenter
+								bottomPadding: -delegate.spacing
 								text: `${parseInt(content.daily?.temperature_2m_max[delegate.index +1] || 0) > 0? '+' : ''}${parseInt(content.daily?.temperature_2m_max[delegate.index +1]) || 0}${Service.Weather.forecast?.daily_units.temperature_2m_max || ''}`
 								color: Globals.Colours.text
-								font.pointSize: 8
-								font.weight: 600
+								font.pointSize: 6
+								font.letterSpacing: 0.5
+								font.weight: 800
 							}
 						}
 					}
