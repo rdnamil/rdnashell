@@ -31,8 +31,9 @@ Row { id: root
 					case Qt.MiddleButton:
 						delegate.modelData.secondaryActivate(); break;
 					case Qt.RightButton:
-						popup.x = mouse.x -Globals.Controls.radius *2 *0.1464;
-						popup.y = mouse.y -Globals.Controls.radius *2 *0.1464;
+						// popup.x = mouse.x -Globals.Controls.radius *2 *0.1464;
+						// popup.y = mouse.y -Globals.Controls.radius *2 *0.1464;
+						popup.y = root.height +Globals.Controls.spacing
 						popup.open();
 						break;
 				}
