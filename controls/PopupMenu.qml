@@ -200,7 +200,7 @@ Loader { id: root
 				radius: Globals.Controls.radius
 				blur: 30
 				// color: "green"
-				opacity: shadowWindow.anchor.rect.y === root.y? 0.0 : 0.4
+				opacity: 0.4 *0.975
 			}
 		}
 	}
