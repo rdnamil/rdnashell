@@ -43,6 +43,10 @@ Loader { id: root
 		clip: false
 		popupType: root.compatibilityMode? Popup.Item : Popup.Native
 		background: Item {}
+		onAboutToShow: {
+			shadowWindow.anchor.rect.x = x -shadow.blur;
+			shadowWindow.anchor.rect.y = y -shadow.blur;
+		}
 		onAboutToHide: root.selected(-1);
 
 		RectangularShadow {
@@ -57,6 +61,8 @@ Loader { id: root
 			anchors.fill: list
 			radius: Globals.Controls.radius
 			color: Globals.Colours.dark
+			// border { width: 1; color: Qt.alpha(Globals.Colours.base, 0.2); }
+			opacity: 0.975
 		}
 
 		Ctrl.List { id: list
@@ -157,6 +163,44 @@ Loader { id: root
 					color: Globals.Colours.text
 					font.pointSize: 10
 				}
+			}
+		}
+	}
+
+	PopupWindow { id: shadowWindow
+		visible: (root.item?.visible || false) && !root.compatibilityMode
+		anchor {
+			item: root
+			adjustment: PopupAdjustment.None
+		}
+		implicitWidth: root.width +shadow.blur *2
+		implicitHeight: root.item?.height +shadow.blur *2 ||  0
+		mask: Region {}
+		color: Globals.Settings.debug? "#40ff0000" : "transparent"
+
+		Item { id: shadowWrapper
+			anchors.fill: parent
+			layer.enabled: true
+			layer.effect: OpacityMask {
+				invert: true
+				maskSource: Item {
+					width: shadowWrapper.width; height: shadowWrapper.height;
+
+					Rectangle {
+						anchors.centerIn: parent
+						width: root.width; height: root.item?.height || 0;
+						radius: shadow.radius
+					}
+				}
+			}
+
+			RectangularShadow { id: shadow
+				x: blur; y: blur;
+				width: parent.width -blur *2; height: parent.height -blur *2;
+				radius: Globals.Controls.radius
+				blur: 30
+				// color: "green"
+				opacity: shadowWindow.anchor.rect.y === root.y? 0.0 : 0.4
 			}
 		}
 	}
