@@ -142,23 +142,26 @@ Variants { id: root
 						anchors.verticalCenter: parent?.verticalCenter || undefined
 						width: icon.width +Globals.Controls.padding -Globals.Controls.spacing
 						height: icon.height +Globals.Controls.padding -Globals.Controls.spacing
-						acceptedButtons: Qt.LeftButton | Qt.RightButton
+						acceptedButtons: Qt.AllButtons
 						onClicked: (mouse) => {
+							const w = Service.Niri.windows?.filter(w => {
+								return w.app_id === modelData[0];
+							});
+
+							const id = () => {
+								if (w.some(w => w.is_focused)) return w[(w.findIndex(w => w.is_focused) +1) %w.length].id;
+								else return w[0].id;
+							}
+
 							switch (mouse.button) {
 								case Qt.LeftButton:
 									if (count > 0) {
-										const w = Service.Niri.windows?.filter(w => {
-											return w.app_id === modelData[0];
-										});
-
-										const id = () => {
-											if (w.some(w => w.is_focused)) return w[(w.findIndex(w => w.is_focused) +1) %w.length].id;
-											else return w[0].id;
-										}
-
 										Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', id()]);
 									} else DesktopEntries.applications.values.find(a => a.id === modelData[0]).execute();
 									break;
+								case Qt.MiddleButton: w.forEach(w => {
+									Quickshell.execDetached(['niri', 'msg', 'action', 'close-window', '--id', w.id])
+								}); break;
 								case Qt.RightButton: break;
 							}
 						}
