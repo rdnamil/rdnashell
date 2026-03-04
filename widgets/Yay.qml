@@ -60,7 +60,11 @@ Ctrl.Widget { id: root
                 Ctrl.Button {
                     Layout.alignment: Qt.AlignRight
                     Layout.margins: Globals.Controls.spacing
-                    onClicked: if (!update.running) update.running = true;
+                    enabled: !update.running
+                    onClicked: if (enabled) {
+                        update.running = true;
+                        popout.isOpen = false;
+                    }
                     icon: IconImage {
                         implicitSize: Globals.Controls.iconSize
                         source: Quickshell.iconPath("draw-arrow-down")
