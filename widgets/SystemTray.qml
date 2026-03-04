@@ -33,6 +33,7 @@ Row { id: root
 					case Qt.RightButton:
 						// popup.x = mouse.x -Globals.Controls.radius *2 *0.1464;
 						// popup.y = mouse.y -Globals.Controls.radius *2 *0.1464;
+						popup.x = delegate.width -popup.width;
 						popup.y = root.height +Globals.Controls.spacing
 						popup.open();
 						break;
