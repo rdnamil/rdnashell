@@ -42,7 +42,7 @@ Ctrl.Widget { id: root
 			Service.MPlayer.player.next();
 			break;
 	}}
-	onWheel: {
+	onWheel: (wheel) => {
 		const enabled = Service.MPlayer.player?.canSeek && Service.MPlayer.player?.positionSupported;
 		if (enabled) {
 			let position = Service.MPlayer.player.position;
