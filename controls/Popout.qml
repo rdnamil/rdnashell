@@ -15,7 +15,7 @@ import "../globals.js" as Globals
 Item { id: root
 	required property Item content
 
-	readonly property PopupWindow window: window
+	readonly property alias window: window
 
 	property bool isOpen
 
@@ -46,7 +46,7 @@ Item { id: root
 			top: true
 			bottom: true
 		}
-		color: Globals.Settings.debug? "#40ff0000" : "transparent"
+		color: Globals.Settings.debug? "#400000ff" : "transparent"
 		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
 		MouseArea {

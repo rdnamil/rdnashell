@@ -10,7 +10,7 @@ import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
-	readonly property Rectangle background: bak
+	readonly property alias background: bak
 
 	property Component effect: Component { Colorize { saturation: 0; lightness: 0; }}
 	property bool effectEnabled
