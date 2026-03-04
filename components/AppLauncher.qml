@@ -103,18 +103,23 @@ Singleton { id: root
 							font.pointSize: 10
 							onTextEdited: list.view.currentIndex = 0;
 							onAccepted: list.itemClicked(list.view.currentItem, null);
+							Keys.onBacktabPressed: list.view.decrementCurrentIndex();
 							Keys.onPressed: (event) => {
-								switch (event.key) {
-									case Qt.Key_Escape:
-										root.close();
-										break;
-									case Qt.Key_Up:
-										list.view.decrementCurrentIndex();
-										break;
-									case Qt.Key_Tab:
-									case Qt.Key_Down:
-										list.view.incrementCurrentIndex();
-										break;
+								switch (event.modifiers) {
+									case Qt.NoModifier: switch (event.key) {
+										case Qt.Key_Escape:
+											root.close(); break;
+										case Qt.Key_Up:
+											list.view.decrementCurrentIndex(); break;
+										case Qt.Key_Tab:
+										case Qt.Key_Down:
+											list.view.incrementCurrentIndex(); break;
+										} break;
+									case Qt.ControlModifier: switch (event.key) {
+										case Qt.Key_P:
+											// pin
+											break;
+										} break;
 								}
 							}
 
