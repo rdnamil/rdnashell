@@ -33,7 +33,7 @@ Variants { id: root
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:dock"
 		implicitWidth: screen.width
-		implicitHeight: dock.height +shadow.blur +menu.height
+		implicitHeight: dock.height +shadow.blur
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
 
 		Rectangle {
@@ -141,7 +141,7 @@ Variants { id: root
 								if (w.app_id === delegate.modelData[0]) c++;
 							});
 
-								return c;
+							return c;
 						}
 						readonly property bool isFocused: Service.Niri.windows?.some(w => w.app_id === modelData[0] && w.is_focused) || false
 
@@ -169,7 +169,14 @@ Variants { id: root
 									Quickshell.execDetached(['niri', 'msg', 'action', 'close-window', '--id', w.id])
 								}); break;
 								case Qt.RightButton:
-									// dock.hoverCount ++;
+									const actions = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0]).actions
+
+									if (actions.length > 0) {
+										popup.actions = actions;
+										popup.model = actions.map(a => ({"icon":Quickshell.iconPath(a.icon, true),"text":a.name}));
+										backing.x = dock.x +delegate.x +delegate.width /2 -backing.width /2;
+										menu.visible = true;
+									}
 									break;
 							}
 						}
@@ -224,11 +231,60 @@ Variants { id: root
 			}
 		}
 
-		Rectangle { id: menu
+		PanelWindow { id: menu
 			visible: false
-			x: dock.x +dock.width /2 -width /2
-			y: dock.y -height
-			width: 100; height: 100;
+			screen: window.screen
+			anchors {
+				left: true
+				right: true
+				top: true
+				bottom: true
+			}
+			color: Globals.Settings.debug? "#400000ff" : "transparent"
+			WlrLayershell.layer: WlrLayer.Overlay
+			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+			exclusiveZone: -1
+			onVisibleChanged: {
+				if (visible) {
+					dock.hoverCount++;
+					popup.open();
+				} else {
+					dock.hoverCount--;
+					popup.close();
+				}
+			}
+
+			Rectangle { id: backing
+				x: dock.x
+				y: menu.height -window.height +dock.y -height
+				width: popup.width
+				height: popup.item?.height +Globals.Controls.padding || 0
+				color: Globals.Settings.debug? "#4000ff00" : "transparent"
+
+				Rectangle {
+					x: parent.width /2 -width /2
+					y: parent.height -Globals.Controls.padding -height /2
+					width: 10; height: 10;
+					rotation: 45
+					color: Globals.Colours.dark
+					opacity: 0.975
+				}
+
+				Ctrl.PopupMenu { id: popup
+					property list<DesktopAction> actions: []
+
+					compatibilityMode: true
+					onSelected: (index) => {
+						menu.visible = false;
+						if (index !== -1) popup.actions[index].execute();
+					}
+				}
+			}
+
+			MouseArea {
+				anchors.fill: parent
+				onClicked: menu.visible = false;
+			}
 		}
 
 		Timer { id: grace
