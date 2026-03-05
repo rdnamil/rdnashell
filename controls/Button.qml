@@ -28,7 +28,9 @@ Ctrl.Widget { id: root
 
 	Rectangle { id: bak
 		visible: root.enabled
-		anchors.fill: parent; z: -1; radius: Globals.Controls.radius *( 3/4); color: Globals.Colours.light;
+		anchors.fill: parent; z: -1; radius: Globals.Controls.radius *( 3/4);
+		color: Globals.Colours.light
+		border.color: Qt.alpha(Globals.Colours.text, 0.4)
 		opacity: parent.containsMouse? 0.25 : 0.0
 
 		Behavior on opacity { NumberAnimation { alwaysRunToEnd: true; duration: 250; easing.type: Easing.OutCirc; }}
