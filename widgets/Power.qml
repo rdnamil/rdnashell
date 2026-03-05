@@ -88,7 +88,7 @@ Ctrl.Widget { id: root
 
 					RowLayout {
 						width: options.width -parent.padding *2
-						spacing: Globals.Controls.spacing
+						spacing: Globals.Controls.padding
 						uniformCellSizes: true
 
 						Ctrl.Button {
@@ -101,14 +101,15 @@ Ctrl.Widget { id: root
 								font.weight: 600
 								font.letterSpacing: 0.4
 							}
+							background.color: Globals.Colours.text
 							cursorShape: Qt.PointingHandCursor
 
 							Rectangle {
 								anchors.fill: parent
 								z: -2
 								radius: parent.background.radius
-								color: parent.background.color
-								opacity: 0.05
+								color: Globals.Colours.light
+								opacity: 0.2
 							}
 						}
 
@@ -122,14 +123,15 @@ Ctrl.Widget { id: root
 								font.weight: 600
 								font.letterSpacing: 0.4
 							}
+							background.color: Globals.Colours.text
 							cursorShape: Qt.PointingHandCursor
 
 							Rectangle {
 								anchors.fill: parent
 								z: -2
 								radius: parent.background.radius
-								color: parent.background.color
-								opacity: 0.05
+								color: Globals.Colours.light
+								opacity: 0.2
 							}
 						}
 
@@ -143,14 +145,15 @@ Ctrl.Widget { id: root
 								font.weight: 600
 								font.letterSpacing: 0.4
 							}
+							background.color: Globals.Colours.text
 							cursorShape: Qt.PointingHandCursor
 
 							Rectangle {
 								anchors.fill: parent
 								z: -2
 								radius: parent.background.radius
-								color: parent.background.color
-								opacity: 0.05
+								color: Globals.Colours.light
+								opacity: 0.2
 							}
 						}
 
@@ -165,7 +168,7 @@ Ctrl.Widget { id: root
 								font.letterSpacing: 0.4
 							}
 							cursorShape: Qt.PointingHandCursor
-							background.color: Globals.Colours.danger
+							background.color: Qt.darker(Globals.Colours.danger, 0.4)
 
 							Rectangle {
 								anchors.fill: parent
