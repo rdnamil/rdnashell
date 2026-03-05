@@ -169,14 +169,28 @@ Variants { id: root
 									Quickshell.execDetached(['niri', 'msg', 'action', 'close-window', '--id', w.id])
 								}); break;
 								case Qt.RightButton:
-									const actions = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0]).actions
+									dock.hoverCount++;
 
-									if (actions.length > 0) {
-										popup.actions = actions;
-										popup.model = actions.map(a => ({"icon":Quickshell.iconPath(a.icon, true),"text":a.name}));
-										backing.x = dock.x +delegate.x +delegate.width /2 -backing.width /2;
-										menu.visible = true;
-									}
+									const entry = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0])
+
+									// console.log(entry.actions.map(a => a.id));
+
+									const icon = (id, icon) => { switch (id) {
+										case "ew-window": return Quickshell.iconPath("new-window-symbolic");
+										case "ew-private-window": return Quickshell.iconPath("view-private-symbolic");
+										case "pen-computer": return Quickshell.iconPath("computer-symbolic");
+										case "pen-home": return Quickshell.iconPath("user-home-symbolic");
+										case "pen-trash": return Quickshell.iconPath("user-trash-symbolic");
+										default: return Quickshell.iconPath(icon, true);
+									}};
+
+									popup.model = [
+										...entry.actions.map(a => ({"icon":icon(a.id, a.icon),"text":a.name,"command":a.command,"workingDir":entry.workingDirectory})),
+										{"icon":Quickshell.iconPath(entry.icon),"text":entry.name,"command":entry.command,"workingDir":entry.workingDirectory}
+									];
+									backing.x = dock.x +delegate.x +delegate.width /2 -backing.width /2;
+									menu.visible = true;
+
 									break;
 							}
 						}
@@ -205,6 +219,7 @@ Variants { id: root
 							width: parent.background.width; height: parent.background.height;
 							radius: parent.background.radius
 							color: parent.background.color
+							border.color: parent.border.color
 							opacity: delegate.isFocused? 0.25 : 0.0;
 						}
 
@@ -271,12 +286,11 @@ Variants { id: root
 				}
 
 				Ctrl.PopupMenu { id: popup
-					property list<DesktopAction> actions: []
-
 					compatibilityMode: true
 					onSelected: (index) => {
+						dock.hoverCount--;
 						menu.visible = false;
-						if (index !== -1) popup.actions[index].execute();
+						if (index !== -1) Quickshell.execDetached(popup.model[index].command, popup.model[index].workingDir);
 					}
 				}
 			}
