@@ -208,21 +208,14 @@ Variants { id: root
 						}
 						onEntered: dock.hoverCount++;
 						onExited: dock.hoverCount--;
-						icon: Column {
-							spacing: Globals.Controls.spacing
+						icon: Item {
 							width: appIcon.width -Globals.Controls.spacing
+							height: appIcon.height
 
 							IconImage { id: appIcon
 								anchors.horizontalCenter: parent.horizontalCenter
 								implicitSize: 32
 								source: Quickshell.iconPath(delegate.modelData[0]);
-							}
-
-							Rectangle {
-								visible: delegate.count > 0
-								anchors.horizontalCenter: parent.horizontalCenter
-								width: delegate.isFocused? 12 : 6; height: 4; radius: height /2;
-								color: Globals.Colours.accent
 							}
 						}
 
@@ -252,6 +245,16 @@ Variants { id: root
 									y = parent.height /2 -height /2;
 								}
 							}
+						}
+
+						Rectangle {
+							visible: delegate.count > 0
+							anchors {
+								horizontalCenter: parent.horizontalCenter
+								bottom: parent.bottom
+							}
+							width: delegate.isFocused? 12 : 6; height: 4; radius: height /2;
+							color: Globals.Colours.accent
 						}
 					}
 				}
