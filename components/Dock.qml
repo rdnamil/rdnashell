@@ -6,6 +6,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Effects
+import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
@@ -253,7 +254,7 @@ Variants { id: root
 								horizontalCenter: parent.horizontalCenter
 								bottom: parent.bottom
 							}
-							width: delegate.isFocused? 12 : 6; height: 4; radius: height /2;
+							width: delegate.isFocused? 12 : 4; height: 4; radius: height /2;
 							color: Globals.Colours.accent
 						}
 					}
@@ -306,6 +307,7 @@ Variants { id: root
 						menu.visible = false;
 						if (index !== -1) popup.model[index].execute();
 					}
+					onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
 				}
 			}
 
