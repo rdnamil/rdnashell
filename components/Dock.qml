@@ -178,6 +178,12 @@ Variants { id: root
 										{"icon":Quickshell.iconPath(entry.icon),"text":entry.name,"execute":function(){entry.execute();}},
 										...entry.actions.map(a => ({"icon":icon(a.id, a.icon),"text":a.name,"execute":function(){a.execute();}})),
 										{"isSeparator":true},
+										...Service.Niri.windows.filter(w => w.app_id === entry.id).map(w => {
+											return {
+												"text": w.title
+											}
+										}),
+										{"isSeparator":true},
 										{
 											"icon": repeater.pins.includes(entry.id)? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
 											"text": repeater.pins.includes(entry.id)? "Unpin from dock" : "Pin to dock",
