@@ -80,7 +80,15 @@ Loader { id: root
 				if (!itm.modelData.isSeparator && (itm.modelData.enabled ?? true)) view.currentIndex = idx;
 				else view.currentIndex = -1;
 			}
-			model: root.model
+			model: root.model.filter((e, i, arr) => {
+				const prev = arr[i - 1];
+				const next = arr[i + 1];
+
+				if ((i === 0 || i === arr.length - 1) && e.isSeparator) return false;
+				if (e.isSeparator && (prev?.isSeparator || next == null)) return false;
+
+				return true;
+			})
 			delegate: RowLayout { id: delegate
 				required property var modelData
 
