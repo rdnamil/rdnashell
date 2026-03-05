@@ -165,7 +165,7 @@ Variants { id: root
 								case Qt.RightButton:
 									const entry = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0])
 
-									console.log(`Dock: action ids ${entry.actions.map(a => a.id)}`);
+									// console.log(`Dock: action ids ${entry.actions.map(a => a.id)}`);
 
 									const icon = (id, icon) => { switch (id) {
 										case "ew-window": return Quickshell.iconPath("new-window-symbolic");
@@ -217,7 +217,7 @@ Variants { id: root
 							IconImage { id: appIcon
 								anchors.horizontalCenter: parent.horizontalCenter
 								implicitSize: 32
-								source: Quickshell.iconPath(delegate.modelData[0]);
+								source: Quickshell.iconPath(delegate.modelData[0], "application-x-generic");
 							}
 						}
 
