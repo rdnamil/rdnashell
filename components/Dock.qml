@@ -114,23 +114,15 @@ Variants { id: root
 				}
 
 				Repeater { id: repeater
-					readonly property list<var> pins: [["com.mitchellh.ghostty"]]
+					property list<string> pins: ["com.mitchellh.ghostty"]
 
-					model: [...repeater.pins,
-					...new Map(Service.Niri
-					.windows?.sort ((a ,b) => {
-						if (a.is_floating || b.is_floating) {
-							if (a.is_floating && b.is_floating) return 0;
-							else if (a.is_floating) return -1;
-							else if (b.is_floating) return 1;
-						}
-						else if (a.layout.pos_in_scrolling_layout[0] === b.layout.pos_in_scrolling_layout[0]) {
-							return a.layout.pos_in_scrolling_layout[1] -b.layout.pos_in_scrolling_layout[1];
-						} else return a.layout.pos_in_scrolling_layout[0] -b.layout.pos_in_scrolling_layout[0];
-					})
-					.filter(w => w.app_id !== "com.mitchellh.ghostty")
-					.map(w => [w["app_id"], w])
-					.values() || [])]
+					model: [
+						...repeater.pins.map(p => [p]),
+						...new Map(Service.Niri
+						.windows?.filter(w => !pins.includes(w.app_id))
+						.map(w => [w["app_id"], w])
+						.values() || [])
+						]
 					delegate: Ctrl.Button { id: delegate
 						required property var modelData
 
@@ -169,8 +161,6 @@ Variants { id: root
 									Quickshell.execDetached(['niri', 'msg', 'action', 'close-window', '--id', w.id])
 								}); break;
 								case Qt.RightButton:
-									dock.hoverCount++;
-
 									const entry = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0])
 
 									// console.log(entry.actions.map(a => a.id));
@@ -185,8 +175,17 @@ Variants { id: root
 									}};
 
 									popup.model = [
-										...entry.actions.map(a => ({"icon":icon(a.id, a.icon),"text":a.name,"command":a.command,"workingDir":entry.workingDirectory})),
-										{"icon":Quickshell.iconPath(entry.icon),"text":entry.name,"command":entry.command,"workingDir":entry.workingDirectory}
+										{"icon":Quickshell.iconPath(entry.icon),"text":entry.name,"execute":function(){entry.execute();}},
+										...entry.actions.map(a => ({"icon":icon(a.id, a.icon),"text":a.name,"execute":function(){a.execute();}})),
+										{"isSeparator":true},
+										{
+											"icon": repeater.pins.includes(entry.id)? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
+											"text": repeater.pins.includes(entry.id)? "Unpin from dock" : "Pin to dock",
+											"execute": function() {
+												if (repeater.pins.includes(entry.id)) repeater.pins.splice(repeater.pins.indexOf(entry.id), 1);
+												else repeater.pins.push(entry.id);
+											}
+										}
 									];
 									backing.x = dock.x +delegate.x +delegate.width /2 -backing.width /2;
 									menu.visible = true;
@@ -219,7 +218,7 @@ Variants { id: root
 							width: parent.background.width; height: parent.background.height;
 							radius: parent.background.radius
 							color: parent.background.color
-							border.color: parent.border.color
+							border.color: parent.background.border.color
 							opacity: delegate.isFocused? 0.25 : 0.0;
 						}
 
@@ -288,9 +287,8 @@ Variants { id: root
 				Ctrl.PopupMenu { id: popup
 					compatibilityMode: true
 					onSelected: (index) => {
-						dock.hoverCount--;
 						menu.visible = false;
-						if (index !== -1) Quickshell.execDetached(popup.model[index].command, popup.model[index].workingDir);
+						if (index !== -1) popup.model[index].execute();
 					}
 				}
 			}
