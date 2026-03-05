@@ -163,14 +163,17 @@ Variants { id: root
 								case Qt.RightButton:
 									const entry = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0])
 
-									// console.log(entry.actions.map(a => a.id));
+									console.log(`Dock: action ids ${entry.actions.map(a => a.id)}`);
 
 									const icon = (id, icon) => { switch (id) {
 										case "ew-window": return Quickshell.iconPath("new-window-symbolic");
 										case "ew-private-window": return Quickshell.iconPath("view-private-symbolic");
+										case "ew-message": return Quickshell.iconPath("mail-message-new-symbolic");
+										case "ew-event": return Quickshell.iconPath("view-calendar-upcoming-events");
 										case "pen-computer": return Quickshell.iconPath("computer-symbolic");
 										case "pen-home": return Quickshell.iconPath("user-home-symbolic");
 										case "pen-trash": return Quickshell.iconPath("user-trash-symbolic");
+										case "pen-calendar": return Quickshell.iconPath("office-calendar-symbolic");
 										default: return Quickshell.iconPath(icon, true);
 									}};
 
@@ -180,7 +183,9 @@ Variants { id: root
 										{"isSeparator":true},
 										...Service.Niri.windows.filter(w => w.app_id === entry.id).map(w => {
 											return {
-												"text": w.title
+												"icon": Quickshell.iconPath("focus-windows-symbolic"),
+												"text": w.title,
+												"execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
 											}
 										}),
 										{"isSeparator":true},
@@ -284,7 +289,7 @@ Variants { id: root
 				Rectangle {
 					x: parent.width /2 -width /2
 					y: parent.height -Globals.Controls.padding -height /2
-					width: 10; height: 10;
+					width: Math.sqrt((Globals.Controls.padding -Globals.Controls.spacing) **2 *2); height: width;
 					rotation: 45
 					color: Globals.Colours.dark
 					opacity: 0.975
