@@ -132,9 +132,9 @@ Ctrl.Widget { id: root
 								IconImage {
 									anchors {
 										right: parent.right
-										rightMargin: -Globals.Controls.spacing
+										rightMargin: -1
 										bottom: parent.bottom
-										bottomMargin: -Globals.Controls.spacing
+										bottomMargin: -1
 									}
 									visible: delegate.modelData?.notif?.appIcon || false
 									implicitSize: 14
