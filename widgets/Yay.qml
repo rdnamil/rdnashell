@@ -60,7 +60,7 @@ Ctrl.Widget { id: root
                 Ctrl.Button {
                     Layout.alignment: Qt.AlignRight
                     Layout.margins: Globals.Controls.spacing
-                    enabled: !update.running
+                    enabled: list.model.length > 0 && !update.running
                     onClicked: if (enabled) {
                         update.running = true;
                         popout.isOpen = false;
@@ -155,7 +155,11 @@ Ctrl.Widget { id: root
 
     Process { id: update
         command: root.updateCommmand
-        stdout: StdioCollector { onStreamFinished: getUpdates.running = true; }
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode === 0) Quickshell.execDetached(['notify-send', '-a', 'Update', '-i', 'package', '-n', 'vcs-update-required', 'Updates are complete', 'Please reboot for updates to take full effect']);
+
+            getUpdates.running = true;
+        }
     }
 
     Process { id: getUpdates
