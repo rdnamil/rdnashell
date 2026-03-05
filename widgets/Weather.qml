@@ -238,7 +238,7 @@ Ctrl.Widget { id: root
 							IconImage {
 								anchors.horizontalCenter: parent.horizontalCenter
 								implicitSize: 28
-								source: Service.Weather.getIcon(content.daily?.weather_code[delegate.index +1] || 0, true)
+								source: Service.Weather.getIcon(content.daily?.weather_code[delegate.index +1] || 0, 1)
 							}
 
 							Text {
