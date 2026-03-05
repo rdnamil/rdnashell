@@ -23,7 +23,9 @@ Item { id: root
 
 	Rectangle {
 		anchors.fill: layout
+		radius: Globals.Controls.radius
 		color: Globals.Colours.base
+		border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.2); }
 	}
 
 	ColumnLayout { id: layout
@@ -50,6 +52,7 @@ Item { id: root
 				anchors.fill: parent
 				radius: Globals.Controls.radius
 				color: Globals.Colours.mid
+				border { width: 1; color: Qt.alpha(Globals.Colours.light, 0.2); }
 
 				RectangularShadow {
 					anchors.fill: parent
@@ -58,14 +61,6 @@ Item { id: root
 					blur: 30
 					opacity: (root.header || root.footer)? 0.4 : 0.0
 				}
-			}
-
-			Rectangle {
-				anchors.fill: parent
-				radius: Globals.Controls.radius
-				color: "transparent"
-				opacity: 0.2
-				border { width: 1; color: Globals.Colours.light; }
 			}
 
 			Component.onCompleted: if (root.body) root.body.parent = bodyWrapper;
@@ -79,13 +74,5 @@ Item { id: root
 
 			Component.onCompleted: if (root.footer) root.footer.parent = footerWrapper;
 		}
-	}
-
-	Rectangle {
-		anchors.fill: parent
-		radius: Globals.Controls.radius
-		color: "transparent"
-		opacity: 0.6
-		border { width: 1; color: Globals.Colours.mid; }
 	}
 }
