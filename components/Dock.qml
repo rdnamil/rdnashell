@@ -77,7 +77,6 @@ Variants { id: root
 
 				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutCirc; }}
 			}
-			opacity: 0.975
 
 			MouseArea {
 				anchors.fill: parent
@@ -90,13 +89,15 @@ Variants { id: root
 				anchors.fill: windows
 				blur: 30
 				radius: Globals.Controls.radius
-				opacity: dock.opacity *0.4
+				opacity: bak.opacity *0.4
 			}
 
-			Rectangle {
+			Rectangle { id: bak
 				anchors.fill: windows
 				radius: Globals.Controls.radius
 				color: Globals.Colours.mid
+				opacity: 0.975
+				border { width: 1; color: Qt.alpha(Globals.Colours.light, 0.2); }
 			}
 
 			Row { id: windows
