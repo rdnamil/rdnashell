@@ -114,7 +114,7 @@ Variants { id: root
 				}
 
 				Repeater { id: repeater
-					property list<string> pins: ["com.mitchellh.ghostty"]
+					readonly property list<string> pins: Service.ShellUtils.pinView.adapter.pins
 
 					model: [
 						...repeater.pins.map(p => [p]),
@@ -193,8 +193,10 @@ Variants { id: root
 											"icon": repeater.pins.includes(entry.id)? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
 											"text": repeater.pins.includes(entry.id)? "Unpin from dock" : "Pin to dock",
 											"execute": function() {
-												if (repeater.pins.includes(entry.id)) repeater.pins.splice(repeater.pins.indexOf(entry.id), 1);
-												else repeater.pins.push(entry.id);
+												if (repeater.pins.includes(entry.id)) Service.ShellUtils.pinView.adapter.pins.splice(repeater.pins.indexOf(entry.id), 1);
+												else Service.ShellUtils.pinView.adapter.pins.push(entry.id);
+
+												Service.ShellUtils.pinView.writeAdapter();
 											}
 										}
 									];
