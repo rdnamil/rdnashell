@@ -27,13 +27,13 @@ Variants { id: root
 			x: window.width /2 -width /2; y: window.height -height
 			width: window.width *(2 /3); height: 1;
 
-			Region { x: dock.x; y: trans.y; width: dock.width; height: dock.height; }
+			Region { x: dock.x; y: dock.y +trans.y; width: dock.width; height: dock.height; }
 		}
 		exclusiveZone: 0
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:dock"
 		implicitWidth: screen.width
-		implicitHeight: dock.height +shadow.blur
+		implicitHeight: dock.height +shadow.blur +menu.height
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
 
 		Rectangle {
@@ -49,7 +49,7 @@ Variants { id: root
 					width: window.width *(2 /3); height: 1;
 				}
 
-				Rectangle { x: dock.x; y: trans.y; width: dock.width; height: dock.height; }
+				Rectangle { x: dock.x; y: dock.y +trans.y; width: dock.width; height: dock.height; }
 			}}
 		}
 
@@ -59,7 +59,7 @@ Variants { id: root
 			height: 1
 			hoverEnabled: true
 			onEntered: {
-				trans.y = shadow.blur;
+				trans.y = 0;
 				grace.restart();
 			}
 		}
@@ -69,9 +69,10 @@ Variants { id: root
 
 			onHoverCountChanged: hoverCount > 0? grace.stop() : grace.start();
 			x: window.width /2 -width /2
+			y: window.height -height
 			width: windows.width; height: windows.height +Globals.Controls.padding;
 			transform: Translate { id: trans
-				y: window.height +Globals.Controls.padding
+				y: window.height
 
 				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutCirc; }}
 			}
@@ -118,7 +119,12 @@ Variants { id: root
 					model: [...repeater.pins,
 					...new Map(Service.Niri
 					.windows?.sort ((a ,b) => {
-						if (a.layout.pos_in_scrolling_layout[0] === b.layout.pos_in_scrolling_layout[0]) {
+						if (a.is_floating || b.is_floating) {
+							if (a.is_floating && b.is_floating) return 0;
+							else if (a.is_floating) return -1;
+							else if (b.is_floating) return 1;
+						}
+						else if (a.layout.pos_in_scrolling_layout[0] === b.layout.pos_in_scrolling_layout[0]) {
 							return a.layout.pos_in_scrolling_layout[1] -b.layout.pos_in_scrolling_layout[1];
 						} else return a.layout.pos_in_scrolling_layout[0] -b.layout.pos_in_scrolling_layout[0];
 					})
@@ -162,7 +168,9 @@ Variants { id: root
 								case Qt.MiddleButton: w.forEach(w => {
 									Quickshell.execDetached(['niri', 'msg', 'action', 'close-window', '--id', w.id])
 								}); break;
-								case Qt.RightButton: break;
+								case Qt.RightButton:
+									// dock.hoverCount ++;
+									break;
 							}
 						}
 						onEntered: dock.hoverCount++;
@@ -216,9 +224,16 @@ Variants { id: root
 			}
 		}
 
+		Rectangle { id: menu
+			visible: false
+			x: dock.x +dock.width /2 -width /2
+			y: dock.y -height
+			width: 100; height: 100;
+		}
+
 		Timer { id: grace
 			interval: 1000
-			onTriggered: trans.y = window.height +Globals.Controls.padding;
+			onTriggered: trans.y = window.height;
 		}
 	}
 }
