@@ -109,9 +109,17 @@ Variants { id: root
 					// onClicked: popout.toggle();
 					onEntered: dock.hoverCount++;
 					onExited: dock.hoverCount--;
-					icon: IconImage {
-						implicitSize: 24
-						source: Quickshell.iconPath("applications-all")
+					width: icon.width +Globals.Controls.padding -Globals.Controls.spacing
+					height: icon.height +Globals.Controls.padding -Globals.Controls.spacing
+					icon: Item {
+						width: appIcon.width -Globals.Controls.spacing
+						height: appIcon.height
+
+						IconImage { id: appIcon
+							anchors.horizontalCenter: parent.horizontalCenter
+							implicitSize: 32
+							source: Quickshell.iconPath("applications-all-symbolic");
+						}
 					}
 				}
 
@@ -122,6 +130,10 @@ Variants { id: root
 						...repeater.pins.map(p => [p]),
 						...new Map(Service.Niri
 						.windows?.filter(w => !pins.includes(w.app_id))
+						.filter(w => { // show only windows that are open on this display
+							const ws = Service.Niri.workspaces?.find(ws => ws.id === w.workspace_id)
+							return ws?.output === window.screen.name || !ws;
+						})
 						.map(w => [w["app_id"], w])
 						.values() || [])
 						]
@@ -138,32 +150,39 @@ Variants { id: root
 							return c;
 						}
 						readonly property bool isFocused: Service.Niri.windows?.some(w => w.app_id === modelData[0] && w.is_focused) || false
+						readonly property DesktopEntry entry: DesktopEntries.applications.values.find(a => a.id === modelData[0]) || null
 
-						anchors.verticalCenter: parent?.verticalCenter || undefined
 						width: icon.width +Globals.Controls.padding -Globals.Controls.spacing
 						height: icon.height +Globals.Controls.padding -Globals.Controls.spacing
 						acceptedButtons: Qt.AllButtons
 						onClicked: (mouse) => {
 							const w = Service.Niri.windows?.filter(w => {
 								return w.app_id === modelData[0];
-							});
-
+							}) ?? [];
 							const id = () => {
 								if (w.some(w => w.is_focused)) return w[(w.findIndex(w => w.is_focused) +1) %w.length].id;
 								else return w[0].id;
 							}
+							const entry = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0]);
 
 							switch (mouse.button) {
 								case Qt.LeftButton:
-									if (count > 0) {
-										Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', id()]);
-									} else DesktopEntries.applications.values.find(a => a.id === modelData[0]).execute();
+									if (count > 1) {
+										popup.model = [...w.map(w => {
+											return {
+												"text": w.title,
+												"execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
+											}
+										})];
+										menu.open(delegate);
+										break;
+									} else if (count > 0) Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', id()]);
+									else DesktopEntries.applications.values.find(a => a.id === modelData[0]).execute();
 									break;
 								case Qt.MiddleButton: w.forEach(w => {
 									Quickshell.execDetached(['niri', 'msg', 'action', 'close-window', '--id', w.id])
 								}); break;
 								case Qt.RightButton:
-									const entry = DesktopEntries.applications.values.find(a => a.id === delegate.modelData[0])
 
 									// console.log(`Dock: action ids ${entry.actions.map(a => a.id)}`);
 
@@ -180,17 +199,18 @@ Variants { id: root
 									}};
 
 									popup.model = [
+
 										{"icon":Quickshell.iconPath(entry.icon),"text":entry.name,"execute":function(){entry.execute();}},
 										...entry.actions.map(a => ({"icon":icon(a.id, a.icon),"text":a.name,"execute":function(){a.execute();}})),
 										{"isSeparator":true},
-										...Service.Niri.windows.filter(w => w.app_id === entry.id).map(w => {
+										...w.map(w => {
 											return {
 												"icon": Quickshell.iconPath("focus-windows-symbolic"),
-												"text": w.title,
-												"execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
+												 "text": w.title,
+												 "execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
 											}
 										}),
-										{"isSeparator":true},
+										(w.length > 0? {"isSeparator":true} : []),
 										{
 											"icon": repeater.pins.includes(entry.id)? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
 											"text": repeater.pins.includes(entry.id)? "Unpin from dock" : "Pin to dock",
@@ -202,9 +222,8 @@ Variants { id: root
 											}
 										}
 									];
-									backing.x = dock.x +delegate.x +delegate.width /2 -backing.width /2;
-									menu.visible = true;
 
+									menu.open(delegate);
 									break;
 							}
 						}
@@ -217,7 +236,7 @@ Variants { id: root
 							IconImage { id: appIcon
 								anchors.horizontalCenter: parent.horizontalCenter
 								implicitSize: 32
-								source: Quickshell.iconPath(delegate.modelData[0], "application-x-generic");
+								source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic")
 							}
 						}
 
@@ -264,6 +283,11 @@ Variants { id: root
 		}
 
 		PanelWindow { id: menu
+			function open(item) {
+				backing.x = dock.x +item.x +item.width /2 -backing.width /2;
+				menu.visible = true;
+			}
+
 			visible: false
 			screen: window.screen
 			anchors {
@@ -297,6 +321,7 @@ Variants { id: root
 					x: parent.width /2 -width /2
 					y: parent.height -Globals.Controls.padding -height /2
 					width: Math.sqrt((Globals.Controls.padding -Globals.Controls.spacing) **2 *2); height: width;
+					radius: 2
 					rotation: 45
 					color: Globals.Colours.dark
 					opacity: 0.975
