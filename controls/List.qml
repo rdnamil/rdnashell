@@ -23,6 +23,7 @@ ScrollView { id: root
 	padding: Globals.Controls.padding /2
 	width: 360
 	height: Math.min(360, listView.contentHeight +padding *2)
+	ScrollBar.horizontal: ScrollBar { hoverEnabled: false; }
 	ScrollBar.vertical: ScrollBar { id: scrollBar
 		x: root.width -width /2 -Globals.Controls.padding
 		y: root.padding
