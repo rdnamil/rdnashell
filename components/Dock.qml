@@ -104,9 +104,8 @@ Variants { id: root
 				padding: Globals.Controls.spacing
 				spacing: Globals.Controls.spacing /2
 
-				Ctrl.Button {
-					visible: false
-					// onClicked: popout.toggle();
+				Ctrl.Button { id: applications
+					// visible: false
 					onEntered: dock.hoverCount++;
 					onExited: dock.hoverCount--;
 					width: icon.width +Globals.Controls.padding -Globals.Controls.spacing
@@ -120,6 +119,44 @@ Variants { id: root
 							implicitSize: 32
 							source: Quickshell.iconPath("applications-all-symbolic");
 						}
+					}
+					onClicked: (mouse) => {
+						function openMenu() {
+							popup.model = [
+								{"icon":Quickshell.iconPath("utilities-tweak-tool"),"text":"Settings","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-accessories"),"text":"Accessories","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-utilities"),"text":"Development","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-education"),"text":"Education","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-games"),"text":"Games","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-graphics"),"text":"Graphics","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-internet"),"text":"Internet","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-multimedia"),"text":"Multimedia","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-office"),"text":"Office","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-science"),"text":"Science","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-other"),"text":"Other","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-system"),"text":"System","hasChildren":true,"execute":function(){openSubmenu();}},
+							];
+							menu.open(applications);
+						}
+						function openSubmenu() {
+							popup.model = [
+								{"icon":Quickshell.iconPath("arrow-left"),"colorize":true,"text":"Go back","execute":function(){openMenu();}}
+							];
+							menu.open(applications);
+						}
+
+						openMenu();
+					}
+				}
+
+				Item {
+					y: parent.height /2 -height /2
+					width: 2; height: parent.height -Globals.Controls.padding;
+
+					Rectangle {
+						width: 1; height: parent.height
+						color: Globals.Colours.light
+						opacity: 0.4
 					}
 				}
 
@@ -199,20 +236,21 @@ Variants { id: root
 									}};
 
 									popup.model = [
-
 										{"icon":Quickshell.iconPath(entry.icon),"text":entry.name,"execute":function(){entry.execute();}},
-										...entry.actions.map(a => ({"icon":icon(a.id, a.icon),"text":a.name,"execute":function(){a.execute();}})),
+										...entry.actions.map(a => ({"icon":icon(a.id, a.icon),"colorize":true,"text":a.name,"execute":function(){a.execute();}})),
 										{"isSeparator":true},
 										...w.map(w => {
 											return {
 												"icon": Quickshell.iconPath("focus-windows-symbolic"),
-												 "text": w.title,
-												 "execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
+												"colorize": true,
+												"text": w.title,
+												"execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
 											}
 										}),
-										(w.length > 0? {"isSeparator":true} : []),
+										{"isSeparator":true},
 										{
 											"icon": repeater.pins.includes(entry.id)? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
+											"colorize": true,
 											"text": repeater.pins.includes(entry.id)? "Unpin from dock" : "Pin to dock",
 											"execute": function() {
 												if (repeater.pins.includes(entry.id)) Service.ShellUtils.pinView.adapter.pins.splice(repeater.pins.indexOf(entry.id), 1);
@@ -222,7 +260,6 @@ Variants { id: root
 											}
 										}
 									];
-
 									menu.open(delegate);
 									break;
 							}
