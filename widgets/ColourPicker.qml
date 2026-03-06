@@ -21,14 +21,19 @@ Ctrl.Widget { id: root
 		lightness: root.colour.hslLightness
 	}
 	acceptedButtons: Qt.LeftButton | Qt.RightButton
-	onClicked: (event) => { switch (event.button) {
-		case Qt.LeftButton:
-			Service.Niri.pickColour();
-			break;
-		case Qt.RightButton:
-			Quickshell.execDetached(['wl-copy', root.colour]);
-			break;
-	}}
+	onClicked: (event) => {
+		Service.PopoutManager.whosOpen = null;
+
+		switch (event.button) {
+			case Qt.LeftButton:
+				Service.Niri.pickColour();
+				break;
+			case Qt.RightButton:
+				Quickshell.execDetached(['wl-copy', root.colour]);
+				break;
+		}
+	}
+
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		source: Quickshell.iconPath("color-picker-black")
