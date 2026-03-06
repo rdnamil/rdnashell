@@ -246,7 +246,7 @@ Singleton { id: root
 
 							IconImage {
 								implicitSize: 32
-								source: Quickshell.iconPath(delegate.modelData.icon, false)
+								source: Quickshell.iconPath(delegate.modelData.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.icon, "application-x-generic")
 							}
 
 							ColumnLayout {
