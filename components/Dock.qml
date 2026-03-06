@@ -112,10 +112,10 @@ Variants { id: root
 					width: icon.width +Globals.Controls.padding -Globals.Controls.spacing
 					height: icon.height +Globals.Controls.padding -Globals.Controls.spacing
 					icon: Item {
-						width: appIcon.width -Globals.Controls.spacing
-						height: appIcon.height
+						width: appsIcon.width -Globals.Controls.spacing
+						height: appsIcon.height
 
-						IconImage { id: appIcon
+						IconImage { id: appsIcon
 							anchors.horizontalCenter: parent.horizontalCenter
 							implicitSize: 32
 							source: Quickshell.iconPath("applications-all-symbolic");
