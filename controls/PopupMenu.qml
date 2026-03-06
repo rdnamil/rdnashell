@@ -70,8 +70,9 @@ Loader { id: root
 			view.spacing: 0
 			view.currentIndex: -1
 			width: popup.width
-			onItemClicked: {
-				root.selected(list.view.currentIndex);
+			onItemClicked: (item) => {
+				// root.selected(list.view.currentIndex);
+				root.selected(list.view.currentItem.modelData.idx);
 				// popup.visible = false;
 			}
 			mouse.onPositionChanged: (mouse) => {
@@ -80,15 +81,18 @@ Loader { id: root
 				if (!itm.modelData.isSeparator && (itm.modelData.enabled ?? true)) view.currentIndex = idx;
 				else view.currentIndex = -1;
 			}
-			model: root.model.filter((e, i, arr) => {
-				const prev = arr[i - 1];
-				const next = arr[i + 1];
+			model: [...root.model]
+				.map((e, i) => Object.assign({}, e, { idx: i }))
+				.filter((e, i, arr) => { // filter out some seperators
+					const prev = arr[i - 1];
+					const next = arr[i + 1];
 
-				if ((i === 0 || i === arr.length - 1) && e.isSeparator) return false;
-				if (e.isSeparator && (prev?.isSeparator || next == null)) return false;
+					if ((i === 0 || i === arr.length - 1) && e.isSeparator) return false;
+					if (e.isSeparator && (prev?.isSeparator || next == null)) return false;
 
-				return true;
-			})
+					return true;
+				})
+				.filter(e => Object.keys(e).length) // filter out empty objects
 			delegate: RowLayout { id: delegate
 				required property var modelData
 
@@ -149,9 +153,9 @@ Loader { id: root
 
 					IconImage { id: icon
 						visible: delegate.modelData.icon? true : false
-						implicitSize: text.height -Globals.Controls.spacing
+						implicitSize: text.height -Globals.Controls.spacing /2
 						source: Quickshell.iconPath(delegate.modelData.icon, true) || delegate.modelData?.icon || ''
-						layer.enabled: root.colorize
+						layer.enabled: (delegate.modelData.colorize ?? false) || root.colorize
 						layer.effect: Colorize {
 							hue: Qt.alpha(Globals.Colours.text, 1.0).hslHue
 							saturation: Qt.alpha(Globals.Colours.text, 1.0).hslSaturation
@@ -170,6 +174,21 @@ Loader { id: root
 					elide: Text.ElideRight
 					color: Globals.Colours.text
 					font.pointSize: 10
+				}
+
+				IconImage {
+					visible: delegate.modelData.hasChildren ?? false
+					Layout.margins: Globals.Controls.spacing /2
+					Layout.leftMargin: 0
+					Layout.rightMargin: Globals.Controls.spacing
+					implicitSize: text.height
+					source: Quickshell.iconPath("arrow-right")
+					layer.enabled: true
+					layer.effect: Colorize {
+						hue: Qt.alpha(Globals.Colours.text, 1.0).hslHue
+						saturation: Qt.alpha(Globals.Colours.text, 1.0).hslSaturation
+						lightness: Qt.alpha(Globals.Colours.text, 1.0).hslLightness
+					}
 				}
 			}
 		}
