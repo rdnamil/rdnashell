@@ -27,16 +27,14 @@ Row { id: root
 
 				switch (mouse.button) {
 					case Qt.LeftButton:
-						delegate.modelData.activate(); break;
-					case Qt.MiddleButton:
-						delegate.modelData.secondaryActivate(); break;
-					case Qt.RightButton:
 						// popup.x = mouse.x -Globals.Controls.radius *2 *0.1464;
 						// popup.y = mouse.y -Globals.Controls.radius *2 *0.1464;
 						popup.x = delegate.width -popup.width;
-						popup.y = root.height +Globals.Controls.spacing
+						popup.y = root.height +Globals.Controls.spacing;
 						popup.open();
 						break;
+					case Qt.MiddleButton: delegate.modelData.secondaryActivate(); break;
+					case Qt.RightButton: delegate.modelData.activate(); break;
 				}
 			}
 			onWheel: (wheel) => { delegate.modelData.scroll(wheel.angleDelta.y, false); }
