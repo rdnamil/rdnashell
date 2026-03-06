@@ -156,9 +156,11 @@ Ctrl.Widget { id: root
     Process { id: update
         command: root.updateCommmand
         onExited: (exitCode, exitStatus) => {
-            if (exitCode === 0) Quickshell.execDetached(['notify-send', '-a', 'Update', '-i', 'package', '-n', 'vcs-update-required', 'Updates are complete', 'Please reboot for updates to take full effect']);
+            if (exitCode === 0) {
+                Quickshell.execDetached(['notify-send', '-a', 'Update', '-i', 'package', '-n', 'vcs-update-required', 'Updates are complete', 'Please reboot for updates to take full effect']);
 
-            getUpdates.running = true;
+                getUpdates.running = true;
+            }
         }
     }
 
