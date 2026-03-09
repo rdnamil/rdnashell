@@ -123,26 +123,53 @@ Variants { id: root
 					onClicked: (mouse) => {
 						function openMenu() {
 							popup.model = [
-								{"icon":Quickshell.iconPath("utilities-tweak-tool"),"text":"Settings","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-accessories"),"text":"Accessories","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-utilities"),"text":"Development","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-education"),"text":"Education","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-games"),"text":"Games","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-graphics"),"text":"Graphics","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-internet"),"text":"Internet","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-multimedia"),"text":"Multimedia","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-office"),"text":"Office","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-science"),"text":"Science","hasChildren":true,"execute":function(){openSubmenu();}},
-								{"icon":Quickshell.iconPath("applications-other"),"text":"Other","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("utilities-tweak-tool"),"text":"Settings","hasChildren":true,"execute":function(){openSubmenu(["Settings"]);}},
+								{"icon":Quickshell.iconPath("applications-accessories"),"text":"Accessories","hasChildren":true,"execute":function(){openSubmenu(["Accessories", "Utility"]);}},
+								{"icon":Quickshell.iconPath("applications-utilities"),"text":"Development","hasChildren":true,"execute":function(){openSubmenu(["Development"]);}},
+								{"icon":Quickshell.iconPath("applications-education"),"text":"Education","hasChildren":true,"execute":function(){openSubmenu(["Education"]);}},
+								{"icon":Quickshell.iconPath("applications-games"),"text":"Games","hasChildren":true,"execute":function(){openSubmenu(["Game"]);}},
+								{"icon":Quickshell.iconPath("applications-graphics"),"text":"Graphics","hasChildren":true,"execute":function(){openSubmenu(["Graphics"]);}},
+								{"icon":Quickshell.iconPath("applications-internet"),"text":"Internet","hasChildren":true,"execute":function(){openSubmenu(["Internet"]);}},
+								{"icon":Quickshell.iconPath("applications-multimedia"),"text":"Multimedia","hasChildren":true,"execute":function(){openSubmenu(["Multimedia", "Player"]);}},
+								{"icon":Quickshell.iconPath("applications-office"),"text":"Office","hasChildren":true,"execute":function(){openSubmenu(["Office"]);}},
+								{"icon":Quickshell.iconPath("applications-science"),"text":"Science","hasChildren":true,"execute":function(){openSubmenu(["Science"]);}},
 								{"icon":Quickshell.iconPath("applications-system"),"text":"System","hasChildren":true,"execute":function(){openSubmenu();}},
+								{"icon":Quickshell.iconPath("applications-other"),"text":"Other","hasChildren":true,"execute":function(){
+									const cats = new Set(["Settings", "Accessories", "Development", "Education", "Game", "Graphics", "Internet", "Multimedia", "Office", "Science", "System"]);
+									subPopup.model = [
+										...DesktopEntries.applications.values
+										.filter(a => !a.categories.some(c => cats.has(c)))
+										.map(a => ({
+											"icon": Quickshell.iconPath(a.name.toLowerCase(), true) || Quickshell.iconPath(a.icon, "application-x-generic"),
+											"text": a.name,
+											"execute": function() { a.execute(); }
+										}))
+									];
+									subPopup.x = backing.width +Globals.Controls.spacing;
+									const y = popup.item.list.view.currentItem.y -Globals.Controls.spacing;
+									if (y +subPopup.item.height > popup.item.height) subPopup.y = popup.item.height -subPopup.item.height -Globals.Controls.spacing;
+									else subPopup.y = y;
+									subPopup.open();
+								}}
 							];
 							menu.open(applications);
 						}
-						function openSubmenu() {
-							popup.model = [
-								{"icon":Quickshell.iconPath("arrow-left"),"colorize":true,"text":"Go back","execute":function(){openMenu();}}
+						function openSubmenu(categories = ["System"]) {
+							const cats = new Set(categories);
+							subPopup.model = [
+								...DesktopEntries.applications.values
+									.filter(a => a.categories.some(c => cats.has(c)))
+									.map(a => ({
+										"icon": Quickshell.iconPath(a.name.toLowerCase(), true) || Quickshell.iconPath(a.icon, "application-x-generic"),
+										"text": a.name,
+										"execute": function() { a.execute(); }
+									}))
 							];
-							menu.open(applications);
+							subPopup.x = backing.width +Globals.Controls.spacing;
+							const y = popup.item.list.view.currentItem.y -Globals.Controls.spacing;
+							if (y +subPopup.item.height > popup.item.height) subPopup.y = popup.item.height -subPopup.item.height -Globals.Controls.spacing;
+							else subPopup.y = y;
+							subPopup.open();
 						}
 
 						openMenu();
@@ -207,6 +234,7 @@ Variants { id: root
 									if (count > 1) {
 										popup.model = [...w.map(w => {
 											return {
+												"icon": Quickshell.iconPath(entry.icon),
 												"text": w.title,
 												"execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
 											}
@@ -367,12 +395,29 @@ Variants { id: root
 				Ctrl.PopupMenu { id: popup
 					compatibilityMode: true
 					onSelected: (index) => {
-						menu.visible = false;
-						if (index !== -1) popup.model[index].execute();
+						// menu.visible = false;
+						if (index !== -1) {
+							popup.model[index].execute();
+
+							if (!(popup.model[index].hasChildren ?? false)) menu.visible = false;
+						}
+						else menu.visible = false;
 					}
 					onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
+
+					Ctrl.PopupMenu { id: subPopup
+						compatibilityMode: true
+						onSubClose: subPopup.close();
+						onSelected: (index) => {
+							// menu.visible = false;
+							if (index !== -1) subPopup.model[index].execute();
+						}
+						onLoaded: subPopup.item.closePolicy = Popup.CloseOnEscape;
+					}
 				}
 			}
+
+
 
 			MouseArea {
 				anchors.fill: parent
