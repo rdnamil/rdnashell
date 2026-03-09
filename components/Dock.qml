@@ -410,7 +410,10 @@ Variants { id: root
 						onSubClose: subPopup.close();
 						onSelected: (index) => {
 							// menu.visible = false;
-							if (index !== -1) subPopup.model[index].execute();
+							if (index !== -1) {
+								subPopup.model[index].execute();
+								menu.visible = false;
+							}
 						}
 						onLoaded: subPopup.item.closePolicy = Popup.CloseOnEscape;
 					}
