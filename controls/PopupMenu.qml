@@ -16,26 +16,33 @@ Loader { id: root
 	property bool compatibilityMode
 	property int currentIndex: model.length > 0? 0 : -1
 	property bool colorize
+	property bool isOpen
 
 	signal opened()
 	signal selected(int index)
+	signal subClose()
 
 	function open() {
+		root.isOpen = true;
 		root.opened();
 		root.item.visible = true;
 	}
 	function close() {
+		root.isOpen = false;
 		if (root.item) root.item.visible = false;
 	}
 
 	onSelected: index => {
 		if (index !== -1) root.currentIndex = index;
-		item.visible = false;
+		// item.visible = false;
 	}
 	width: 240
+	height: parent.height
 	Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.item.visible = false; }
 	active: parent.visible
 	sourceComponent: Popup { id: popup
+		readonly property alias list: list
+
 		enabled: true
 		focus: true
 		width: root.width
@@ -69,11 +76,11 @@ Loader { id: root
 			anchors.centerIn: parent
 			view.spacing: 0
 			view.currentIndex: -1
+			view.onCurrentIndexChanged: timer.restart();
 			width: popup.width
 			onItemClicked: (item) => {
 				// root.selected(list.view.currentIndex);
 				root.selected(list.view.currentItem.modelData.idx);
-				// popup.visible = false;
 			}
 			mouse.onPositionChanged: (mouse) => {
 				const idx = view.indexAt(mouse.x +view.contentX, mouse.y +view.contentY);
@@ -82,7 +89,7 @@ Loader { id: root
 				else view.currentIndex = -1;
 			}
 			model: [...root.model]
-				.map((e, i) => Object.assign({}, e, { idx: i }))
+				.map((e, i) => Object.assign({}, e, { idx: i })) // append root.model idx to entry
 				.filter((e, i, arr) => { // filter out some seperators
 					const prev = arr[i - 1];
 					const next = arr[i + 1];
@@ -191,6 +198,13 @@ Loader { id: root
 					}
 				}
 			}
+		}
+
+		Timer { id: timer
+			interval: 250
+			onTriggered: if (list.view.currentIndex !== -1) {
+				if (list.view.currentItem.modelData.hasChildren) root.selected(list.view.currentItem.modelData.idx);
+			} else root.subClose();
 		}
 	}
 
