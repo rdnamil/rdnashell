@@ -12,6 +12,9 @@ import qs.controls as Ctrl
 import "../globals.js" as Globals
 
 Loader { id: root
+	readonly property alias wrapper: shadowWrapper
+	readonly property alias window: window
+
 	property list<var> model: []
 	property bool compatibilityMode
 	property int currentIndex: model.length > 0? 0 : -1
@@ -220,6 +223,8 @@ Loader { id: root
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
 
 		Item { id: shadowWrapper
+			readonly property int offset: shadow.blur
+
 			anchors.fill: parent
 			layer.enabled: true
 			layer.effect: OpacityMask {
