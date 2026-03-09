@@ -29,8 +29,8 @@ Row { id: root
 					case Qt.LeftButton:
 						// popup.x = mouse.x -Globals.Controls.radius *2 *0.1464;
 						// popup.y = mouse.y -Globals.Controls.radius *2 *0.1464;
-						popup.x = delegate.width -popup.width;
-						popup.y = root.height +Globals.Controls.spacing;
+						popup.x = delegate.width -popup.width +arrow.width /2 -arrow.radius;
+						popup.y = root.height +Globals.Controls.padding;
 						popup.open();
 						break;
 					case Qt.MiddleButton: delegate.modelData.secondaryActivate(); break;
@@ -53,6 +53,16 @@ Row { id: root
 				onSelected: (index) => {
 					model[index]?.triggered();
 					popup.close();
+				}
+
+				Rectangle { id: arrow
+					parent: popup.wrapper;
+					x: parent.width -parent.offset -Math.sqrt(width **2 *2)
+					y: parent.offset -height /2 +radius
+					width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
+					radius: 2
+					rotation: 45
+					color: Globals.Colours.dark
 				}
 			}
 		}
