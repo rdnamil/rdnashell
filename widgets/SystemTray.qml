@@ -52,6 +52,7 @@ Row { id: root
 					.filter(e => !e.hasChildren)
 				onSelected: (index) => {
 					model[index]?.triggered();
+					popup.close();
 				}
 			}
 		}

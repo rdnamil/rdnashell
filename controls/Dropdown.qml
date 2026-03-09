@@ -16,6 +16,10 @@ Ctrl.PopupMenu { id: root
 
 	width: 320
 	height: btn.height
+	onSelected: index => {
+		if (index !== -1) root.currentIndex = index;
+		root.close();
+	}
 
 	Ctrl.Button { id: btn
 		width: root.width
