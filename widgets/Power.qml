@@ -7,10 +7,14 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import qs.controls as Ctrl
+import qs.services as Service
 import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
-	onClicked: loader.active = !loader.active;
+	onClicked: {
+		Service.PopoutManager.whosOpen = null;
+		loader.active = !loader.active;
+	}
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		source: Quickshell.iconPath("system-shutdown-symbolic")
