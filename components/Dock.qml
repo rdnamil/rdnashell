@@ -384,8 +384,8 @@ Variants { id: root
 
 				Rectangle {
 					x: parent.width /2 -width /2
-					y: parent.height -Globals.Controls.padding -height /2
-					width: Math.sqrt((Globals.Controls.padding -Globals.Controls.spacing) **2 *2); height: width;
+					y: parent.height -Globals.Controls.padding -height /2 -radius
+					width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
 					radius: 2
 					rotation: 45
 					color: Globals.Colours.dark
@@ -416,8 +416,6 @@ Variants { id: root
 					}
 				}
 			}
-
-
 
 			MouseArea {
 				anchors.fill: parent
