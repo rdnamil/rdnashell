@@ -286,13 +286,19 @@ Variants { id: root
 											}
 										})];
 										menu.open(delegate);
-										break;
-									} else if (count > 0) Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', id()]);
-									else DesktopEntries.applications.values.find(a => a.id === modelData[0]).execute();
+									} else if (count > 0) {
+										Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', id()]);
+										menu.visible = false;
+									} else {
+										DesktopEntries.applications.values.find(a => a.id === modelData[0]).execute();
+										menu.visible = false;
+									}
 									break;
 								case Qt.MiddleButton: w.forEach(w => {
 									Quickshell.execDetached(['niri', 'msg', 'action', 'close-window', '--id', w.id])
-								}); break;
+									});
+									menu.visible = false;
+									break;
 								case Qt.RightButton:
 
 									// console.log(`Dock: action ids ${entry.actions.map(a => a.id)}`);
