@@ -103,7 +103,11 @@ Variants { id: root
 			Row { id: windows
 				padding: Globals.Controls.spacing
 				spacing: Globals.Controls.spacing /2
-				move: Transition { NumberAnimation { property: "x"; duration: 250; easing.type: Easing.InOutCirc; }}
+				move: Transition { id: moveTrans; SequentialAnimation {
+					ScriptAction { script: moveTrans.ViewTransition.item.z = -1; }
+					NumberAnimation { property: "x"; duration: 250; easing.type: Easing.InOutCirc; }
+					ScriptAction { script: moveTrans.ViewTransition.item.z = 0; }
+				}}
 				Ctrl.Button { id: applications
 					// visible: false
 					onEntered: dock.hoverCount++;
@@ -256,11 +260,10 @@ Variants { id: root
 						acceptedButtons: Qt.AllButtons
 						onPressed: { if (repeater.pins.includes(delegate.modelData[0])) { z = 1; dragStartX = x; dock.hoverCount++; }}
 						onReleased: { if (repeater.pins.includes(delegate.modelData[0])) {
-							const dragEndX = x;
-							z = 0; x = dragStartX; dock.hoverCount--;
+							const dragEndX = x; z = 0; x = dragStartX; dock.hoverCount--;
 
-							if (dragEndX < dragStartX -width /2) repeater.movePin(index, index -1);
-							else if (dragEndX > dragStartX +width /2) repeater.movePin(index, index +1);
+							const targetIndex = Math.round((dragEndX -repeater.itemAt(0).x) / (width +windows.spacing));
+							repeater.movePin(index, targetIndex);
 						}}
 						onClicked: (mouse) => {
 							const w = Service.Niri.windows?.filter(w => {
@@ -407,7 +410,9 @@ Variants { id: root
 		PanelWindow { id: menu
 			function open(item, width = 240) {
 				popup.width = width;
+				if (popup.item) popup.item.list.view.currentIndex = -1;
 				backing.x = dock.x +item.x +item.width /2 -backing.width /2;
+				subPopup.close();
 				menu.visible = true;
 			}
 
@@ -419,10 +424,11 @@ Variants { id: root
 				top: true
 				bottom: true
 			}
+			mask: Region { width: menu.width; height: menu.height -dock.height; }
 			color: Globals.Settings.debug? "#400000ff" : "transparent"
 			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-			exclusiveZone: -1
+			// exclusiveZone: -1
 			onVisibleChanged: {
 				if (visible) {
 					dock.hoverCount++;
@@ -481,6 +487,12 @@ Variants { id: root
 			MouseArea {
 				anchors.fill: parent
 				onClicked: menu.visible = false;
+			}
+
+			Connections {
+				target: Service.PopoutManager
+
+				function onWhosOpenChanged() { menu.visible = false; }
 			}
 		}
 
