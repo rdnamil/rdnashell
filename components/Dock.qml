@@ -120,6 +120,7 @@ Variants { id: root
 							source: Quickshell.iconPath("applications-all-symbolic");
 						}
 					}
+					acceptedButtons: Qt.LeftButton | Qt.RightButton
 					onClicked: (mouse) => {
 						function openMenu() {
 							popup.model = [
@@ -174,8 +175,20 @@ Variants { id: root
 							else subPopup.y = y;
 							subPopup.open();
 						}
+						function openPowerOptions() {
+							popup.model = [
+								{"icon":Quickshell.iconPath("system-lock-screen"),"colorize":true,"text":"Lock","execute":function(){Lockscreen.lock(true)}},
+								{"icon":Quickshell.iconPath("system-log-out"),"colorize":true,"text":"Logout","execute":function(){Quickshell.execDetached(['niri','msg','action','quit'])}},
+								{"icon":Quickshell.iconPath("system-reboot"),"colorize":true,"text":"Restart","execute":function(){Quickshell.execDetached(['reboot'])}},
+								{"icon":Quickshell.iconPath("system-shutdown"),"colorize":true,"text":"Shut down","execute":function(){Quickshell.execDetached(['poweroff'])}}
+							]
+							menu.open(applications, 120);
+						}
 
-						openMenu();
+						switch (mouse.button) {
+							case Qt.LeftButton: openMenu(); break;
+							case Qt.RightButton: openPowerOptions(); break;
+						}
 					}
 				}
 
@@ -364,7 +377,8 @@ Variants { id: root
 		}
 
 		PanelWindow { id: menu
-			function open(item) {
+			function open(item, width = 240) {
+				popup.width = width;
 				backing.x = dock.x +item.x +item.width /2 -backing.width /2;
 				menu.visible = true;
 			}
