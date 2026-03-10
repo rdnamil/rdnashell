@@ -103,7 +103,7 @@ Variants { id: root
 			Row { id: windows
 				padding: Globals.Controls.spacing
 				spacing: Globals.Controls.spacing /2
-
+				move: Transition { NumberAnimation { property: "x"; duration: 250; easing.type: Easing.InOutCirc; }}
 				Ctrl.Button { id: applications
 					// visible: false
 					onEntered: dock.hoverCount++;
@@ -206,19 +206,30 @@ Variants { id: root
 				Repeater { id: repeater
 					readonly property list<string> pins: Service.ShellUtils.pinView.adapter.pins
 
-					model: [
-						...repeater.pins.map(p => [p]),
-						...new Map(Service.Niri
-						.windows?.filter(w => !pins.includes(w.app_id))
-						.filter(w => { // show only windows that are open on this display
-							const ws = Service.Niri.workspaces?.find(ws => ws.id === w.workspace_id)
-							return ws?.output === window.screen.name || !ws;
-						})
-						.map(w => [w["app_id"], w])
-						.values() || [])
+					function movePin(fromIdx, toIdx) {
+						if (fromIdx === toIdx) return;
+						const item = Service.ShellUtils.pinView.adapter.pins[fromIdx];
+						Service.ShellUtils.pinView.adapter.pins.splice(fromIdx, 1);
+						Service.ShellUtils.pinView.adapter.pins.splice(toIdx, 0, item);
+						Service.ShellUtils.pinView.writeAdapter();
+					}
+
+					model: ScriptModel { id: model
+						values: [
+							...repeater.pins.map(p => [p]),
+							...new Map(Service.Niri
+							.windows?.filter(w => !repeater.pins.includes(w.app_id))
+							.filter(w => { // show only windows that are open on this display
+								const ws = Service.Niri.workspaces?.find(ws => ws.id === w.workspace_id)
+								return ws?.output === window.screen.name || !ws;
+							})
+							.map(w => [w["app_id"], w])
+							.values() || [])
 						]
+					}
 					delegate: Ctrl.Button { id: delegate
 						required property var modelData
+						required property int index
 
 						readonly property int count: {
 							let c = 0;
@@ -232,9 +243,25 @@ Variants { id: root
 						readonly property bool isFocused: Service.Niri.windows?.some(w => w.app_id === modelData[0] && w.is_focused) || false
 						readonly property DesktopEntry entry: DesktopEntries.applications.values.find(a => a.id === modelData[0]) || null
 
+						property int dragStartX
+
 						width: icon.width +Globals.Controls.padding -Globals.Controls.spacing
 						height: icon.height +Globals.Controls.padding -Globals.Controls.spacing
+						transform: Scale { origin.x: width /2; origin.y: height /2; xScale: delegate.drag.active? 0.9 : 1.0; yScale: xScale; }
+						background.visible: !drag.active
+						drag.target: repeater.pins.includes(delegate.modelData[0])? delegate : null;
+						drag.axis: Drag.XAxis
+						drag.minimumX: delegate.index === 0? dragStartX : repeater.itemAt(0).x
+						drag.maximumX: windows.x +windows.width -width -Globals.Controls.spacing
 						acceptedButtons: Qt.AllButtons
+						onPressed: { if (repeater.pins.includes(delegate.modelData[0])) { z = 1; dragStartX = x; dock.hoverCount++; }}
+						onReleased: { if (repeater.pins.includes(delegate.modelData[0])) {
+							const dragEndX = x;
+							z = 0; x = dragStartX; dock.hoverCount--;
+
+							if (dragEndX < dragStartX -width /2) repeater.movePin(index, index -1);
+							else if (dragEndX > dragStartX +width /2) repeater.movePin(index, index +1);
+						}}
 						onClicked: (mouse) => {
 							const w = Service.Niri.windows?.filter(w => {
 								return w.app_id === modelData[0];
@@ -335,6 +362,7 @@ Variants { id: root
 						}
 
 						Rectangle {
+							visible: !parent.drag.active
 							z: -1
 							width: parent.background.width; height: parent.background.height;
 							radius: parent.background.radius
@@ -344,7 +372,7 @@ Variants { id: root
 						}
 
 						Rectangle {
-							visible: delegate.count > 1
+							visible: delegate.count > 1 && !parent.drag.active
 							width: Math.max(childrenRect.width +Globals.Controls.spacing, height)
 							height: childrenRect.height +Globals.Controls.spacing
 							radius: height /2;
@@ -363,7 +391,7 @@ Variants { id: root
 						}
 
 						Rectangle {
-							visible: delegate.count > 0
+							visible: delegate.count > 0 && !parent.drag.active
 							anchors {
 								horizontalCenter: parent.horizontalCenter
 								bottom: parent.bottom
