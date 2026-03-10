@@ -124,18 +124,19 @@ Variants { id: root
 						function openMenu() {
 							popup.model = [
 								{"icon":Quickshell.iconPath("utilities-tweak-tool"),"text":"Settings","hasChildren":true,"execute":function(){openSubmenu(["Settings"]);}},
-								{"icon":Quickshell.iconPath("applications-accessories"),"text":"Accessories","hasChildren":true,"execute":function(){openSubmenu(["Accessories", "Utility"]);}},
+								{"isSeparator":true},
+								{"icon":Quickshell.iconPath("applications-accessories"),"text":"Accessories","hasChildren":true,"execute":function(){openSubmenu(["Accessories", "Utility", "Recorder"]);}},
 								{"icon":Quickshell.iconPath("applications-utilities"),"text":"Development","hasChildren":true,"execute":function(){openSubmenu(["Development"]);}},
 								{"icon":Quickshell.iconPath("applications-education"),"text":"Education","hasChildren":true,"execute":function(){openSubmenu(["Education"]);}},
 								{"icon":Quickshell.iconPath("applications-games"),"text":"Games","hasChildren":true,"execute":function(){openSubmenu(["Game"]);}},
 								{"icon":Quickshell.iconPath("applications-graphics"),"text":"Graphics","hasChildren":true,"execute":function(){openSubmenu(["Graphics"]);}},
-								{"icon":Quickshell.iconPath("applications-internet"),"text":"Internet","hasChildren":true,"execute":function(){openSubmenu(["Internet"]);}},
-								{"icon":Quickshell.iconPath("applications-multimedia"),"text":"Multimedia","hasChildren":true,"execute":function(){openSubmenu(["Multimedia", "Player"]);}},
+								{"icon":Quickshell.iconPath("applications-internet"),"text":"Internet","hasChildren":true,"execute":function(){openSubmenu(["Internet", "Network", "WebBrowser"]);}},
+								{"icon":Quickshell.iconPath("applications-multimedia"),"text":"Multimedia","hasChildren":true,"execute":function(){openSubmenu(["Multimedia", "Player", "AudioVideo"]);}},
 								{"icon":Quickshell.iconPath("applications-office"),"text":"Office","hasChildren":true,"execute":function(){openSubmenu(["Office"]);}},
 								{"icon":Quickshell.iconPath("applications-science"),"text":"Science","hasChildren":true,"execute":function(){openSubmenu(["Science"]);}},
 								{"icon":Quickshell.iconPath("applications-system"),"text":"System","hasChildren":true,"execute":function(){openSubmenu();}},
 								{"icon":Quickshell.iconPath("applications-other"),"text":"Other","hasChildren":true,"execute":function(){
-									const cats = new Set(["Settings", "Accessories", "Development", "Education", "Game", "Graphics", "Internet", "Multimedia", "Office", "Science", "System"]);
+									const cats = new Set(["Settings", "Accessories", "Utility", "Recorder", "Development", "Education", "Game", "Graphics", "Internet", "Network", "WebBrowser", "Multimedia", "Player", "AudioVideo", "Office", "Science", "System"]);
 									subPopup.model = [
 										...DesktopEntries.applications.values
 										.filter(a => !a.categories.some(c => cats.has(c)))
@@ -144,6 +145,7 @@ Variants { id: root
 											"text": a.name,
 											"execute": function() { a.execute(); }
 										}))
+										.sort((a ,b) => a.text.localeCompare(b.text))
 									];
 									subPopup.x = backing.width +Globals.Controls.spacing;
 									const y = popup.item.list.view.currentItem.y -Globals.Controls.spacing;
@@ -164,6 +166,7 @@ Variants { id: root
 										"text": a.name,
 										"execute": function() { a.execute(); }
 									}))
+									.sort((a ,b) => a.text.localeCompare(b.text))
 							];
 							subPopup.x = backing.width +Globals.Controls.spacing;
 							const y = popup.item.list.view.currentItem.y -Globals.Controls.spacing;
