@@ -5,6 +5,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
@@ -23,7 +24,7 @@ Row { id: root
 			acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
 			// onClicked: delegate.modelData.activate()
 			onClicked: (mouse) => {
-				Service.PopoutManager.whosOpen = null;
+				Service.PopoutManager.whosOpen = popup;
 
 				switch (mouse.button) {
 					case Qt.LeftButton:
@@ -31,7 +32,7 @@ Row { id: root
 						// popup.y = mouse.y -Globals.Controls.radius *2 *0.1464;
 						popup.x = delegate.width -popup.width +arrow.width /2 -arrow.radius;
 						popup.y = root.height +Globals.Controls.padding;
-						popup.open();
+						popup.selected(-1);
 						break;
 					case Qt.MiddleButton: delegate.modelData.secondaryActivate(); break;
 					case Qt.RightButton: delegate.modelData.activate(); break;
@@ -52,8 +53,11 @@ Row { id: root
 					.filter(e => !e.hasChildren)
 				onSelected: (index) => {
 					model[index]?.triggered();
-					popup.close();
+					// popup.close();
+					!(popup.item?.visible || false)? popup.open() : popup.close();
 				}
+				onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
+				window.mask: Region { y: root.height; width: popup.window.width; height: popup.window.height -root.height; }
 
 				Rectangle { id: arrow
 					parent: popup.wrapper;
@@ -63,6 +67,12 @@ Row { id: root
 					radius: 2
 					rotation: 45
 					color: Globals.Colours.dark
+				}
+
+				Connections {
+					target: Service.PopoutManager
+
+					function onWhosOpenChanged() { if (Service.PopoutManager.whosOpen !== popup) popup.close(); }
 				}
 			}
 		}
