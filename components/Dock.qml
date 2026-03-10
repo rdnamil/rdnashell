@@ -148,8 +148,8 @@ Variants { id: root
 										.sort((a ,b) => a.text.localeCompare(b.text))
 									];
 									subPopup.x = backing.width +Globals.Controls.spacing;
-									const y = popup.item.list.view.currentItem.y -Globals.Controls.spacing;
-									if (y +subPopup.item.height > popup.item.height) subPopup.y = popup.item.height -subPopup.item.height -Globals.Controls.spacing;
+									const y = popup.item.list.view.currentItem.y;
+									if (y +subPopup.item.height > popup.item.height) subPopup.y = popup.item.height -subPopup.item.height;
 									else subPopup.y = y;
 									subPopup.open();
 								}}
@@ -169,8 +169,8 @@ Variants { id: root
 									.sort((a ,b) => a.text.localeCompare(b.text))
 							];
 							subPopup.x = backing.width +Globals.Controls.spacing;
-							const y = popup.item.list.view.currentItem.y -Globals.Controls.spacing;
-							if (y +subPopup.item.height > popup.item.height) subPopup.y = popup.item.height -subPopup.item.height -Globals.Controls.spacing;
+							const y = popup.item.list.view.currentItem.y;
+							if (y +subPopup.item.height > popup.item.height) subPopup.y = popup.item.height -subPopup.item.height;
 							else subPopup.y = y;
 							subPopup.open();
 						}
@@ -275,7 +275,20 @@ Variants { id: root
 												"icon": Quickshell.iconPath("focus-windows-symbolic"),
 												"colorize": true,
 												"text": w.title,
-												"execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
+												"hasChildren": true,
+												// "execute": function() { Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]); }
+												"execute": function() {
+													subPopup.model = [
+														{"icon":Quickshell.iconPath("focus-windows-symbolic"),"colorize":true,"text":"Focus window","execute":function(){Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', w.id]);}},
+														{"icon":Quickshell.iconPath("window-maximize"),"colorize":true,"text":"Maximize window","execute":function(){Quickshell.execDetached(['niri','msg','action','maximize-window-to-edges','--id',w.id])}},
+														{"icon":Quickshell.iconPath("window-close"),"colorize": true,"text":"Close window","execute":function(){Quickshell.execDetached(['niri','msg','action','close-window','--id',w.id])}}
+													]
+													subPopup.x = backing.width +Globals.Controls.spacing;
+													const y = popup.item.list.view.currentItem.y;
+													if (y +subPopup.item.height > popup.item.height) subPopup.y = popup.item.height -subPopup.item.height;
+													else subPopup.y = y;
+													subPopup.open();
+												}
 											}
 										}),
 										{"isSeparator":true},
