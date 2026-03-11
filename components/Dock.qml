@@ -23,7 +23,11 @@ Variants { id: root
 		required property var modelData
 
 		screen: modelData
-		anchors.bottom: true
+		anchors {
+			left: true
+			right: true
+			bottom: true
+		}
 		mask: Region {
 			x: window.width /2 -width /2; y: window.height -height
 			width: window.width *(2 /3); height: 1;
@@ -33,7 +37,6 @@ Variants { id: root
 		exclusiveZone: 0
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:dock"
-		implicitWidth: screen.width
 		implicitHeight: dock.height +shadow.blur
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
 
@@ -109,6 +112,8 @@ Variants { id: root
 					ScriptAction { script: moveTrans.ViewTransition.item.z = 0; }
 				}}
 				Ctrl.Button { id: applications
+					property bool isAppsOpen
+
 					// visible: false
 					onEntered: dock.hoverCount++;
 					onExited: dock.hoverCount--;
@@ -159,6 +164,7 @@ Variants { id: root
 									subPopup.open();
 								}}
 							];
+							applications.isAppsOpen = true;
 							menu.open(applications);
 						}
 						function openSubmenu(categories = ["System"]) {
@@ -190,9 +196,15 @@ Variants { id: root
 						}
 
 						switch (mouse.button) {
-							case Qt.LeftButton: openMenu(); break;
+							case Qt.LeftButton: isAppsOpen? menu.visible = false : openMenu(); break;
 							case Qt.RightButton: openPowerOptions(); break;
 						}
+					}
+
+					Connections {
+						target: menu
+
+						function onVisibleChanged() { if (!menu.visible) applications.isAppsOpen = false; }
 					}
 				}
 
@@ -449,18 +461,8 @@ Variants { id: root
 				x: dock.x
 				y: menu.height -window.height +dock.y -height
 				width: popup.width
-				height: popup.item?.height +Globals.Controls.padding || 0
+				height: (popup.item?.height || 0) +Globals.Controls.padding
 				color: Globals.Settings.debug? "#4000ff00" : "transparent"
-
-				Rectangle {
-					x: parent.width /2 -width /2
-					y: parent.height -Globals.Controls.padding -height /2 -radius
-					width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
-					radius: 2
-					rotation: 45
-					color: Globals.Colours.dark
-					opacity: 0.975
-				}
 
 				Ctrl.PopupMenu { id: popup
 					compatibilityMode: true
@@ -470,10 +472,29 @@ Variants { id: root
 							popup.model[index].execute();
 
 							if (!(popup.model[index].hasChildren ?? false)) menu.visible = false;
-						}
-						else menu.visible = false;
+						} else menu.visible = false;
 					}
 					onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
+
+					Rectangle {
+						x: -1; y: -1;
+						width: parent.width +2; height: (popup.item?.height || 0) +2;
+						radius: Globals.Controls.radius
+						color: "transparent"
+						border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
+						opacity: 0.975
+					}
+
+					Rectangle {
+						x: parent.width /2 -width /2
+						y: (popup.item?.height || 0) -height /2 -radius
+						width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
+						radius: 2
+						rotation: 45
+						color: Globals.Colours.dark
+						border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
+						opacity: 0.975
+					}
 
 					Ctrl.PopupMenu { id: subPopup
 						compatibilityMode: true
@@ -486,14 +507,20 @@ Variants { id: root
 							}
 						}
 						onLoaded: subPopup.item.closePolicy = Popup.CloseOnEscape;
+
+						Rectangle {
+							visible: subPopup.item?.visible || false
+							x: -1; y: -1;
+							width: parent.width +2; height: (subPopup.item?.height || 0) +2;
+							radius: Globals.Controls.radius
+							color: "transparent"
+							border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
+						}
 					}
 				}
 			}
 
-			MouseArea {
-				anchors.fill: parent
-				onClicked: menu.visible = false;
-			}
+			MouseArea { anchors.fill: parent; onClicked: menu.visible = false; }
 
 			Connections {
 				target: Service.PopoutManager
