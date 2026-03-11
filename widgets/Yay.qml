@@ -198,13 +198,11 @@ Ctrl.Widget { id: root
 				}
 			})
 			.forEach(u => root.updates.push(u));
-
-			getInfo.running = true;
 		}}
 	}
 
 	Process { id: getInfo
-		// running: true
+		running: true
 		command: ['pacman', '-Si']
 		stdout: StdioCollector { onStreamFinished: {
 			const updates = root.updates.map(p => p.package);
