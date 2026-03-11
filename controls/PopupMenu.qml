@@ -58,6 +58,7 @@ Loader { id: root
 			shadowWindow.anchor.rect.y = y -shadow.blur;
 		}
 		onAboutToHide: root.selected(-1);
+		exit: Transition {}
 
 		RectangularShadow {
 			visible: root.compatibilityMode
