@@ -197,12 +197,6 @@ Variants { id: root
 							case Qt.RightButton: openPowerOptions(); break;
 						}
 					}
-
-					Connections {
-						target: menu
-
-						function onVisibleChanged() { if (!menu.visible) applications.isAppsOpen = false; }
-					}
 				}
 
 				Item {
@@ -286,7 +280,7 @@ Variants { id: root
 
 							switch (mouse.button) {
 								case Qt.LeftButton:
-									if (count > 1) {
+									if (delegate.count > 1) {
 										popup.model = [...w.map(w => {
 											return {
 												"icon": Quickshell.iconPath(entry.icon),
@@ -295,7 +289,9 @@ Variants { id: root
 											}
 										})];
 										menu.open(delegate);
-									} else if (count > 0) {
+									} else if (menu.visible && menu.current === delegate) {
+										menu.visible = false;
+									} else if (delegate.count > 0) {
 										Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', id()]);
 										menu.visible = false;
 									} else {
@@ -389,22 +385,23 @@ Variants { id: root
 							opacity: delegate.isFocused? 0.25 : 0.0;
 						}
 
-						Rectangle {
+						Rectangle { id: countBak
 							visible: delegate.count > 1 && !parent.drag.active
-							width: Math.max(childrenRect.width +Globals.Controls.spacing, height)
-							height: childrenRect.height +Globals.Controls.spacing
+							width: Math.max(count.width, height)
+							height: count.height
 							radius: height /2;
 							color: Globals.Colours.success
+							border { width: 1; color: Qt.darker(countBak.color, 1.1)}
+							// layer.enabled: true
+							// layer.effect: DropShadow { samples: 8; horizontalOffset: 2; verticalOffset: 2; color: Qt.alpha("black", 0.25); }
 
-							Text {
+							Text { id: count
+								anchors.centerIn: parent
+								padding: Globals.Controls.spacing /2
 								text: delegate.count
 								color: Globals.Colours.text
 								font.pointSize: 6
 								font.weight: 800
-								Component.onCompleted: {
-									x = parent.width /2 -width /2;
-									y = parent.height /2 -height /2;
-								}
 							}
 						}
 
@@ -423,6 +420,8 @@ Variants { id: root
 		}
 
 		PanelWindow { id: menu
+			property Item current
+
 			function open(item, width = 240) {
 				subPopup.close();
 				menu.current = item;
@@ -437,8 +436,6 @@ Variants { id: root
 				}
 			}
 
-			property Item current
-
 			visible: false
 			screen: window.screen
 			anchors {
@@ -447,7 +444,15 @@ Variants { id: root
 				top: true
 				bottom: true
 			}
-			mask: Region { width: menu.width; height: menu.height -dock.height; }
+			mask: Region {
+				width: menu.width; height: menu.height;
+
+				Region {
+					x: dock.x; y: menu.height -dock.height;
+					width: dock.width; height: dock.height;
+					intersection: Intersection.Subtract
+				}
+			}
 			color: Globals.Settings.debug? "#400000ff" : "transparent"
 			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
@@ -508,6 +513,8 @@ Variants { id: root
 					}
 
 					Ctrl.PopupMenu { id: subPopup
+						readonly property Transition enterTrans: Transition {}
+
 						compatibilityMode: true
 						onSubClose: subPopup.close();
 						onSelected: (index) => {
@@ -517,7 +524,10 @@ Variants { id: root
 								menu.visible = false;
 							}
 						}
-						onLoaded: subPopup.item.closePolicy = Popup.CloseOnEscape;
+						onLoaded: {
+							subPopup.item.closePolicy = Popup.CloseOnEscape;
+							subPopup.item.enter = enterTrans;
+						}
 
 						Rectangle {
 							visible: subPopup.item?.visible || false
