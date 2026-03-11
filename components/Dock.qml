@@ -34,7 +34,7 @@ Variants { id: root
 
 			Region { x: dock.x; y: dock.y +trans.y; width: dock.width; height: dock.height; }
 		}
-		exclusiveZone: 0
+		exclusiveZone: -1
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:dock"
 		implicitHeight: dock.height +shadow.blur
@@ -112,8 +112,6 @@ Variants { id: root
 					ScriptAction { script: moveTrans.ViewTransition.item.z = 0; }
 				}}
 				Ctrl.Button { id: applications
-					property bool isAppsOpen
-
 					// visible: false
 					onEntered: dock.hoverCount++;
 					onExited: dock.hoverCount--;
@@ -164,7 +162,6 @@ Variants { id: root
 									subPopup.open();
 								}}
 							];
-							applications.isAppsOpen = true;
 							menu.open(applications);
 						}
 						function openSubmenu(categories = ["System"]) {
@@ -196,7 +193,7 @@ Variants { id: root
 						}
 
 						switch (mouse.button) {
-							case Qt.LeftButton: isAppsOpen? menu.visible = false : openMenu(); break;
+							case Qt.LeftButton: openMenu(); break;
 							case Qt.RightButton: openPowerOptions(); break;
 						}
 					}
@@ -427,12 +424,20 @@ Variants { id: root
 
 		PanelWindow { id: menu
 			function open(item, width = 240) {
-				popup.width = width;
-				if (popup.item) popup.item.list.view.currentIndex = -1;
-				backing.x = dock.x +item.x +item.width /2 -backing.width /2;
 				subPopup.close();
-				menu.visible = true;
+				menu.current = item;
+				popup.width = width;
+				backing.x = dock.x +item.x +item.width /2 -backing.width /2;
+
+				if (Service.PopoutManager.whosOpen === item && menu.visible) menu.visible = false;
+				else {
+					if (!menu.visible) menu.visible = true;
+					if (popup.item) popup.item.list.view.currentIndex = -1;
+					Service.PopoutManager.whosOpen = item;
+				}
 			}
+
+			property Item current
 
 			visible: false
 			screen: window.screen
@@ -531,7 +536,7 @@ Variants { id: root
 			Connections {
 				target: Service.PopoutManager
 
-				function onWhosOpenChanged() { menu.visible = false; }
+				function onWhosOpenChanged() { if (Service.PopoutManager.whosOpen !== menu.current) menu.visible = false; }
 			}
 		}
 
