@@ -6,6 +6,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
@@ -48,12 +49,11 @@ Item { id: root
 									.filter(e => !e.hasChildren);
 								backing.x = delegate.mapToGlobal(0, 0).x +delegate.width /2 -popup.width *(7 /8);
 
-								if (Service.PopoutManager.whosOpen === repeater.itemAt(delegate.index)) {
-									menu.visible = false;
-									Service.PopoutManager.whosOpen = null;
-								} else {
+								if (Service.PopoutManager.whosOpen === repeater.itemAt(delegate.index) && menu.visible) Service.PopoutManager.whosOpen = null;
+								else {
 									if (!menu.visible) menu.visible = true;
 									popup.item.list.view.currentIndex = -1;
+									menuAnchor.menu = menuOpener.menu;
 									Service.PopoutManager.whosOpen = repeater.itemAt(delegate.index);
 								}
 							} else delegate.modelData.activate(); break;
@@ -100,8 +100,10 @@ Item { id: root
 					onSelected: (index) => {
 						if (index !== -1) {
 							model[index].triggered();
+							menuAnchor.open();
+							menuAnchor.close();
 
-							if (!(popup.model[index].hasChildren ?? false)) menu.visible = false;
+							if (!(popup.model[index].hasChildren ?? false)) Service.PopoutManager.whosOpen = null;
 						} else menu.visible = false;
 					}
 					onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
@@ -115,16 +117,24 @@ Item { id: root
 						opacity: 0.975
 					}
 
-					Rectangle {
+					Rectangle { id: ptr
 						x: parent.width *(7 /8) -width /2; y: -height /2 +radius;
 						width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
 						radius: 2
-						rotation: 45
+						rotation: 135
 						color: Globals.Colours.dark
 						border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
 						opacity: 0.975
+						layer.enabled: true
+						layer.effect: OpacityMask { maskSource: Item {
+							width: ptr.width; height: ptr.height;
+
+							Rectangle { x: -parent.width /2; y: parent.height /2; width: Math.sqrt(parent.width **2 *2); height: width /2; rotation: 45; }
+						}}
 					}
 				}
+
+				QsMenuAnchor { id: menuAnchor; anchor.window: menu; }
 			}
 
 			MouseArea { anchors.fill: parent; onClicked: menu.visible = false; }
