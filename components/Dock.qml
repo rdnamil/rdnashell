@@ -485,15 +485,21 @@ Variants { id: root
 						opacity: 0.975
 					}
 
-					Rectangle {
+					Rectangle { id: ptr
 						x: parent.width /2 -width /2
 						y: (popup.item?.height || 0) -height /2 -radius
 						width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
 						radius: 2
-						rotation: 45
+						rotation: 315
 						color: Globals.Colours.dark
 						border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
 						opacity: 0.975
+						layer.enabled: true
+						layer.effect: OpacityMask { maskSource: Item {
+							width: ptr.width; height: ptr.height;
+
+							Rectangle { x: -parent.width /2; y: parent.height /2; width: Math.sqrt(parent.width **2 *2); height: width /2; rotation: 45; }
+						}}
 					}
 
 					Ctrl.PopupMenu { id: subPopup
