@@ -2,6 +2,8 @@
 --- shell.qml by andrel ---
 -------------------------*/
 
+//@ pragma UseQApplication
+
 import QtQuick
 import Quickshell
 import qs.components
@@ -23,7 +25,7 @@ ShellRoot {
 		right: [
 			SystemTray {},
 			Yay {
-				notifyOn: 15 // number of updates before notifying
+				notifyOn: 25 // number of updates before notifying
 				updateCommmand: ['ghostty', '-e', 'yay'] // command to run to update
 			},
 			ColourPicker {},
