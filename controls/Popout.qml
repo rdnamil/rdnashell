@@ -1,6 +1,6 @@
 /*--------------------------
- * --- Popout.qml by andrel ---
- * --------------------------*/
+--- Popout.qml by andrel ---
+--------------------------*/
 
 pragma ComponentBehavior: Bound
 
@@ -14,6 +14,7 @@ import "../globals.js" as Globals
 
 Item { id: root
 	required property Item content
+	required property int anchor
 
 	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 
@@ -26,13 +27,20 @@ Item { id: root
 
 	function positionContainer() {
 		const p = root.mapToGlobal(0, 0);
-		const x = p.x +root.width /2;
 
-		if (x -root.content.width /2 -Globals.Controls.padding < 0) container.x = Globals.Controls.padding;
-		else if (x +root.content.width /2 +Globals.Controls.padding > window.screen.width) container.x = window.screen.width -root.content.width -Globals.Controls.padding;
-		else container.x = x -root.content.width /2;
+		if (p.x -root.content.width /2 -Globals.Controls.padding < 0) container.x = Globals.Controls.padding;
+		else if (p.x +root.content.width /2 +Globals.Controls.padding > window.screen.width) container.x = window.screen.width -root.content.width -Globals.Controls.padding;
+		else container.x = p.x -root.content.width /2;
 
-		p.y < window.screen.height /2? container.y = p.y +Globals.Controls.padding /2 : p.y -Globals.Controls.padding /2;
+		if (root.anchor === Edges.Top) {
+			container.anchors.top = container.parent.top;
+			container.anchors.topMargin = Globals.Controls.padding /2;
+			trans.startingPos = (root.content.height +Globals.Controls.padding) *(-1);
+		} else if (root.anchor === Edges.Bottom) {
+			container.anchors.bottom = container.parent.bottom;
+			container.anchors.bottomMargin = Globals.Controls.padding /2;
+			trans.startingPos = (root.content.height +Globals.Controls.padding);
+		}
 	}
 
 	anchors.fill: parent
@@ -41,7 +49,6 @@ Item { id: root
 
 		if (root.isOpen) {
 			root.open();
-			root.positionContainer();
 			Service.PopoutManager.whosOpen = root;
 		} else {
 			root.close();
@@ -64,10 +71,17 @@ Item { id: root
 
 		MouseArea { anchors.fill: parent; onClicked: root.isOpen = false; }
 
-		Translate { id: trans; y: (container.y +root.content.height) *(-1); }
+		Translate { id: trans;
+			property real startingPos;
+
+			y: startingPos
+		}
 
 		ParallelAnimation { id: anim
-			onStarted: if (root.isOpen) window.visible = true;
+			onStarted: if (root.isOpen) {
+				window.visible = true;
+				root.positionContainer();
+			}
 			onFinished: if (!root.isOpen) window.visible = false;
 
 			NumberAnimation {
@@ -78,7 +92,7 @@ Item { id: root
 
 			NumberAnimation {
 				target: trans; property: "y";
-				to: root.isOpen? 0 : (container.y +root.content.height) *(-1)
+				to: root.isOpen? 0 : trans.startingPos
 				duration: 250; easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc;
 			}
 		}

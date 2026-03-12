@@ -24,6 +24,8 @@ Item { id: root
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
 	Row { id: layout
+		required property int anchor
+
 		spacing: Globals.Controls.spacing
 
 		Repeater { id: repeater
@@ -90,7 +92,7 @@ Item { id: root
 			onVisibleChanged: visible? popup.open() : popup.close();
 
 			Rectangle { id: backing
-				y: Globals.Controls.padding
+				y: layout.anchor === Edges.Top? Globals.Controls.padding -ptr.radius : menu.height -height -Globals.Controls.padding +ptr.radius
 				width: popup.width
 				height: (popup.item?.height || 0)
 				color: Globals.Settings.debug? "#4000ff00" : "transparent"
@@ -118,10 +120,11 @@ Item { id: root
 					}
 
 					Rectangle { id: ptr
-						x: parent.width *(7 /8) -width /2; y: -height /2 +radius;
+						x: parent.width *(7 /8) -width /2
+						y: layout.anchor === Edges.Top? radius -height /2 : backing.height -height /2 -radius
 						width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
 						radius: 2
-						rotation: 135
+						rotation: layout.anchor === Edges.Top? 135 : 315
 						color: Globals.Colours.dark
 						border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
 						opacity: 0.975

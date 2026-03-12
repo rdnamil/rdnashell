@@ -12,6 +12,7 @@ import "../globals.js" as Globals
 
 Variants { id: root
 	property int height: 38
+	property int anchors: Edges.Top
 	property list<Item> left: []
 	property list<Item> centre: []
 	property list<Item> right: []
@@ -24,8 +25,8 @@ Variants { id: root
 		anchors {
 			left: true
 			right: true
-			top: Globals.Settings.barIsTop
-			bottom: !Globals.Settings.barIsTop
+			top: root.anchors === Edges.Top
+			bottom: root.anchors === Edges.Bottom
 		}
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:bar"
@@ -61,8 +62,8 @@ Variants { id: root
 		}
 
 		Repeater {
-			model: [(Edges.Left | (Globals.Settings.barIsTop? Edges.Top : Edges.Bottom)),
-			(Edges.Right | (Globals.Settings.barIsTop? Edges.Top : Edges.Bottom))]
+			model: [(Edges.Left | (root.anchors === Edges.Top? Edges.Top : Edges.Bottom)),
+			(Edges.Right | (root.anchors === Edges.Top? Edges.Top : Edges.Bottom))]
 			delegate: Rectangle { id: corner
 				required property var modelData
 
@@ -104,6 +105,9 @@ Variants { id: root
 			Component.onCompleted: { for (let w of root.left) {
 				w.parent = rowLeft;
 				w.anchors.verticalCenter = rowLeft.verticalCenter;
+				w.children.forEach(w => {
+					if (w.hasOwnProperty('anchor')) w.anchor = root.anchors;
+				});
 			}}
 		}
 
@@ -119,6 +123,9 @@ Variants { id: root
 			Component.onCompleted: { for (let w of root.centre) {
 				w.parent = rowCentre;
 				w.anchors.verticalCenter = rowCentre.verticalCenter;
+				w.children.forEach(w => {
+					if (w.hasOwnProperty('anchor')) w.anchor = root.anchors;
+				});
 			}}
 		}
 
@@ -135,6 +142,9 @@ Variants { id: root
 			Component.onCompleted: { for (let w of root.right) {
 				w.parent = rowRight;
 				w.anchors.verticalCenter = rowRight.verticalCenter;
+				w.children.forEach(w => {
+					if (w.hasOwnProperty('anchor')) w.anchor = root.anchors;
+				});
 			}}
 		}
 	}
