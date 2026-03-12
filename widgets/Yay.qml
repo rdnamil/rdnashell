@@ -15,6 +15,7 @@ Ctrl.Widget { id: root
     property list<var> updates: []
     property int notifyOn: 0
     property list<string> updateCommmand: []
+    property string pacmanInfo: ''
 
     onClicked: popout.toggle();
     icon: IconImage {
@@ -165,7 +166,7 @@ Ctrl.Widget { id: root
     }
 
     Process { id: getUpdates
-        running: true
+        // running: true
         command: ['checkupdates']
         stdout: StdioCollector { onStreamFinished: {
             root.updates = text.trim()
@@ -198,6 +199,35 @@ Ctrl.Widget { id: root
 				}
 			})
 			.forEach(u => root.updates.push(u));
+
+            const updates = root.updates.map(p => p.package);
+            root.pacmanInfo
+            .split(/\n\s*\n/)
+            .map(e => {
+                const pkg = {};
+
+                e.split('\n').forEach(l => {
+                    const match = l.match(/^([^:]+?)\s*:\s*(.*)$/);
+                    if (match) {
+                        const key = match[1].trim();
+                        const value = match[2].trim();
+                        pkg[key] = value;
+                    }
+                });
+
+                return pkg;
+            })
+            .filter(p => updates.includes(p.Name))
+            .forEach(p => {
+                root.updates.find(u => u.package === p.Name).repo = p.Repository;
+            });
+
+            list.model = root.updates
+            .filter(u => u.package)
+            .sort((a, b) => {
+                if (a.repo.localeCompare(b.repo)) return a.repo.localeCompare(b.repo);
+                else return a.package.localeCompare(b.package);
+            });
 		}}
 	}
 
@@ -205,35 +235,8 @@ Ctrl.Widget { id: root
 		running: true
 		command: ['pacman', '-Si']
 		stdout: StdioCollector { onStreamFinished: {
-			const updates = root.updates.map(p => p.package);
-			text.trim()
-			.split(/\n\s*\n/)
-			.map(e => {
-				const pkg = {};
-
-				e.split('\n').forEach(l => {
-					const match = l.match(/^([^:]+?)\s*:\s*(.*)$/);
-					if (match) {
-						const key = match[1].trim();
-						const value = match[2].trim();
-						pkg[key] = value;
-					}
-				});
-
-				return pkg;
-			})
-			.filter(p => updates.includes(p.Name))
-			.forEach(p => {
-				root.updates.find(u => u.package === p.Name).repo = p.Repository;
-			});
-
-			list.model = root.updates
-			.filter(u => u.package)
-			.sort((a, b) => {
-				if (a.repo.localeCompare(b.repo)) return a.repo.localeCompare(b.repo);
-				else return a.package.localeCompare(b.package);
-			});
-			// console.log(root.info.map(p => p.Name));
+            root.pacmanInfo = text;
+			getUpdates.running = true;
 		}}
 	}
 
