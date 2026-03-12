@@ -1,6 +1,6 @@
 /*--------------------------
---- Popout.qml by andrel ---
---------------------------*/
+ * --- Popout.qml by andrel ---
+ * --------------------------*/
 
 pragma ComponentBehavior: Bound
 
@@ -15,7 +15,7 @@ import "../globals.js" as Globals
 Item { id: root
 	required property Item content
 
-	readonly property alias window: window
+	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 
 	property bool isOpen
 
@@ -24,111 +24,91 @@ Item { id: root
 
 	function toggle() { root.isOpen = !root.isOpen; }
 
+	function positionContainer() {
+		const p = root.mapToGlobal(0, 0);
+		const x = p.x +root.width /2;
+
+		if (x -root.content.width /2 -Globals.Controls.padding < 0) container.x = Globals.Controls.padding;
+		else if (x +root.content.width /2 +Globals.Controls.padding > window.screen.width) container.x = window.screen.width -root.content.width -Globals.Controls.padding;
+		else container.x = x -root.content.width /2;
+
+		p.y < window.screen.height /2? container.y = p.y +Globals.Controls.padding /2 : p.y -Globals.Controls.padding /2;
+	}
+
 	anchors.fill: parent
 	onIsOpenChanged: {
+		anim.restart();
+
 		if (root.isOpen) {
 			root.open();
+			root.positionContainer();
 			Service.PopoutManager.whosOpen = root;
 		} else {
 			root.close();
-			if (Service.PopoutManager.whosOpen === root) Service.PopoutManager.whosOpen = null;
 		}
 	}
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
-	PanelWindow {
-		visible: root.isOpen
-		screen: window.screen
+	PanelWindow { id: window
+		visible: false
+		screen: root.screen
 		anchors {
 			left: true
 			right: true
 			top: true
 			bottom: true
 		}
-		color: Globals.Settings.debug? "#400000ff" : "transparent"
 		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+		color: Globals.Settings.debug? "#400000ff" : "transparent"
 
-		MouseArea {
-			anchors.fill: parent
-			focus: true
-			onClicked: root.isOpen = false;
-			Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.isOpen = false; }
-		}
-	}
+		MouseArea { anchors.fill: parent; onClicked: root.isOpen = false; }
 
-	PopupWindow { id: window
-		mask: Region {
-			x: contentWrapper.x
-			y: contentWrapper.y
-			width: contentWrapper.width
-			height: contentWrapper.height
-		}
-		color: Globals.Settings.debug? "#80ff0000" : "transparent"
-		implicitWidth: root.content.width +Globals.Controls.padding +shadow.blur *2
-		implicitHeight: root.content.height +Globals.Controls.padding +shadow.blur
-		anchor {
-			item: root
-			// if the window would go off-screen, slideX until it is back on-screen
-			// avoids Quickshell's default 12px padding and will touch the screen's edge
-			margins.left: if ((window.itemRect(root).x +root.width /2 +root.content.width /2 +Globals.Controls.padding *2) > window.screen.width) {
-				return window.screen.width -window.itemRect(root).x -root.content.width /2 -Globals.Controls.padding;
-			} else if ((window.itemRect(root).x +root.width /2 -root.content.width /2 -Globals.Controls.padding *2) < 0) {
-				return root.content.width /2 -window.itemRect(root).x +Globals.Controls.padding;
-			} else return root.width /2;
-			edges: Edges.Bottom | Edges.Left
-			gravity: Edges.Bottom
-			adjustment: PopupAdjustment.None
-		}
-		Component.onCompleted: { root.content.parent = contentWrapper; }
+		Translate { id: trans; y: (container.y +root.content.height) *(-1); }
 
-		Translate { id: trans; }
-
-		RectangularShadow { id: shadow
-			anchors.horizontalCenter: parent.horizontalCenter
-			y: contentWrapper.y
-			z: -999
-			width: contentWrapper.width
-			height: contentWrapper.height
-			radius: Globals.Controls.radius
-			blur: 30
-			opacity: 0.4 *contentWrapper.opacity
-			transform: trans
-		}
-
-		Item { id: contentWrapper
-			x: window.width /2 -width /2
-			width: root.content.width
-			height: root.content.height
-			transform: trans
-			layer.enabled: true
-			layer.effect: OpacityMask { maskSource: Rectangle {
-				width: contentWrapper.width
-				height: contentWrapper.height
-				radius: Globals.Controls.radius
-			}}
-		}
-
-		ParallelAnimation { id: contentAnim
+		ParallelAnimation { id: anim
 			onStarted: if (root.isOpen) window.visible = true;
 			onFinished: if (!root.isOpen) window.visible = false;
+
 			NumberAnimation {
-				target: contentWrapper; property: "opacity"; duration: 250; easing.type: Easing.OutCirc;
-				from: root.isOpen? 0.0 : 0.975
-				to: !root.isOpen? 0.0 : 0.975
+				target: container; property: "opacity";
+				to: root.isOpen? 0.975 : 0.0
+				duration: 250; easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc;
 			}
+
 			NumberAnimation {
-				target: trans; property: "y"; duration: 250;
-				easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc
-				from: root.isOpen? -(root.content.height +Globals.Controls.padding /2) : Globals.Controls.padding /2
-				to: !root.isOpen? -(root.content.height +Globals.Controls.padding /2) : Globals.Controls.padding /2
+				target: trans; property: "y";
+				to: root.isOpen? 0 : (container.y +root.content.height) *(-1)
+				duration: 250; easing.type: root.isOpen? Easing.OutCirc : Easing.InCirc;
 			}
 		}
 
-		Connections {
-			target: root
+		RectangularShadow {
+			anchors.fill: container
+			radius: Globals.Controls.radius
+			blur: 30
+			opacity: 0.4 *container.opacity
+			transform: trans
+		}
 
-			function onIsOpenChanged() { contentAnim.start(); }
+		Rectangle { id: container
+			width: root.content.width; height: root.content.height;
+			transform: trans
+			color: Globals.Settings.debug? "#8000ff00" : "transparent"
+			opacity: 0.0
+			layer.enabled: true
+			layer.effect: OpacityMask { maskSource: Rectangle {
+				width: container.width; height: container.height;
+				radius: Globals.Controls.radius
+			}}
+			focus: true
+			Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.isOpen = false; }
+			Component.onCompleted: root.content.parent = container;
+
+			Rectangle { visible: Globals.Settings.debug; x: parent.width /2 -width /2; z: 1; width: 1; height: parent.height; color: "black"; }
+			Rectangle { visible: Globals.Settings.debug; y: parent.height /2 -height /2; z: 1; width: parent.width; height: 1; color: "black"; }
+
+			MouseArea { anchors.fill: parent; }
 		}
 	}
 
