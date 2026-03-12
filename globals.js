@@ -3,8 +3,7 @@
 .import "utils.js" as Utils
 
 var Settings = {
-	debug: false,
-	barIsTop: true
+	debug: false
 };
 
 var Controls = {
