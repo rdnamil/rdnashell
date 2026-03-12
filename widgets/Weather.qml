@@ -175,6 +175,7 @@ Ctrl.Widget { id: root
 									case 95: return "Thunderstorm";
 									case 96: return "Thunderstorm with slight hail";
 									case 99: return "Thunderstorm with heavy hail";
+									default: return "";
 								}
 								color: Globals.Colours.text
 								font.pointSize: 8
