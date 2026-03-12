@@ -37,14 +37,12 @@ Ctrl.Widget { id: root
 	}
 
 	Ctrl.Popout { id: popout
-		window.onVisibleChanged: {
-			if (window.visible) Networking.devices.values
-				.find(d => d.type === DeviceType.Wifi)
-				.scannerEnabled = true;
-			else Networking.devices.values
-				.find(d => d.type === DeviceType.Wifi)
-				.scannerEnabled = false;
-		}
+		onOpen: Networking.devices.values
+			.find(d => d.type === DeviceType.Wifi)
+			.scannerEnabled = true;
+		onClose: Networking.devices.values
+			.find(d => d.type === DeviceType.Wifi)
+			.scannerEnabled = false;
 		content: Style.PageLayout { id: content
 			header: RowLayout {
 				width: content.width
