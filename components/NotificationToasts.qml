@@ -15,10 +15,14 @@ import qs.services as Service
 import "../globals.js" as Globals
 
 Variants { id: root
+	property list<string> displays: []
+	property int anchors: Edges.Right
+
 	model: Quickshell.screens
 	delegate: PanelWindow { id: window
 		required property var modelData
 
+		visible: (!root.displays.length) || root.displays.includes(window.screen.name)
 		screen: modelData
 		anchors {
 			left: true
@@ -27,28 +31,27 @@ Variants { id: root
 			bottom: true
 		}
 		mask: Region {
-			x: container.x +30; y: container.y +Globals.Controls.padding;
-			width: container.width -60; height: container.height -30 -Globals.Controls.padding;
+			x: container.x; y: container.y;
+			width: container.width; height: container.height;
 		}
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:notifications"
-		color: Globals.Settings.debug? "#40ff0000" : "transparent"
-
-		Rectangle {
-			visible: Globals.Settings.debug
-			x: container.x +30; y: container.y +Globals.Controls.padding;
-			width: container.width -60; height: container.height -30 -Globals.Controls.padding;
-			opacity: 0.5
-		}
+		color: Globals.Settings.debug? "#10ff0000" : "transparent"
 
 		Rectangle { id: container
-			x: parent.width -width +30 -Globals.Controls.padding
-			width: Math.min(...model.values.map((elem, index) => { return repeater.itemAt(index).width })) +60;
+			y: Globals.Controls.padding
+			x: switch (root.anchors) {
+				case Edges.Left | Edges.Right: return window.width /2 -container.width /2;
+				case Edges.Left: return Globals.Controls.padding;
+				case Edges.Right:
+				default: return window.width -container.width -Globals.Controls.padding;
+			}
+			width: Math.min(...model.values.map((elem, index) => { return repeater.itemAt(index).width }));
 			height: {
-				let h = 30
+				let h = -Globals.Controls.spacing;
 
 				model.values.forEach((elem, index) => {
-					h += repeater.itemAt(index).height +Globals.Controls.spacing
+					h += repeater.itemAt(index).height +Globals.Controls.spacing;
 				});
 
 				return h;
@@ -89,12 +92,13 @@ Variants { id: root
 					}
 
 					function remove(id, height) {
-						toastTrans.y -= height +Globals.Controls.spacing;
-						if (delegate.modelData.id === id) rmAnim.start();
+						if (delegate.modelData.id === id) {
+							toastTrans.y += height +Globals.Controls.spacing +100;
+							rmAnim.start();
+						} else toastTrans.y -= height +Globals.Controls.spacing;
 					}
 
-					x: 30
-					z: -index
+					z: index
 					width: 480; height: toastLayout.height +delta +Globals.Controls.padding;
 					transform: Translate { id: toastTrans
 						Behavior on y { NumberAnimation { id: toastTransBehavior; duration: 250; easing.type: Easing.OutCirc; }}
@@ -217,8 +221,8 @@ Variants { id: root
 						NumberAnimation {
 							target: toastTrans
 							property: "y"
-							from: Globals.Controls.padding -delegate.height -Globals.Controls.spacing
-							to: Globals.Controls.padding
+							from: -delegate.height -Globals.Controls.spacing
+							to: 0
 							duration: 250
 							easing.type: Easing.OutCirc;
 						}
@@ -230,7 +234,7 @@ Variants { id: root
 						property: "opacity"
 						to: 0.0
 						duration: 250
-						easing.type: Easing.InOutCirc;
+						easing.type: Easing.OutCirc;
 					}
 				}
 			}

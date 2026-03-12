@@ -38,7 +38,10 @@ ShellRoot {
 		]
 	}
 	Dock {}
-	NotificationToasts {}
+	NotificationToasts {
+		anchors: Edges.Right // anchor points (edges left+right will centre)
+		displays: ["DP-1"] // outputs to display on (empty list will display on all outputs)
+	}
 
 	Component.onCompleted: {
 		Service.ShellUtils.init();
