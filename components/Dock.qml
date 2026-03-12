@@ -111,6 +111,7 @@ Variants { id: root
 					NumberAnimation { property: "x"; duration: 250; easing.type: Easing.InOutCirc; }
 					ScriptAction { script: moveTrans.ViewTransition.item.z = 0; }
 				}}
+
 				Ctrl.Button { id: applications
 					// visible: false
 					onEntered: dock.hoverCount++;
