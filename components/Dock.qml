@@ -309,15 +309,15 @@ Variants { id: root
 
 									// console.log(`Dock: action ids ${entry.actions.map(a => a.id)}`);
 
-									const icon = (id, icon) => { switch (id) {
-										case "ew-window": return Quickshell.iconPath("new-window-symbolic");
-										case "ew-private-window": return Quickshell.iconPath("view-private-symbolic");
-										case "ew-message": return Quickshell.iconPath("mail-message-new-symbolic");
-										case "ew-event": return Quickshell.iconPath("view-calendar-upcoming-events");
-										case "pen-computer": return Quickshell.iconPath("computer-symbolic");
-										case "pen-home": return Quickshell.iconPath("user-home-symbolic");
-										case "pen-trash": return Quickshell.iconPath("user-trash-symbolic");
-										case "pen-calendar": return Quickshell.iconPath("office-calendar-symbolic");
+									const icon = (id, icon) => { switch (id.toLowerCase()) {
+										case "new-window": return Quickshell.iconPath("new-window-symbolic");
+										case "new-private-window": return Quickshell.iconPath("view-private-symbolic");
+										case "new-message": return Quickshell.iconPath("mail-message-new-symbolic");
+										case "new-event": return Quickshell.iconPath("view-calendar-upcoming-events");
+										case "open-computer": return Quickshell.iconPath("computer-symbolic");
+										case "open-home": return Quickshell.iconPath("user-home-symbolic");
+										case "open-trash": return Quickshell.iconPath("user-trash-symbolic");
+										case "open-calendar": return Quickshell.iconPath("office-calendar-symbolic");
 										default: return Quickshell.iconPath(icon, true);
 									}};
 
