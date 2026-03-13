@@ -85,10 +85,9 @@ Item { id: root
 						width: {
 							const h = root.height -Globals.Controls.padding *(4 /3);
 
-							if (h > 32) return 32;
-							else if (h > 24) return 24;
-							else if (h > 16) return 16;
-							else return 8;
+							if (h >= 32) return 32;
+							else if (h >= 24) return 24;
+							else return 16;
 						}
 						height: width
 						color: Globals.Settings.debug? "#ffff0000" : "transparent"
@@ -213,7 +212,7 @@ Item { id: root
 						text: delegate.count
 						horizontalAlignment: Text.AlignHCenter
 						color: Globals.Colours.text
-						font.pointSize: 6
+						font.pointSize: appIcon.height < 32? 6 : 8
 						font.weight: 800
 					}
 				}
