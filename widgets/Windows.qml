@@ -12,6 +12,9 @@ import "../globals.js" as Globals
 Item { id: root
 	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 
+	property bool hideLabels
+	property int labelMaxWidth: 100
+
 	width: layout.width; height: parent.height;
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
@@ -72,7 +75,8 @@ Item { id: root
 					return t? `${t}${t.includes(delegate.entry?.name.split(' ')[0])? '' : n}` : delegate.entry?.name || '';
 				}
 
-				Layout.preferredWidth: icon.width +Globals.Controls.spacing *2; height: icon.height +Globals.Controls.spacing *2;
+				Layout.preferredWidth: icon.width +Globals.Controls.padding -Globals.Controls.spacing
+				Layout.preferredHeight: icon.height +Globals.Controls.padding -Globals.Controls.spacing
 				icon: Row {
 					spacing: Globals.Controls.spacing
 
@@ -86,10 +90,12 @@ Item { id: root
 					}
 
 					Text { // text
+						visible: !root.hideLabels
 						rightPadding: Globals.Controls.spacing /2
-						width: Math.min(implicitWidth, 100)
+						width: Math.min(implicitWidth, root.labelMaxWidth)
 						text: delegate.title
-						elide: Text.ElideRight
+						clip: true
+						// elide: Text.ElideRight
 						color: Globals.Colours.text
 						font.pointSize: 10
 					}
@@ -199,6 +205,14 @@ Item { id: root
 						font.pointSize: 6
 						font.weight: 800
 					}
+				}
+
+				Rectangle { // window open indicator
+					visible: delegate.count > 0
+					x: (Globals.Controls.padding -Globals.Controls.spacing) /2 +Globals.Controls.iconSize /2 -width /2
+					y: parent.height -height
+					width: delegate.isFocused? 8 : 4; height: 3; radius: height /2;
+					color: Globals.Colours.accent
 				}
 
 				IconImage { id: drag

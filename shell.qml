@@ -20,7 +20,10 @@ ShellRoot {
 			Bluetooth {},
 			Audio {},
 			MusicPlayer {},
-			Windows {}
+			Windows {
+				hideLabels: false // show only the window app icon
+				labelMaxWidth: 100 // set the maximum width of the label (has no effect if labels are hidden)
+			}
 		]
 		centre: [
 			NiriWorkspaces {}
