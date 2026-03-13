@@ -230,7 +230,7 @@ Item { id: root
 					parent: root
 					visible: delegate.drag.active
 					x: delegate.drag.active? Math.max(0, Math.min(root.width -drag.width, delegate.mouseX +delegate.x -drag.width /2)) : 0
-					y: delegate.drag.active? Math.max(3, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
+					y: delegate.drag.active? Math.max(0, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
 					implicitSize: Globals.Controls.iconSize *1.5
 					source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic")
 				}
