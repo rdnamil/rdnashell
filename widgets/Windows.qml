@@ -11,17 +11,26 @@ import "../globals.js" as Globals
 Item { id: root
 	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 
-	width: layout.width; height: layout.height;
+	width: layout.width; height: parent.height;
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
 	Row { id: layout
 		required property int anchor
 
+		anchors.verticalCenter: parent.verticalCenter
 		spacing: Globals.Controls.spacing /2
 
 		Repeater { id: repeater
 			readonly property list<string> pins: Service.ShellUtils.pinView.adapter.pins
+
+			function movePin(fromIdx, toIdx) {
+				if (fromIdx === toIdx) return;
+				const item = Service.ShellUtils.pinView.adapter.pins[fromIdx];
+				Service.ShellUtils.pinView.adapter.pins.splice(fromIdx, 1);
+				Service.ShellUtils.pinView.adapter.pins.splice(toIdx, 0, item);
+				Service.ShellUtils.pinView.writeAdapter();
+			}
 
 			model: ScriptModel { id: model
 				values: [
@@ -38,6 +47,7 @@ Item { id: root
 			}
 			delegate: Ctrl.Button { id: delegate
 				required property var modelData
+				required property int index
 
 				readonly property var windows: Service.Niri.windows?.filter(w => { // filter only windows that match 'app id'
 					return w.app_id === modelData[0];
@@ -56,9 +66,9 @@ Item { id: root
 				readonly property DesktopEntry entry: DesktopEntries.applications.values.find(a => a.id === modelData[0]) || null
 				readonly property string title: {
 					const t = delegate.windows[0]?.title || '';
-					const n = ` - ${delegate.entry.name.split(' ')[0]}`;
+					const n = ` - ${delegate.entry?.name.split(' ')[0] || ''}`;
 
-					return t? `${t}${t.includes(delegate.entry.name.split(' ')[0])? '' : n}` : delegate.entry.name;
+					return t? `${t}${t.includes(delegate.entry?.name.split(' ')[0])? '' : n}` : delegate.entry?.name || '';
 				}
 
 				width: icon.width +Globals.Controls.spacing *2; height: icon.height +Globals.Controls.spacing *2;
@@ -103,20 +113,20 @@ Item { id: root
 						return {"icon":delegateIcon,"text":w.title,"execute":function(){Quickshell.execDetached(['niri','msg','action','focus-window','--id', w.id]);}};
 					})];
 					const options = [
-						{"icon":delegateIcon,"text":delegate.entry.name,"execute":function(){entry.execute();}},
-						...entry.actions.map(a => ({"icon":icon(a.id,a.icon),"colorize":true,"text":a.name,"execute":function(){a.execute();}})),
+						{"icon":delegateIcon,"text":delegate.entry?.name||modelData[0],"execute":function(){entry.execute();}},
+						...entry?.actions.map(a => ({"icon":icon(a.id,a.icon),"colorize":true,"text":a.name,"execute":function(){a.execute();}})) || [],
 						{"isSeparator":true},
 						...delegate.windows.map(w => {
 							return {"icon":Quickshell.iconPath("window-close"),"colorize":true,"text":`Close - ${w.title}`,"execute":function(){Quickshell.execDetached(['niri','msg','action','close-window','--id',w.id]);}}
 						}),
 						{"isSeparator":true},
 						{
-							"icon": repeater.pins.includes(entry.id)? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
+							"icon": repeater.pins.includes(modelData[0])? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
 							"colorize": true,
-							"text": repeater.pins.includes(entry.id)? "Unpin from bar" : "Pin to bar",
+							"text": repeater.pins.includes(modelData[0])? "Unpin from bar" : "Pin to bar",
 							"execute": function() {
-								if (repeater.pins.includes(entry.id)) Service.ShellUtils.pinView.adapter.pins.splice(repeater.pins.indexOf(entry.id), 1);
-								else Service.ShellUtils.pinView.adapter.pins.push(entry.id);
+								if (repeater.pins.includes(modelData[0])) Service.ShellUtils.pinView.adapter.pins.splice(repeater.pins.indexOf(modelData[0]), 1);
+								else Service.ShellUtils.pinView.adapter.pins.push(modelData[0]);
 
 								Service.ShellUtils.pinView.writeAdapter();
 							}
@@ -144,6 +154,24 @@ Item { id: root
 							break;
 					}
 				}
+				drag.target: repeater.pins.includes(delegate.modelData[0])? drag : null
+				onReleased: { if (delegate.drag.active) {
+					const x = drag.x;
+
+					const minThreshhold = delegate.x -repeater.itemAt(Math.max(0, delegate.index -1)).width /2;
+					const maxThreshhold = delegate.x +width +repeater.itemAt(Math.min(repeater.count -1, delegate.index +1)).width /2;
+					let index = 0;
+
+					if (x > minThreshhold && x < maxThreshhold) {
+						index = delegate.index;
+					} else {
+						let item = repeater.itemAt(0);
+						while (index < repeater.pins.length && x > item.x +item.width /2) item = repeater.itemAt(++index);
+					}
+
+					if (index > delegate.index) repeater.movePin(delegate.index, index -1);
+					else repeater.movePin(delegate.index, index);
+				}}
 
 				Rectangle { // background
 					z: -1
@@ -170,6 +198,15 @@ Item { id: root
 						font.pointSize: 6
 						font.weight: 800
 					}
+				}
+
+				IconImage { id: drag
+					parent: root
+					visible: delegate.drag.active
+					x: delegate.drag.active? Math.max(0, Math.min(root.width -drag.width, delegate.mouseX +delegate.x -drag.width /2)) : 0
+					y: delegate.drag.active? Math.max(3, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
+					implicitSize: Globals.Controls.iconSize *1.5
+					source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic")
 				}
 			}
 		}
