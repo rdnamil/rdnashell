@@ -47,7 +47,7 @@ Variants { id: root
 				width: parent.width
 				height: 2
 				color: Globals.Colours.light
-				opacity: 0.6
+				opacity: 0.2
 			}
 
 			Rectangle {
@@ -58,6 +58,7 @@ Variants { id: root
 				width: parent.width
 				height: 1
 				color: Globals.Colours.dark
+				opacity: 0.2
 			}
 		}
 
