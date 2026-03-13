@@ -12,13 +12,15 @@ import qs.services as Service
 
 ShellRoot {
 	Bar {
-		anchors: Edges.Top // anchor points (**note** only top or bottom edges accepted for now)
+		height: 38 // set the height of the bar
+		anchors: Edges.Top // anchor points **note** only top or bottom edges accepted for now
 		left: [
 			Power {},
-			// Network {},
+			Network {},
 			Bluetooth {},
 			Audio {},
-			MusicPlayer {}
+			MusicPlayer {},
+			Windows {}
 		]
 		centre: [
 			NiriWorkspaces {}
@@ -38,7 +40,7 @@ ShellRoot {
 			NotificationTray {}
 		]
 	}
-	Dock {}
+	Dock {} // **note** does not pair well with a bottom bar
 	NotificationToasts {
 		anchors: Edges.Right // anchor points (edges left+right will centre)
 		displays: ["DP-1"] // outputs to display on (empty list will display on all outputs)
@@ -52,7 +54,7 @@ ShellRoot {
 		Service.Idle.init(
 			300 // timeout to idle in seconds
 		);
-		// Service.Brightness.init(); // uses brightnessctl
+		Service.Brightness.init(); // uses brightnessctl
 		Service.Sunsetr.init(
 			3500, // temperature in K
 			95, // gamma (0-100)
