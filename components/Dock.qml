@@ -457,7 +457,7 @@ Variants { id: root
 			color: Globals.Settings.debug? "#400000ff" : "transparent"
 			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-			// exclusiveZone: -1
+			exclusiveZone: -1
 			onVisibleChanged: {
 				if (visible) {
 					dock.hoverCount++;
