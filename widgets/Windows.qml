@@ -75,22 +75,33 @@ Item { id: root
 					return t? `${t}${t.includes(delegate.entry?.name.split(' ')[0])? '' : n}` : delegate.entry?.name || '';
 				}
 
-				Layout.preferredWidth: icon.width +Globals.Controls.padding -Globals.Controls.spacing
-				Layout.preferredHeight: icon.height +Globals.Controls.padding -Globals.Controls.spacing
-				icon: Row {
+				Layout.preferredWidth: icon.width
+				Layout.preferredHeight: icon.height
+				icon: Row { id: icon
+					padding: Globals.Controls.padding /3
 					spacing: Globals.Controls.spacing
 
-					Rectangle { // icon
-						width: Globals.Controls.iconSize; height: width; radius: 3; color: Globals.Settings.debug? "#ffff0000" : "transparent";
+					Rectangle { id: appIcon
+						width: {
+							const h = root.height -Globals.Controls.padding *(4 /3);
+
+							if (h > 32) return 32;
+							else if (h > 24) return 24;
+							else if (h > 16) return 16;
+							else return 8;
+						}
+						height: width
+						color: Globals.Settings.debug? "#ffff0000" : "transparent"
 
 						IconImage {
-							implicitSize: Globals.Controls.iconSize
+							implicitSize: parent.height
 							source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic")
 						}
 					}
 
 					Text { // text
 						visible: !root.hideLabels
+						anchors.verticalCenter: parent.verticalCenter
 						rightPadding: Globals.Controls.spacing /2
 						width: Math.min(implicitWidth, root.labelMaxWidth)
 						text: delegate.title
@@ -101,7 +112,7 @@ Item { id: root
 					}
 				}
 				tooltip: title
-				background.radius: 4
+				// background.radius: 4
 				acceptedButtons: Qt.AllButtons
 				onClicked: (mouse) => {
 					const delegateIcon = Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic");
@@ -209,9 +220,9 @@ Item { id: root
 
 				Rectangle { // window open indicator
 					visible: delegate.count > 0
-					x: (Globals.Controls.padding -Globals.Controls.spacing) /2 +Globals.Controls.iconSize /2 -width /2
+					x: appIcon.x +appIcon.width /2 -width /2
 					y: parent.height -height
-					width: delegate.isFocused? 8 : 4; height: 3; radius: height /2;
+					width: delegate.isFocused? 12 : 4; height: 3; radius: height /2;
 					color: Globals.Colours.accent
 				}
 
