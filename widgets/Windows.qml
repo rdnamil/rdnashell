@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 import Quickshell
@@ -15,7 +16,7 @@ Item { id: root
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
-	Row { id: layout
+	RowLayout { id: layout
 		required property int anchor
 
 		anchors.verticalCenter: parent.verticalCenter
@@ -71,7 +72,7 @@ Item { id: root
 					return t? `${t}${t.includes(delegate.entry?.name.split(' ')[0])? '' : n}` : delegate.entry?.name || '';
 				}
 
-				width: icon.width +Globals.Controls.spacing *2; height: icon.height +Globals.Controls.spacing *2;
+				Layout.preferredWidth: icon.width +Globals.Controls.spacing *2; height: icon.height +Globals.Controls.spacing *2;
 				icon: Row {
 					spacing: Globals.Controls.spacing
 
@@ -85,6 +86,7 @@ Item { id: root
 					}
 
 					Text { // text
+						rightPadding: Globals.Controls.spacing /2
 						width: Math.min(implicitWidth, 100)
 						text: delegate.title
 						elide: Text.ElideRight
