@@ -90,7 +90,6 @@ Item { id: root
 						width: Math.min(implicitWidth, 100)
 						text: delegate.title
 						elide: Text.ElideRight
-						renderType: Text.NativeRendering
 						color: Globals.Colours.text
 						font.pointSize: 10
 					}
