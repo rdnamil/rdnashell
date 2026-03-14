@@ -56,6 +56,7 @@ ShellRoot {
 		displays: ["DP-1"] // outputs to display on (empty list will display on all outputs)
 	}
 
+	// services to start up
 	Component.onCompleted: {
 		Service.ShellUtils.init();
 		Settings.init();
