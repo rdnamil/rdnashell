@@ -10,9 +10,12 @@ import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
 	readonly property SystemClock clock: SystemClock { id: clock; precision: SystemClock.Seconds; }
-
-	icon: RowLayout {
+	readonly property Item spread: RowLayout {
 		spacing: Globals.Controls.spacing
+		width: {
+			const w = Math.round(implicitWidth);
+			return w +w %2;
+		}
 
 		Text {
 			text: Qt.formatDate(root.clock.date, "ddd d")
@@ -32,4 +35,30 @@ Ctrl.Widget { id: root
 			font.weight: 600
 		}
 	}
+	readonly property Item stacked: ColumnLayout {
+		spacing: 0
+		width: {
+			const w = Math.round(implicitWidth);
+			return w +w %2;
+		}
+
+		Text {
+			Layout.alignment: Qt.AlignHCenter
+			text: Qt.formatDate(root.clock.date, "ddd d")
+			color: Globals.Colours.light
+			font.pointSize: 10
+			font.weight: 500
+		}
+		Text {
+			Layout.alignment: Qt.AlignHCenter
+			text: Qt.formatTime(root.clock.date, "h:mm")
+			color: Globals.Colours.text
+			font.pointSize: 10
+			font.weight: 600
+		}
+	}
+
+	property bool stack
+
+	icon: root.stack? stacked : spread
 }
