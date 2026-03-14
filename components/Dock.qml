@@ -6,6 +6,7 @@ import "../globals.js" as Globals
 
 Variants { id: root
 	property int height: 48
+	property list<Item> widgets: []
 
 	model: Quickshell.screens
 	delegate: PanelWindow { id: window
@@ -56,14 +57,11 @@ Variants { id: root
 				const x = mouse.x > dock.x && mouse.x < dock.x +dock.width;
 				const y = mouse.y > dock.y
 
-				x && y? trans.y = 0 : timer.restart();
+				 if (x && y) {
+					 trans.y = 0
+					 if (timer.running) timer.stop();
+				} else timer.restart();
 			}
-		}
-
-		Translate { id: trans
-			y: dock.height;
-
-			Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.InOutCirc; }}
 		}
 
 		Timer { id: timer
@@ -73,14 +71,18 @@ Variants { id: root
 
 		Item { id: dock
 			x: parent.width /2 -width /2; y: parent.height -height;
-			width: 100; height: root.height +Globals.Controls.padding;
+			width: layout.width; height: root.height +Globals.Controls.padding;
+			transform: Translate { id: trans
+				y: dock.height;
+
+				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.InOutCirc; }}
+			}
 
 			RectangularShadow {
 				width: parent.width; height: root.height;
 				radius: Globals.Controls.radius
 				blur: 30
 				opacity: 0.975 *0.4
-				transform: trans
 			}
 
 			Rectangle {
@@ -88,7 +90,20 @@ Variants { id: root
 				radius: Globals.Controls.radius
 				color: Globals.Colours.mid
 				opacity: 0.975
-				transform: trans
+			}
+
+			Row { id: layout
+				spacing: Globals.Controls.spacing *2
+				leftPadding: Globals.Controls.spacing
+				rightPadding: Globals.Controls.spacing
+				height: root.height
+				Component.onCompleted: root.widgets.forEach(w => {
+					w.parent = layout;
+					w.anchors.verticalCenter = layout.verticalCenter;
+					w.children.forEach(c => {
+						if (c.hasOwnProperty('anchor')) c.anchor = Edges.Bottom;
+					});
+				});
 			}
 		}
 	}
