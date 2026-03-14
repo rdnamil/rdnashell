@@ -29,7 +29,7 @@ Variants { id: root
 				intersection: trans.y < dock.height? Intersection.Combine : Intersection.Intersect
 			}
 		}
-		WlrLayershell.layer: WlrLayer.Top
+		WlrLayershell.layer: WlrLayer.Overlay
 		WlrLayershell.namespace: "qs:dock"
 		color: Globals.Settings.debug? "#40ff0000" : "transparent"
 
