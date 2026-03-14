@@ -49,8 +49,10 @@ Item { id: root
 
 		if (root.isOpen) {
 			root.open();
+			if (root.parent.countUp) root.parent.countUp();
 			Service.PopoutManager.whosOpen = root;
 		} else {
+			if (root.parent.countDown) root.parent.countDown();
 			root.close();
 		}
 	}
