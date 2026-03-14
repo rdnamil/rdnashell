@@ -14,13 +14,16 @@ MouseArea { id: root
 	property string tooltip
 	property ShaderEffectSource displayedIcon: source
 
+	function countUp() { if (root.parent.hasOwnProperty('counter')) root.parent.counter++; }
+	function countDown() { if (root.parent.hasOwnProperty('counter')) root.parent.counter--; }
+
 	width: icon.width
 	height: parent.height
 	hoverEnabled: true
-	onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+	onEntered: root.countUp();
 	onExited: {
 		if (window.visible) window.visible = false;
-		if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
+		root.countDown();
 	}
 	containmentMask: Item {
 		y: root.height /2 -height /2
