@@ -39,23 +39,13 @@ Variants { id: root
 			Rectangle {
 				x: window.width /2 -width /2; y: window.height -height
 				width: window.width /3; height: 1;
-				// color: Globals.Settings.debug? "#ffff0000" : "transparent"
-				opacity: 0.5
+				color: Globals.Settings.debug? "#ffff0000" : "transparent"
 			}
 
 			Rectangle {
 				x: dock.x; y: dock.y +trans.y;
 				width: dock.width; height: dock.height;
-				// color: Globals.Settings.debug? "#40ff0000" : "transparent"
-				opacity: 0.5
-			}
-
-			Rectangle {
-				visible: layout.counter > 0
-				y: dock.y +trans.y;
-				width: window.width; height: dock.height;
-				// color: Globals.Settings.debug? "#40ff0000" : "transparent"
-				opacity: 0.5
+				color: Globals.Settings.debug? "#40ff0000" : "transparent"
 			}
 		}
 
