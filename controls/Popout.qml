@@ -6,7 +6,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Effects
-import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
 import qs.services as Service
@@ -18,6 +17,7 @@ Item { id: root
 
 	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 
+	property int verticalOffset
 	property bool isOpen
 
 	signal open()
@@ -34,11 +34,11 @@ Item { id: root
 
 		if (root.anchor === Edges.Top) {
 			container.anchors.top = container.parent.top;
-			container.anchors.topMargin = Globals.Controls.padding /2;
+			container.anchors.topMargin = Globals.Controls.padding /2 +((root.verticalOffset ?? 0) > 0? Math.abs(root.verticalOffset) : 0);
 			trans.startingPos = (root.content.height +Globals.Controls.padding) *(-1);
 		} else if (root.anchor === Edges.Bottom) {
 			container.anchors.bottom = container.parent.bottom;
-			container.anchors.bottomMargin = Globals.Controls.padding /2;
+			container.anchors.bottomMargin = Globals.Controls.padding /2 +((root.verticalOffset ?? 0) < 0? Math.abs(root.verticalOffset) : 0);
 			trans.startingPos = (root.content.height +Globals.Controls.padding);
 		}
 	}
@@ -66,16 +66,14 @@ Item { id: root
 			top: true
 			bottom: true
 		}
+		mask: Region {
+			y: (root.verticalOffset ?? 0) > 0? root.verticalOffset : 0;
+			width: window.width; height: window.height -Math.abs(root.verticalOffset ?? 0);
+		}
 		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 		color: Globals.Settings.debug? "#400000ff" : "transparent"
 
 		MouseArea { anchors.fill: parent; onClicked: root.isOpen = false; }
-
-		Translate { id: trans;
-			property real startingPos;
-
-			y: startingPos
-		}
 
 		ParallelAnimation { id: anim
 			onStarted: if (root.isOpen) {
@@ -97,32 +95,32 @@ Item { id: root
 			}
 		}
 
-		RectangularShadow {
-			anchors.fill: container
-			radius: Globals.Controls.radius
-			blur: 30
-			opacity: 0.4 *container.opacity
-			transform: trans
-		}
-
-		Rectangle { id: container
+		Item { id: container
 			width: root.content.width; height: root.content.height;
-			transform: trans
-			color: Globals.Settings.debug? "#8000ff00" : "transparent"
+			transform: Translate { id: trans
+				property real startingPos;
+
+				y: startingPos
+			}
 			opacity: 0.0
-			layer.enabled: true
-			layer.effect: OpacityMask { maskSource: Rectangle {
-				width: container.width; height: container.height;
-				radius: Globals.Controls.radius
-			}}
 			focus: true
 			Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.isOpen = false; }
 			Component.onCompleted: root.content.parent = container;
 
-			Rectangle { visible: Globals.Settings.debug; x: parent.width /2 -width /2; z: 1; width: 1; height: parent.height; color: "black"; }
-			Rectangle { visible: Globals.Settings.debug; y: parent.height /2 -height /2; z: 1; width: parent.width; height: 1; color: "black"; }
-
 			MouseArea { anchors.fill: parent; }
+
+			RectangularShadow {
+				anchors.fill: parent
+				radius: Globals.Controls.radius
+				blur: 30
+				opacity: 0.4 *container.opacity
+			}
+
+			Rectangle {
+				anchors.fill: parent
+				radius: Globals.Controls.radius
+				color: Globals.Settings.debug? "#8000ff00" : "transparent"
+			}
 		}
 	}
 
