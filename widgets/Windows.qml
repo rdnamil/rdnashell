@@ -22,6 +22,8 @@ Item { id: root
 	RowLayout { id: layout
 		required property int anchor
 
+		property int verticalOffset
+
 		anchors.verticalCenter: parent.verticalCenter
 		spacing: Globals.Controls.spacing /2
 
@@ -270,6 +272,10 @@ Item { id: root
 				right: true
 				top: true
 				bottom: true
+			}
+			margins {
+				top: layout.verticalOffset > 0? layout.verticalOffset : 0
+				bottom: layout.verticalOffset < 0? layout.verticalOffset *(-1) : 0
 			}
 			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive

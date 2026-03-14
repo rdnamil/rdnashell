@@ -77,6 +77,7 @@ Variants { id: root
 
 				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.InOutCirc; }}
 			}
+			opacity: 1.0 -(trans.y /dock.height)
 
 			RectangularShadow {
 				width: parent.width; height: root.height;
@@ -102,6 +103,7 @@ Variants { id: root
 					w.anchors.verticalCenter = layout.verticalCenter;
 					w.children.forEach(c => {
 						if (c.hasOwnProperty('anchor')) c.anchor = Edges.Bottom;
+						if (c.hasOwnProperty('verticalOffset')) c.verticalOffset = -dock.height;
 					});
 				});
 			}
