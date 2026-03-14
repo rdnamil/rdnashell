@@ -206,7 +206,7 @@ Item { id: root
 					width: childrenRect.width; height: childrenRect.height;
 					radius: height /2
 					color: Globals.Colours.mid
-					border { width: 1; color: Qt.alpha(Globals.Colours.light, 0.4); }
+					border { width: 1; color: Qt.alpha(Globals.Colours.light, 0.2); }
 
 					Text {
 						padding: Globals.Controls.spacing /2
