@@ -275,17 +275,19 @@ Item { id: root
 				top: true
 				bottom: true
 			}
-			margins {
-				top: layout.verticalOffset > 0? layout.verticalOffset : 0
-				bottom: layout.verticalOffset < 0? layout.verticalOffset *(-1) : 0
-			}
-			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 			color: Globals.Settings.debug? "#400000ff" : "transparent"
-			onVisibleChanged: menu.visible? popup.open() : popup.close();
+			onVisibleChanged: if (menu.visible) {
+				popup.open();
+				root.parent.counter++;
+			} else {
+				popup.close();
+				root.parent.counter--;
+			}
 
 			Rectangle { id: container
-				y: layout.anchor === Edges.Bottom? parent.height -height -Globals.Controls.padding : Globals.Controls.padding
+				y: if (layout.anchor === Edges.Bottom) return menu.height -height -Globals.Controls.padding +(layout.verticalOffset ?? 0);
+				else return Globals.Controls.padding -(layout.verticalOffset ?? 0);
 				width: popup.width
 				height: popup.item?.height || 0
 				color: Globals.Settings.debug? "#4000ff00" : "transparent"
