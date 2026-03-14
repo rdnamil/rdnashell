@@ -17,7 +17,11 @@ MouseArea { id: root
 	width: icon.width
 	height: parent.height
 	hoverEnabled: true
-	onExited: if (window.visible) window.visible = false;
+	onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+	onExited: {
+		if (window.visible) window.visible = false;
+		if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
+	}
 	containmentMask: Item {
 		y: root.height /2 -height /2
 		width: root.icon.width

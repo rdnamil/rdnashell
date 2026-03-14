@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
+import qs.services as Service
 import "../globals.js" as Globals
 
 Variants { id: root
@@ -21,12 +22,11 @@ Variants { id: root
 		}
 		mask: Region { id: mask
 			x: window.width /2 -width /2; y: window.height -height
-			width: dock.width +64; height: 1;
+			width: window.width /3; height: 1;
 
 			Region {
-				width: dock.width +64; height: window.height -dock.y +32;
-				x: dock.x -32; y: dock.y -32;
-				intersection: trans.y < dock.height? Intersection.Combine : Intersection.Intersect
+				x: dock.x; y: dock.y +trans.y;
+				width: dock.width; height: dock.height;
 			}
 		}
 		WlrLayershell.layer: WlrLayer.Overlay
@@ -38,30 +38,33 @@ Variants { id: root
 
 			Rectangle {
 				x: window.width /2 -width /2; y: window.height -height
-				width: dock.width +72; height: 1;
-				color: Globals.Settings.debug? "#ffff0000" : "transparent"
+				width: window.width /3; height: 1;
+				// color: Globals.Settings.debug? "#ffff0000" : "transparent"
+				opacity: 0.5
 			}
 
 			Rectangle {
-				visible: trans.y < dock.height
-				width: dock.width +64; height: window.height -dock.y +32;
-				x: dock.x -32; y: dock.y -32;
-				color: Globals.Settings.debug? "#40ff0000" : "transparent"
+				x: dock.x; y: dock.y +trans.y;
+				width: dock.width; height: dock.height;
+				// color: Globals.Settings.debug? "#40ff0000" : "transparent"
+				opacity: 0.5
+			}
+
+			Rectangle {
+				visible: layout.counter > 0
+				y: dock.y +trans.y;
+				width: window.width; height: dock.height;
+				// color: Globals.Settings.debug? "#40ff0000" : "transparent"
+				opacity: 0.5
 			}
 		}
 
 		MouseArea { id: mousearea
 			anchors.fill: parent
 			hoverEnabled: true
-			onPositionChanged: (mouse) => {
-				const x = mouse.x > dock.x && mouse.x < dock.x +dock.width;
-				const y = mouse.y > dock.y
-
-				 if (x && y) {
-					 trans.y = 0
-					 if (timer.running) timer.stop();
-				} else timer.restart();
-			}
+			onEntered: layout.counter++;
+			onExited: layout.counter--;
+			onClicked: Service.PopoutManager.whosOpen = null;
 		}
 
 		Timer { id: timer
@@ -73,7 +76,7 @@ Variants { id: root
 			x: parent.width /2 -width /2; y: parent.height -height;
 			width: layout.width; height: root.height +Globals.Controls.padding;
 			transform: Translate { id: trans
-				y: dock.height;
+				y: dock.height
 
 				Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.InOutCirc; }}
 			}
@@ -94,10 +97,16 @@ Variants { id: root
 			}
 
 			Row { id: layout
+				property int counter
+
 				spacing: Globals.Controls.spacing *2
 				leftPadding: Globals.Controls.spacing
 				rightPadding: Globals.Controls.spacing
 				height: root.height
+				onCounterChanged: if (counter > 0) {
+					timer.stop();
+					trans.y = 0;
+				} else timer.restart();
 				Component.onCompleted: root.widgets.forEach(w => {
 					w.parent = layout;
 					w.anchors.verticalCenter = layout.verticalCenter;

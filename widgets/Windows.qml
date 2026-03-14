@@ -115,6 +115,8 @@ Item { id: root
 				tooltip: title
 				// background.radius: 4
 				acceptedButtons: Qt.AllButtons
+				onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+				onExited: if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
 				onClicked: (mouse) => {
 					const delegateIcon = Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic");
 					const icon = (id, icon) => { switch (id.toLowerCase()) {
