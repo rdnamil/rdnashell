@@ -76,6 +76,7 @@ Ctrl.Widget { id: root
 
 					Layout.margins: Globals.Controls.spacing
 					Layout.fillWidth: true
+					compatibilityMode: true
 					button.tooltip: "Power profile"
 					currentIndex: drop.profiles.findIndex(p => p === PowerProfiles.profile)
 					onSelected: index => { if (index !== -1) PowerProfiles.profile = drop.profiles[index]; }

@@ -52,6 +52,7 @@ Ctrl.Widget { id: root
 					Layout.fillWidth: true
 					Layout.margins: Globals.Controls.spacing
 					Layout.bottomMargin: 0
+					compatibilityMode: true
 					button.tooltip: "select default device"
 					currentIndex: audioSinks.findIndex(n => n === Pipewire.defaultAudioSink)
 					onSelected: index => { if (index !== -1) Pipewire.preferredDefaultAudioSink = drop.audioSinks[index]; }
