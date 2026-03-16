@@ -207,6 +207,10 @@ Ctrl.Button { id: root
 					padding: Globals.Controls.padding
 					indexCanBeNull: false
 					mouse.enabled: !popout.isTransitioning
+					mouse.hoverEnabled: false
+					onItemClicked: item => {
+						filters.view.currentIndex = item.index;
+					}
 					model: [
 						{"name":"All Applications","icon":"applications-all","categories":[]},
 						{"name":"Settings","icon":"applications-system","categories":["Settings"]},
@@ -222,6 +226,7 @@ Ctrl.Button { id: root
 					]
 					delegate: Row { id: filter
 						required property var modelData
+						required property int index
 
 						padding: Globals.Controls.spacing
 						spacing: Globals.Controls.spacing
