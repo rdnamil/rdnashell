@@ -67,10 +67,10 @@ ScrollView { id: root
 			width: listView.width; height: listView.height;
 			color: "#00ffffff"
 			gradient: Gradient {
-				GradientStop { position: 0.0; color: scrollBar.position === 0.0? "#ff000000" : "#00ffffff"; }
-				GradientStop { position: 0.1; color: "#ff000000"; }
-				GradientStop { position: 0.9; color: "#ff000000"; }
-				GradientStop { position: 1.0; color: scrollBar.position +scrollBar.size === 1.0? "#ff000000" : "#00ffffff"; }
+				GradientStop { position: 0.0; color: scrollBar.position === 0.0? "#ff000000" : "#20ffffff"; }
+				GradientStop { position: 0.05; color: "#ff000000"; }
+				GradientStop { position: 0.95; color: "#ff000000"; }
+				GradientStop { position: 1.0; color: scrollBar.position +scrollBar.size === 1.0? "#ff000000" : "#20ffffff"; }
 			}
 		}}
 
