@@ -82,7 +82,7 @@ Variants { id: root
 			Rectangle {
 				width: parent.width; height: root.height;
 				radius: Globals.Controls.radius
-				color: Globals.Colours.mid
+				color: Globals.Settings.debug? "#80ff0000" : Globals.Colours.mid
 				opacity: 0.975
 			}
 
@@ -90,8 +90,6 @@ Variants { id: root
 				property int counter
 
 				spacing: Globals.Controls.spacing *2
-				leftPadding: Globals.Controls.spacing
-				rightPadding: Globals.Controls.spacing
 				height: root.height
 				onCounterChanged: if (counter > 0) {
 					timer.stop();
