@@ -10,6 +10,7 @@ import Quickshell.Io
 
 Singleton { id: root
 	readonly property alias pinView: pinView
+	readonly property string userFullName: getUserFullName.userFullName
 
 	function init() {}
 
@@ -26,5 +27,13 @@ Singleton { id: root
 		JsonAdapter {
 			property list<string> pins
 		}
+	}
+
+	Process { id: getUserFullName
+		property string userFullName: ''
+
+		running: true
+		command: ['sh', '-c', 'getent passwd "$(whoami)" | cut -d: -f5 | cut -d, -f1']
+		stdout: StdioCollector { onStreamFinished: getUserFullName.userFullName = text; }
 	}
 }
