@@ -8,6 +8,7 @@ import Quickshell
 import Quickshell.Widgets
 import qs.controls as Ctrl
 import qs.services as Service
+import qs.widgets as Widget
 import "../globals.js" as Globals
 
 Ctrl.Button { id: root
@@ -191,9 +192,16 @@ Ctrl.Button { id: root
 							}
 
 							Ctrl.Button {
+								onClicked: (mouse) => { power.clicked(mouse); }
 								icon: IconImage {
 									implicitSize: 24
 									source: Quickshell.iconPath("system-shut-down")
+								}
+
+								Widget.Power { id: power
+									anchors.fill: parent
+									enabled: false
+									displayedIcon.opacity: 0.0
 								}
 							}
 						}
@@ -206,8 +214,6 @@ Ctrl.Button { id: root
 					Layout.preferredHeight: col.height
 					padding: Globals.Controls.padding
 					indexCanBeNull: false
-					mouse.enabled: !popout.isTransitioning
-					mouse.hoverEnabled: false
 					onItemClicked: item => {
 						filters.view.currentIndex = item.index;
 					}
