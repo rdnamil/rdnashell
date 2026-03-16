@@ -58,7 +58,9 @@ Item { id: root
 				readonly property var windows: Service.Niri.windows?.filter(w => { // filter only windows that match 'app id'
 					return w.app_id === modelData[0];
 				})
-				.sort((a, b) => b.focus_timestamp.secs -a.focus_timestamp.secs) ?? []; // sort by most recently focused window
+				.sort((a, b) => {
+					return (b.focus_timestamp?.secs || 0) -(a.focus_timestamp?.secs || 0);
+				}) ?? []; // sort by most recently focused window
 				readonly property int count: {
 					let c = 0;
 
