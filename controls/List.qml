@@ -68,9 +68,11 @@ ScrollView { id: root
 				if (root.indexCanBeNull) listView.currentIndex = idx;
 				else if (idx !== -1) listView.currentIndex = idx;
 			}
-			onClicked: (mouse) => { if (listView.indexAt(mouse.x +listView.contentX, mouse.y +listView.contentY) !== -1) {
-				root.itemClicked(listView.currentItem, mouse);
-			}}
+			onClicked: (mouse) => {
+				const idx = listView.indexAt(mouse.x +listView.contentX, mouse.y +listView.contentY);
+
+				if (idx !== -1) root.itemClicked(listView.itemAtIndex(idx), mouse);
+			}
 
 			Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#4000ff00"; }
 		}
