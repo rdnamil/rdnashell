@@ -5,8 +5,10 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Controls
 import QtQuick.Controls.Basic
+import Qt5Compat.GraphicalEffects
 import "../globals.js" as Globals
 
 ScrollView { id: root
@@ -17,6 +19,8 @@ ScrollView { id: root
 	readonly property MouseArea mouse: mouseArea
 	readonly property ScrollBar scrollbar: scrollBar
 
+	property bool isTop
+	property bool isBottom
 	property bool indexCanBeNull: true
 
 	signal itemClicked(Item item, MouseEvent mouse)
@@ -58,6 +62,17 @@ ScrollView { id: root
 			color: Globals.Colours.accent
 			opacity: 0.75
 		}
+		layer.enabled: true
+		layer.effect: OpacityMask { maskSource: Rectangle {
+			width: listView.width; height: listView.height;
+			color: "#00ffffff"
+			gradient: Gradient {
+				GradientStop { position: 0.0; color: scrollBar.position === 0.0? "#ff000000" : "#00ffffff"; }
+				GradientStop { position: 0.1; color: "#ff000000"; }
+				GradientStop { position: 0.9; color: "#ff000000"; }
+				GradientStop { position: 1.0; color: scrollBar.position +scrollBar.size === 1.0? "#ff000000" : "#00ffffff"; }
+			}
+		}}
 
 		MouseArea { id: mouseArea
 			anchors.fill: parent
