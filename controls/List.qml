@@ -17,6 +17,8 @@ ScrollView { id: root
 	readonly property MouseArea mouse: mouseArea
 	readonly property ScrollBar scrollbar: scrollBar
 
+	property bool indexCanBeNull: true
+
 	signal itemClicked(Item item, MouseEvent mouse)
 
 	onVisibleChanged: if (visible) scrollbar.position = 0.0;
@@ -60,10 +62,11 @@ ScrollView { id: root
 		MouseArea { id: mouseArea
 			anchors.fill: parent
 			hoverEnabled: true
-			onExited: listView.currentIndex = -1;
 			onPositionChanged: (mouse) => {
 				const idx = listView.indexAt(mouse.x +listView.contentX, mouse.y +listView.contentY);
-				listView.currentIndex = idx;
+
+				if (root.indexCanBeNull) listView.currentIndex = idx;
+				else if (idx !== -1) listView.currentIndex = idx;
 			}
 			onClicked: (mouse) => { if (listView.indexAt(mouse.x +listView.contentX, mouse.y +listView.contentY) !== -1) {
 				root.itemClicked(listView.currentItem, mouse);
