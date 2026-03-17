@@ -22,7 +22,7 @@ Variants { id: root
 	delegate: PanelWindow { id: window
 		required property var modelData
 
-		visible: (!root.displays.length) || root.displays.includes(window.screen.name)
+		visible: (root.displays.length > 0) || root.displays.includes(window.screen.name)
 		screen: modelData
 		anchors {
 			left: true
