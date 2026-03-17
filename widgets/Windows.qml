@@ -106,7 +106,7 @@ Item { id: root
 						visible: !root.hideLabels
 						anchors.verticalCenter: parent.verticalCenter
 						rightPadding: Globals.Controls.spacing /2
-						width: Math.min(implicitWidth, root.labelMaxWidth)
+						width: Math.min(Math.round(implicitWidth) +Math.round(implicitWidth) %2, root.labelMaxWidth)
 						text: delegate.title
 						clip: true
 						// elide: Text.ElideRight
@@ -179,24 +179,27 @@ Item { id: root
 				}
 				drag.target: repeater.pins.includes(delegate.modelData[0])? drag : null
 				onPressed: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
-				onReleased: {
+				onReleased: (mouse) => {
 					if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
 					if (delegate.drag.active) {
-						const x = drag.x;
+						const x = mouse.x +delegate.x;
 
-						const minThreshhold = delegate.x -repeater.itemAt(Math.max(0, delegate.index -1)).width /2;
-						const maxThreshhold = delegate.x +width +repeater.itemAt(Math.min(repeater.count -1, delegate.index +1)).width /2;
-						let index = 0;
+						const prevItem = repeater.itemAt(Math.max(0, delegate.index -1));
+						const nextItem = repeater.itemAt(Math.min(repeater.count -1, delegate.index +1));
+						const minThreshhold = prevItem.x +prevItem.height /2;
+						const maxThreshhold = nextItem.x +nextItem.height /2;
 
-						if (x > minThreshhold && x < maxThreshhold) {
-							index = delegate.index;
-						} else {
+
+						if (x < minThreshhold || x > maxThreshhold) {
+							let index = 0;
 							let item = repeater.itemAt(0);
-							while (index < repeater.pins.length && x > item.x +item.width /2) item = repeater.itemAt(++index);
-						}
 
-						if (index > delegate.index) repeater.movePin(delegate.index, index -1);
-						else repeater.movePin(delegate.index, index);
+							while (index < repeater.count && x > item.x +item.height /2) item = repeater.itemAt(++index);
+
+							console.log(index -1);
+
+							index > delegate.index? repeater.movePin(delegate.index, index -1) : repeater.movePin(delegate.index, index);
+						}
 					}
 				}
 
