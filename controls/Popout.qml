@@ -20,6 +20,7 @@ Item { id: root
 
 	property int verticalOffset
 	property bool centreHorizontally
+	property bool stealFocus
 	property bool isOpen
 
 	signal open()
@@ -108,7 +109,7 @@ Item { id: root
 				y: startingPos
 			}
 			opacity: 0.0
-			focus: true
+			focus: !root.stealFocus
 			Keys.onPressed: event => { if (event.key == Qt.Key_Escape) root.isOpen = false; }
 			Component.onCompleted: root.content.parent = container;
 
