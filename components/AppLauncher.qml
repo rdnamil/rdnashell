@@ -99,8 +99,27 @@ Singleton { id: root
 						TextInput { id: textInput
 							Layout.fillWidth: true
 							focus: true
+							clip: true
 							color: Globals.Colours.text
 							font.pointSize: 10
+							cursorDelegate: Rectangle { id: cursor
+								visible: textInput.text.length > 0
+								width: textInput.cursorRectangle.width
+								height: textInput.cursorRectangle.height
+
+								SequentialAnimation on opacity { id: cursorAnim
+									running: cursor.visible
+									loops: Animation.Infinite
+									NumberAnimation { to: 0.0; duration: 500; easing.type: Easing.InCirc; }
+									NumberAnimation { to: 1.0; duration: 500; easing.type: Easing.OutCirc; }
+								}
+
+								Connections {
+									target: textInput
+
+									function onTextEdited() { cursorAnim.restart(); }
+								}
+							}
 							onTextEdited: list.view.currentIndex = 0;
 							onAccepted: list.itemClicked(list.view.currentItem, null);
 							Keys.onBacktabPressed: list.view.decrementCurrentIndex();
@@ -126,7 +145,7 @@ Singleton { id: root
 							// placeholder text
 							Text {
 								visible: !parent.text
-								leftPadding: Globals.Controls.spacing
+								padding: parent.padding
 								text: "start typing to search..."
 								color: Globals.Colours.mid
 								font.pointSize: 10
