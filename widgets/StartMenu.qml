@@ -10,6 +10,7 @@ import Quickshell.Io
 import qs.controls as Ctrl
 import qs.services as Service
 import qs.widgets as Widget
+import qs.components as Cmpt
 import "../globals.js" as Globals
 
 Ctrl.Button { id: root
@@ -489,21 +490,29 @@ Ctrl.Button { id: root
 					topPadding: 0
 					spacing: Globals.Controls.spacing
 
-					Ctrl.Button {
+					Ctrl.Button { // lock screen
+						onClicked: {
+							Service.PopoutManager.whosOpen = null;
+							Cmpt.Lockscreen.lock(true);
+						}
 						icon: IconImage {
 							implicitSize: 24
 							source: Quickshell.iconPath("system-lock-screen")
 						}
 					}
 
-					Ctrl.Button {
+					Ctrl.Button { // logout
+						onClicked: {
+							Service.PopoutManager.whosOpen = null;
+							Quickshell.execDetached(['niri', 'msg', 'action', 'quit']);
+						}
 						icon: IconImage {
 							implicitSize: 24
 							source: Quickshell.iconPath("system-log-out")
 						}
 					}
 
-					Ctrl.Button {
+					Ctrl.Button { // show power menu
 						onClicked: (mouse) => { powerMenu.clicked(mouse); }
 						icon: IconImage {
 							implicitSize: 24
