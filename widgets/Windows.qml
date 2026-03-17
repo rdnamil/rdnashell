@@ -178,23 +178,27 @@ Item { id: root
 					}
 				}
 				drag.target: repeater.pins.includes(delegate.modelData[0])? drag : null
-				onReleased: { if (delegate.drag.active) {
-					const x = drag.x;
+				onPressed: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+				onReleased: {
+					if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
+					if (delegate.drag.active) {
+						const x = drag.x;
 
-					const minThreshhold = delegate.x -repeater.itemAt(Math.max(0, delegate.index -1)).width /2;
-					const maxThreshhold = delegate.x +width +repeater.itemAt(Math.min(repeater.count -1, delegate.index +1)).width /2;
-					let index = 0;
+						const minThreshhold = delegate.x -repeater.itemAt(Math.max(0, delegate.index -1)).width /2;
+						const maxThreshhold = delegate.x +width +repeater.itemAt(Math.min(repeater.count -1, delegate.index +1)).width /2;
+						let index = 0;
 
-					if (x > minThreshhold && x < maxThreshhold) {
-						index = delegate.index;
-					} else {
-						let item = repeater.itemAt(0);
-						while (index < repeater.pins.length && x > item.x +item.width /2) item = repeater.itemAt(++index);
+						if (x > minThreshhold && x < maxThreshhold) {
+							index = delegate.index;
+						} else {
+							let item = repeater.itemAt(0);
+							while (index < repeater.pins.length && x > item.x +item.width /2) item = repeater.itemAt(++index);
+						}
+
+						if (index > delegate.index) repeater.movePin(delegate.index, index -1);
+						else repeater.movePin(delegate.index, index);
 					}
-
-					if (index > delegate.index) repeater.movePin(delegate.index, index -1);
-					else repeater.movePin(delegate.index, index);
-				}}
+				}
 
 				Rectangle { // background
 					z: -1
