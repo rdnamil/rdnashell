@@ -161,11 +161,11 @@ Item { id: root
 							if (delegate.count > 1) menu.open(delegate, windows);
 							else if (delegate.count > 0) {
 								Quickshell.execDetached(['niri', 'msg', 'action', 'focus-window', '--id', delegate.windows[0].id]);
-								menu.visible = false;
+								Service.PopoutManager.whosOpen = null;
 
 							} else {
 								delegate.entry.execute();
-								menu.visible = false;
+								Service.PopoutManager.whosOpen = null;
 							}
 							break;
 						case Qt.MiddleButton:
