@@ -13,6 +13,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import Quickshell.Io
 import qs.controls as Ctrl
+import qs.services as Service
 import qs.styles as Style
 import "../globals.js" as Globals
 import "./fuse.js" as FuseLib
@@ -39,6 +40,7 @@ Singleton { id: root
 
 	Loader { id: loader
 		active: true
+		onActiveChanged: if (active) Service.PopoutManager.whosOpen = null;
 		sourceComponent: PanelWindow {
 			anchors {
 				left: true
