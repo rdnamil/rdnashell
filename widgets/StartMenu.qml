@@ -152,36 +152,140 @@ Ctrl.Button { id: root
 							}
 						}
 
-						Column { // pins
-							Repeater {
-								model: Service.ShellUtils.pinView.adapter.pins
-								delegate: Ctrl.Button { id: pin
-									required property var modelData
+						Item { id: pins
+							width: layout.width; height: layout.height;
 
-									readonly property DesktopEntry entry: DesktopEntries.applications.values
+							Column { id: layout
+								Repeater { id: repeater
+									function movePin(fromIdx, toIdx) {
+										if (fromIdx === toIdx) return;
+										const item = Service.ShellUtils.pinView.adapter.pins[fromIdx];
+										Service.ShellUtils.pinView.adapter.pins.splice(fromIdx, 1);
+										Service.ShellUtils.pinView.adapter.pins.splice(toIdx, 0, item);
+										Service.ShellUtils.pinView.writeAdapter();
+									}
+
+									model: ScriptModel {
+										values: [...Service.ShellUtils.pinView.adapter.pins]
+									}
+									delegate: Ctrl.Button { id: pin
+										required property var modelData
+										required property int index
+
+										readonly property DesktopEntry entry: DesktopEntries.applications.values
 										.find(a => a.id === pin.modelData) ?? null
 
-									onClicked: {
-										pin.entry?.execute();
-										popout.isOpen = false;
-									}
-									height: icon.height +Globals.Controls.spacing
-									icon: RowLayout {
-										width: col.width -col.padding *2 -Globals.Controls.padding
-										spacing: Globals.Controls.spacing
+										onClicked: {
+											pin.entry?.execute();
+											popout.isOpen = false;
+										}
+										height: icon.height +Globals.Controls.spacing
+										icon: RowLayout {
+											width: col.width -col.padding *2 -Globals.Controls.padding
+											spacing: Globals.Controls.spacing
 
-										IconImage {
-											implicitSize: 20
-											source: Quickshell.iconPath(pin.entry?.name.toLowerCase(), true) || Quickshell.iconPath(pin.modelData, "application-x-generic")
+											IconImage {
+												implicitSize: 20
+												source: Quickshell.iconPath(pin.entry?.name.toLowerCase(), true) || Quickshell.iconPath(pin.modelData, "application-x-generic")
+											}
+
+											Text {
+												Layout.alignment: Qt.AlignVCenter
+												Layout.fillWidth: true
+												text: pin.entry?.name || ''
+												elide: Text.ElideRight
+												color: Globals.Colours.text
+												font.pointSize: 10
+											}
+										}
+										drag.target: drag
+										drag.axis: Drag.YAxis
+										onReleased: (mouse) => { if (pin.drag.active) {
+											const y = mouse.y +pin.y;
+
+											const prevItem = repeater.itemAt(Math.max(0, pin.index -1));
+											const nextItem = repeater.itemAt(Math.min(repeater.count -1, pin.index +1));
+											const minThreshhold = prevItem.y +prevItem.height /2;
+											const maxThreshhold = nextItem.y +nextItem.height /2;
+
+
+											if (y < minThreshhold || y > maxThreshhold) {
+												let index = 0;
+												let item = repeater.itemAt(0);
+
+												while (index < repeater.count && y > item.y +item.height /2) item = repeater.itemAt(++index);
+
+												console.log(index -1);
+
+												index > pin.index? repeater.movePin(pin.index, index -1) : repeater.movePin(pin.index, index);
+											}
+										}}
+
+										onPositionChanged: (mouse) => { if (pin.drag.active) {
+											const y = mouse.y +pin.y;
+
+											const prevItem = repeater.itemAt(Math.max(0, pin.index -1));
+											const nextItem = repeater.itemAt(Math.min(repeater.count -1, pin.index +1));
+											const minThreshhold = prevItem.y +prevItem.height /2;
+											const maxThreshhold = nextItem.y +nextItem.height /2;
+
+											let index = 0;
+
+											if (y < maxThreshhold && (y > minThreshhold || pin.index === 0)) insertHint.y = pin.y;
+											else {
+												let item = repeater.itemAt(0);
+												while (index < repeater.count && y > item.y +item.height /2) item = repeater.itemAt(++index);
+
+												insertHint.y = (repeater.itemAt(index -1)?.y || 0) +insertHint.height /2 *(repeater.itemAt(index -1)? 1 : -1)
+											}
+										}}
+
+										Rectangle {
+											readonly property Item prevItem: repeater.itemAt(Math.max(0, pin.index -1)) ?? null
+
+											visible: pin.drag.active && Globals.Settings.debug
+											parent: pins
+											y: (prevItem?.y || 0) +(prevItem?.height || 0) /2
+											width: parent.width; height: 1;
+											color: "black"
 										}
 
-										Text {
-											Layout.alignment: Qt.AlignVCenter
-											Layout.fillWidth: true
-											text: pin.entry?.name || ''
-											elide: Text.ElideRight
-											color: Globals.Colours.text
-											font.pointSize: 10
+										Rectangle {
+											readonly property Item nextItem: repeater.itemAt(Math.min(repeater.count -1, pin.index +1)) ?? null
+
+											visible: pin.drag.active && Globals.Settings.debug
+											parent: pins
+											y: (nextItem?.y || 0) +(nextItem?.height || 0) /2;
+											width: parent.width; height: 1;
+											color: "black"
+										}
+
+										Rectangle { id: insertHint
+											visible: pin.drag.active
+											z: -999
+											parent: pins
+											width: pin.width; height: pin.height;
+											radius: Globals.Controls.radius *(3 /4)
+											color: Globals.Settings.debug? "#ff00ff00" : Globals.Colours.accent
+											opacity: 0.4
+										}
+
+										ShaderEffectSource { id: drag
+											parent: pins
+											visible: pin.drag.active
+											x: Globals.Controls.padding /2
+											y: pin.drag.active? Math.max(-Globals.Controls.spacing, Math.min(pins.height -drag.height +Globals.Controls.spacing, pin.mouseY +pin.y -height /2)) : 0;
+											width: pin.icon.width; height: pin.icon.height;
+											sourceItem: pin.icon
+
+											Rectangle {
+												z: -999
+												anchors.centerIn: parent
+												width: pin.width; height: pin.height;
+												radius: Globals.Controls.radius *(3 /4)
+												color: Globals.Colours.light
+												opacity: 0.8
+											}
 										}
 									}
 								}
