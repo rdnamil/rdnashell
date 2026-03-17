@@ -243,6 +243,8 @@ Item { id: root
 					y: delegate.drag.active? Math.max(0, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
 					implicitSize: appIcon.height
 					source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic")
+
+					MouseArea { anchors.fill: parent; cursorShape: Qt.DragMoveCursor; }
 				}
 			}
 		}

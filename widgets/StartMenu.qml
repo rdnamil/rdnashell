@@ -174,12 +174,8 @@ Ctrl.Button { id: root
 										required property int index
 
 										readonly property DesktopEntry entry: DesktopEntries.applications.values
-										.find(a => a.id === pin.modelData) ?? null
+											.find(a => a.id === pin.modelData) ?? null
 
-										onClicked: {
-											pin.entry?.execute();
-											popout.isOpen = false;
-										}
 										height: icon.height +Globals.Controls.spacing
 										icon: RowLayout {
 											width: col.width -col.padding *2 -Globals.Controls.padding
@@ -198,6 +194,10 @@ Ctrl.Button { id: root
 												color: Globals.Colours.text
 												font.pointSize: 10
 											}
+										}
+										onClicked: {
+											pin.entry?.execute();
+											popout.isOpen = false;
 										}
 										drag.target: drag
 										drag.axis: Drag.YAxis
@@ -255,6 +255,8 @@ Ctrl.Button { id: root
 											z: 999
 											width: pin.icon.width; height: pin.icon.height;
 											sourceItem: pin.icon
+
+											MouseArea { anchors.fill: parent; cursorShape: Qt.DragMoveCursor; }
 
 											Rectangle {
 												z: -999
