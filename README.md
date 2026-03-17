@@ -15,8 +15,8 @@ qs
 ```
 
 > [!note]
-> Make a line in your WM config to startup quickshell on session start.
-> > Ex. Niri: `spawn-at-startup "qs"`
+> Requires QML_XHR_ALLOW_FILE_READ=1 to run
+> > Ex. Niri: `spawn-at-startup "QML_XHR_ALLOW_FILE_READ=1 qs"`
 
 ## Configuration
 ### Shell config
