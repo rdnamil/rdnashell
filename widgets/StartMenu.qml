@@ -215,8 +215,6 @@ Ctrl.Button { id: root
 
 												while (index < repeater.count && y > item.y +item.height /2) item = repeater.itemAt(++index);
 
-												console.log(index -1);
-
 												index > pin.index? repeater.movePin(pin.index, index -1) : repeater.movePin(pin.index, index);
 											}
 										}}

@@ -196,8 +196,6 @@ Item { id: root
 
 							while (index < repeater.count && x > item.x +item.height /2) item = repeater.itemAt(++index);
 
-							console.log(index -1);
-
 							index > delegate.index? repeater.movePin(delegate.index, index -1) : repeater.movePin(delegate.index, index);
 						}
 					}
