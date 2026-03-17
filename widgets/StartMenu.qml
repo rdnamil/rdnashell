@@ -46,7 +46,7 @@ Ctrl.Button { id: root
 		}
 		onClose: fileview.writeAdapter();
 		content: Item { id: content
-			width: childrenRect.width; height: childrenRect.height;
+			width: grid.width; height: grid.height;
 			layer.enabled: true
 			layer.effect: OpacityMask { maskSource: Item {
 				width: content.width; height: content.height;
@@ -75,7 +75,7 @@ Ctrl.Button { id: root
 				}
 			}
 
-			GridLayout {
+			GridLayout { id: grid
 				rowSpacing: 0
 				columnSpacing: 0
 				columns: 3
