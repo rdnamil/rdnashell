@@ -220,7 +220,6 @@ Ctrl.Button { id: root
 												index > pin.index? repeater.movePin(pin.index, index -1) : repeater.movePin(pin.index, index);
 											}
 										}}
-
 										onPositionChanged: (mouse) => { if (pin.drag.active) {
 											const y = mouse.y +pin.y;
 
@@ -231,7 +230,7 @@ Ctrl.Button { id: root
 
 											let index = 0;
 
-											if (y < maxThreshhold && (y > minThreshhold || pin.index === 0)) insertHint.y = pin.y;
+											if ((y < maxThreshhold || pin.index === repeater.count -1) && (y > minThreshhold || pin.index === 0)) insertHint.y = pin.y;
 											else {
 												let item = repeater.itemAt(0);
 												while (index < repeater.count && y > item.y +item.height /2) item = repeater.itemAt(++index);
@@ -242,7 +241,6 @@ Ctrl.Button { id: root
 
 										Rectangle { id: insertHint
 											visible: pin.drag.active
-											z: -999
 											parent: pins
 											width: pin.width; height: pin.height;
 											radius: Globals.Controls.radius *(3 /4)
@@ -254,7 +252,8 @@ Ctrl.Button { id: root
 											parent: pins
 											visible: pin.drag.active
 											x: Globals.Controls.padding /2
-											y: pin.drag.active? Math.max(-Globals.Controls.spacing, Math.min(pins.height -drag.height +Globals.Controls.spacing, pin.mouseY +pin.y -height /2)) : 0;
+											y: pin.drag.active? Math.max(-Globals.Controls.spacing, Math.min(pins.height -drag.height +Globals.Controls.spacing, pin.mouseY +pin.y -height /2)) : 0
+											z: 999
 											width: pin.icon.width; height: pin.icon.height;
 											sourceItem: pin.icon
 
