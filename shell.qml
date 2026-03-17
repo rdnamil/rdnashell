@@ -41,6 +41,10 @@ ShellRoot {
 	}
 	Dock {
 		widgets: [
+			Spacer {},
+			StartMenu {
+				centreHorizontally: true // whether to centre the menu horizontally on the display
+			},
 			Windows {
 				hideLabels: true // show only the window app icon
 				labelMaxWidth: 100 // set the maximum width of the label (has no effect if labels are hidden)
@@ -48,11 +52,12 @@ ShellRoot {
 			Separator {},
 			DateTime {
 				stack: true
-			}
+			},
+			Spacer {}
 		]
 	}
 	NotificationToasts {
-		anchors: Edges.Right // anchor points (edges left+right will centre)
+		anchors: Edges.Left | Edges.Right // anchor points (edges left+right will centre)
 		displays: ["DP-1"] // outputs to display on (empty list will display on all outputs)
 	}
 
