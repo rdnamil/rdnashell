@@ -240,26 +240,6 @@ Ctrl.Button { id: root
 											}
 										}}
 
-										Rectangle {
-											readonly property Item prevItem: repeater.itemAt(Math.max(0, pin.index -1)) ?? null
-
-											visible: pin.drag.active && Globals.Settings.debug
-											parent: pins
-											y: (prevItem?.y || 0) +(prevItem?.height || 0) /2
-											width: parent.width; height: 1;
-											color: "black"
-										}
-
-										Rectangle {
-											readonly property Item nextItem: repeater.itemAt(Math.min(repeater.count -1, pin.index +1)) ?? null
-
-											visible: pin.drag.active && Globals.Settings.debug
-											parent: pins
-											y: (nextItem?.y || 0) +(nextItem?.height || 0) /2;
-											width: parent.width; height: 1;
-											color: "black"
-										}
-
 										Rectangle { id: insertHint
 											visible: pin.drag.active
 											z: -999
