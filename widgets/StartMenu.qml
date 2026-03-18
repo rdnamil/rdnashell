@@ -79,7 +79,7 @@ Ctrl.Button { id: root
 				columns: 3
 				rows: 2
 
-				Item {
+				Item { id: colWrapper
 					Layout.alignment: Qt.AlignTop
 					Layout.preferredWidth: childrenRect.width; Layout.preferredHeight: childrenRect.height;
 
@@ -211,8 +211,11 @@ Ctrl.Button { id: root
 
 											switch (mouse.button) {
 												case Qt.LeftButton:
-													pin.entry?.execute();
-													popout.isOpen = false;
+													if (!(menu.visible && menu.item === pin)) {
+														pin.entry?.execute();
+														popout.isOpen = false;
+													}
+													menu.visible = false;
 													break;
 												case Qt.RightButton:
 													menu.open(pin, model, pins.x, pins.y, 190, Edges.Right);
@@ -691,7 +694,15 @@ Ctrl.Button { id: root
 				color: Globals.Settings.debug? "#20ffffff" : "transparent"
 				onVisibleChanged: menu.visible? popup.open() : popup.close();
 
-				MouseArea { anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.AllButtons; onClicked: menu.visible = false; }
+				MouseArea {
+					x: colWrapper.width
+					width: parent.width -colWrapper.width; height: parent.height;
+					hoverEnabled: true
+					acceptedButtons: Qt.AllButtons
+					onClicked: menu.visible = false
+
+					Rectangle { anchors.fill: parent; color: Globals.Settings.debug? "#20ffffff" : "transparent"; }
+				}
 
 				Rectangle { id: container
 					width: popup.width; height: popup.item?.height || 0;
