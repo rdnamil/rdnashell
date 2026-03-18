@@ -37,7 +37,7 @@ Ctrl.Widget { id: root
 				required property int index
 
 				width: Math.max(height, name.width)
-				height: 22
+				height: 24
 				states: [
 					State {
 						name: "inactive"; when: !workspace.modelData.is_active;
