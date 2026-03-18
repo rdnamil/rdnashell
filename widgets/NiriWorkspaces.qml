@@ -17,7 +17,7 @@ Ctrl.Widget { id: root
 		width: root.icon.width; height: root.icon.height
 		radius: Globals.Controls.radius *(3 /4)
 		color: "transparent"
-		border { width: 1; color: Qt.alpha(Globals.Colours.light, 0.2); }
+		border { width: 1; color: Qt.alpha(Globals.Colours.dark, 0.4); }
 	}
 
 	icon: Row {
