@@ -40,23 +40,27 @@ Item { id: root
 
 			model: ScriptModel { id: model
 				values: [
-					...repeater.pins.map(p => [p]),
-					...new Map(Service.Niri
+					...repeater.pins.map(p => {
+						return {"id":p};
+					}),
+					...Service.Niri
 					.windows?.filter(w => !repeater.pins.includes(w.app_id))
 					.filter(w => { // show only windows that are open on this display
 						const ws = Service.Niri.workspaces?.find(ws => ws.id === w.workspace_id)
 						return ws?.output === root.screen.name || !ws;
 					})
-					.map(w => [w["app_id"], w])
-					.values() || [])
+					.map(w => {
+						return {"id":w["app_id"]};
+					}) || []
 				]
+				objectProp: "id"
 			}
 			delegate: Ctrl.Button { id: delegate
 				required property var modelData
 				required property int index
 
 				readonly property var windows: Service.Niri.windows?.filter(w => { // filter only windows that match 'app id'
-					return w.app_id === modelData[0];
+					return w.app_id === modelData.id;
 				})
 				.sort((a, b) => {
 					return (b.focus_timestamp?.secs || 0) -(a.focus_timestamp?.secs || 0);
@@ -65,13 +69,13 @@ Item { id: root
 					let c = 0;
 
 					Service.Niri.windows?.forEach(w => {
-						if (w.app_id === delegate.modelData[0]) c++;
+						if (w.app_id === delegate.modelData.id) c++;
 					});
 
 						return c;
 				}
-				readonly property bool isFocused: Service.Niri.windows?.some(w => w.app_id === modelData[0] && w.is_focused) || false
-				readonly property DesktopEntry entry: DesktopEntries.applications.values.find(a => a.id === modelData[0]) || null
+				readonly property bool isFocused: Service.Niri.windows?.some(w => w.app_id === modelData.id && w.is_focused) || false
+				readonly property DesktopEntry entry: DesktopEntries.applications.values.find(a => a.id === modelData.id) || null
 				readonly property string title: {
 					const t = delegate.windows[0]?.title || '';
 					const n = ` - ${delegate.entry?.name.split(' ')[0] || ''}`;
@@ -98,7 +102,7 @@ Item { id: root
 
 						IconImage {
 							implicitSize: parent.height
-							source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic")
+							source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id, "application-x-generic")
 						}
 					}
 
@@ -120,7 +124,7 @@ Item { id: root
 				onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
 				onExited: if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
 				onClicked: (mouse) => {
-					const delegateIcon = Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic");
+					const delegateIcon = Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id, "application-x-generic");
 					const icon = (id, icon) => { switch (id.toLowerCase()) {
 						case "new-window": return Quickshell.iconPath("new-window-symbolic");
 						case "new-private-window": return Quickshell.iconPath("view-private-symbolic");
@@ -136,7 +140,7 @@ Item { id: root
 						return {"icon":delegateIcon,"text":w.title,"execute":function(){Quickshell.execDetached(['niri','msg','action','focus-window','--id', w.id]);}};
 					})];
 					const options = [
-						{"icon":delegateIcon,"text":delegate.entry?.name||modelData[0],"execute":function(){entry.execute();}},
+						{"icon":delegateIcon,"text":delegate.entry?.name||modelData.id,"execute":function(){entry.execute();}},
 						...entry?.actions.map(a => ({"icon":icon(a.id,a.icon),"colorize":true,"text":a.name,"execute":function(){a.execute();}})) || [],
 						{"isSeparator":true},
 						...delegate.windows.map(w => {
@@ -144,12 +148,12 @@ Item { id: root
 						}),
 						{"isSeparator":true},
 						{
-							"icon": repeater.pins.includes(modelData[0])? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
+							"icon": repeater.pins.includes(modelData.id)? Quickshell.iconPath("window-unpin") : Quickshell.iconPath("window-pin"),
 							"colorize": true,
-							"text": repeater.pins.includes(modelData[0])? "Unpin from bar" : "Pin to bar",
+							"text": repeater.pins.includes(modelData.id)? "Unpin from bar" : "Pin to bar",
 							"execute": function() {
-								if (repeater.pins.includes(modelData[0])) Service.ShellUtils.pinView.adapter.pins.splice(repeater.pins.indexOf(modelData[0]), 1);
-								else Service.ShellUtils.pinView.adapter.pins.push(modelData[0]);
+								if (repeater.pins.includes(modelData.id)) Service.ShellUtils.pinView.adapter.pins.splice(repeater.pins.indexOf(modelData.id), 1);
+								else Service.ShellUtils.pinView.adapter.pins.push(modelData.id);
 
 								Service.ShellUtils.pinView.writeAdapter();
 							}
@@ -177,29 +181,25 @@ Item { id: root
 							break;
 					}
 				}
-				drag.target: repeater.pins.includes(delegate.modelData[0])? drag : null
-				onPressed: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
-				onReleased: (mouse) => {
-					if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
-					if (delegate.drag.active) {
-						const x = mouse.x +delegate.x;
+				drag.target: repeater.pins.includes(delegate.modelData.id)? drag : null
+				onReleased: (mouse) => { if (delegate.drag.active) {
+					const x = mouse.x +delegate.x;
 
-						const prevItem = repeater.itemAt(Math.max(0, delegate.index -1));
-						const nextItem = repeater.itemAt(Math.min(repeater.count -1, delegate.index +1));
-						const minThreshhold = prevItem.x +prevItem.height /2;
-						const maxThreshhold = nextItem.x +nextItem.height /2;
+					const prevItem = repeater.itemAt(Math.max(0, delegate.index -1));
+					const nextItem = repeater.itemAt(Math.min(repeater.count -1, delegate.index +1));
+					const minThreshhold = prevItem.x +prevItem.height /2;
+					const maxThreshhold = nextItem.x +nextItem.height /2;
 
 
-						if (x < minThreshhold || x > maxThreshhold) {
-							let index = 0;
-							let item = repeater.itemAt(0);
+					if (x < minThreshhold || x > maxThreshhold) {
+						let index = 0;
+						let item = repeater.itemAt(0);
 
-							while (index < repeater.count && x > item.x +item.height /2) item = repeater.itemAt(++index);
+						while (index < repeater.count && x > item.x +item.height /2) item = repeater.itemAt(++index);
 
-							index > delegate.index? repeater.movePin(delegate.index, index -1) : repeater.movePin(delegate.index, index);
-						}
+						index > delegate.index? repeater.movePin(delegate.index, index -1) : repeater.movePin(delegate.index, index);
 					}
-				}
+				}}
 
 				Rectangle { // background
 					z: -1
@@ -242,7 +242,7 @@ Item { id: root
 					x: delegate.drag.active? Math.max(0, Math.min(root.width -drag.width, delegate.mouseX +delegate.x -drag.width /2)) : 0
 					y: delegate.drag.active? Math.max(0, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
 					implicitSize: appIcon.height
-					source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData[0], "application-x-generic")
+					source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id, "application-x-generic")
 
 					MouseArea { anchors.fill: parent; cursorShape: Qt.DragMoveCursor; }
 				}
@@ -288,10 +288,10 @@ Item { id: root
 			color: Globals.Settings.debug? "#400000ff" : "transparent"
 			onVisibleChanged: if (menu.visible) {
 				popup.open();
-				root.parent.counter++;
+				if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
 			} else {
 				popup.close();
-				root.parent.counter--;
+				if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
 			}
 
 			Rectangle { id: container
@@ -302,6 +302,7 @@ Item { id: root
 				color: Globals.Settings.debug? "#4000ff00" : "transparent"
 
 				Ctrl.PopupMenu { id: popup
+					active: true
 					compatibilityMode: true
 					onSelected: (index) => {
 						if (index !== -1) {
