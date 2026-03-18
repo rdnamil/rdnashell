@@ -51,12 +51,6 @@ Ctrl.Button { id: root
 		}
 		content: Item { id: content
 			width: grid.width; height: grid.height;
-			layer.enabled: true
-			layer.effect: OpacityMask { maskSource: Item {
-				width: content.width; height: content.height;
-
-				Rectangle { anchors.fill: parent; radius: Globals.Controls.radius}
-			}}
 
 			Rectangle { // background
 				anchors.fill: parent
@@ -409,10 +403,22 @@ Ctrl.Button { id: root
 							item.modelData.execute();
 							popout.isOpen = false;
 						} else {
+							const icon = (id, icon) => { switch (id.toLowerCase()) {
+								case "new-window": return Quickshell.iconPath("new-window-symbolic");
+								case "new-private-window": return Quickshell.iconPath("view-private-symbolic");
+								case "new-message": return Quickshell.iconPath("mail-message-new-symbolic");
+								case "new-event": return Quickshell.iconPath("view-calendar-upcoming-events");
+								case "open-computer": return Quickshell.iconPath("computer-symbolic");
+								case "open-home": return Quickshell.iconPath("user-home-symbolic");
+								case "open-trash": return Quickshell.iconPath("user-trash-symbolic");
+								case "open-calendar": return Quickshell.iconPath("office-calendar-symbolic");
+								default: return Quickshell.iconPath(icon, true);
+							}};
 							const model = [
 								{"icon":"starred","colorize":true,"text":"Add to favourites","execute":function(){repeater.addRemovePin(item.modelData.id);}},
-								{"icon":"process-stop","colorize":true,"text":"Cancel","execute":function(){}}
+								...item.modelData.actions?.map(a => ({"icon":icon(a.id,a.icon),"colorize":true,"text":a.name,"execute":function(){a.execute();}})) || []
 							];
+
 							menu.open(item, model, applications.x, applications.view.y -applications.view.contentY);
 						}
 					}
