@@ -71,7 +71,7 @@ Item { id: root
 						if (w.app_id === delegate.modelData.id) c++;
 					});
 
-						return c;
+					return c;
 				}
 				readonly property bool isFocused: Service.Niri.windows?.some(w => w.app_id === modelData.id && w.is_focused) || false
 				readonly property DesktopEntry entry: DesktopEntries.applications.values.find(a => a.id === modelData.id) || null
