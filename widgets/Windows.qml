@@ -43,15 +43,14 @@ Item { id: root
 					...repeater.pins.map(p => {
 						return {"id":p};
 					}),
-					...Service.Niri
-					.windows?.filter(w => !repeater.pins.includes(w.app_id))
+					...new Map(Service.Niri
+					.windows?.filter(w => !repeater.pins.includes(w.app_id)) // filter out pins
 					.filter(w => { // show only windows that are open on this display
 						const ws = Service.Niri.workspaces?.find(ws => ws.id === w.workspace_id)
 						return ws?.output === root.screen.name || !ws;
 					})
-					.map(w => {
-						return {"id":w["app_id"]};
-					}) || []
+					.map(w => [w.app_id, {"id":w["app_id"]}]) || [])
+					.values()
 				]
 				objectProp: "id"
 			}
