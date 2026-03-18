@@ -14,13 +14,20 @@ import "../globals.js" as Globals
 Ctrl.Widget { id: root
 	Rectangle {
 		anchors.centerIn: parent
-		width: root.icon.width; height: root.icon.height
-		radius: Globals.Controls.radius *(3 /4)
+		z: -1
+		width: root.icon.width +4; height: root.icon.height +4;
+		radius: Globals.Controls.radius *(3 /4) +2
 		color: "transparent"
-		border { width: 1; color: Qt.alpha(Globals.Colours.dark, 0.4); }
+		gradient: Gradient {
+			orientation: Gradient.Vertical
+			GradientStop { position: 0.0; color: "#40000000" }
+			GradientStop { position: 1.0; color: "#20000000" }
+		}
+		border { width: 1; color: Qt.alpha(Globals.Colours.light, 0.4); }
 	}
 
 	icon: Row {
+		spacing: 1;
 		Repeater { id: workspaces
 			model: ScriptModel {
 				values: Service.Niri
@@ -37,7 +44,7 @@ Ctrl.Widget { id: root
 				required property int index
 
 				width: Math.max(height, name.width)
-				height: 24
+				height: 20
 				states: [
 					State {
 						name: "inactive"; when: !workspace.modelData.is_active;
@@ -64,7 +71,7 @@ Ctrl.Widget { id: root
 						if (Globals.Settings.debug) return workspace.modelData.is_active? "green" : "red";
 						else return workspace.modelData.is_active? Globals.Colours.light : Globals.Colours.mid;
 					}
-					opacity: (workspace.modelData.is_active? 0.6 : 0.8 /workspaces.count *(workspace.index +1))
+					opacity: (workspace.modelData.is_active? 0.8 : 0.6 /workspaces.count *(workspace.index +1))
 				}
 
 				Text { id: name
