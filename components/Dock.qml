@@ -86,6 +86,11 @@ Variants { id: root
 				opacity: 0.975
 			}
 
+			Text {
+				visible: Globals.Settings.debug
+				text: layout.counter
+			}
+
 			Row { id: layout
 				property int counter
 
