@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
@@ -44,7 +45,10 @@ Ctrl.Button { id: root
 			applications.view.currentIndex = -1;
 			textinput.clear();
 		}
-		onClose: fileview.writeAdapter();
+		onClose: {
+			menu.visible = false;
+			fileview.writeAdapter();
+		}
 		content: Item { id: content
 			width: grid.width; height: grid.height;
 			layer.enabled: true
@@ -54,7 +58,7 @@ Ctrl.Button { id: root
 				Rectangle { anchors.fill: parent; radius: Globals.Controls.radius}
 			}}
 
-			Rectangle {
+			Rectangle { // background
 				anchors.fill: parent
 				radius: Globals.Controls.radius
 				color: Globals.Colours.mid
@@ -158,6 +162,15 @@ Ctrl.Button { id: root
 
 							Column { id: layout
 								Repeater { id: repeater
+									function addRemovePin(id) {
+										const pins = Service.ShellUtils.pinView.adapter.pins;
+
+										if (pins.includes(id ?? '')) Service.ShellUtils.pinView.adapter.pins.splice(pins.indexOf(id), 1);
+										else if (id) Service.ShellUtils.pinView.adapter.pins.push(id);
+
+										Service.ShellUtils.pinView.writeAdapter();
+									}
+
 									function movePin(fromIdx, toIdx) {
 										if (fromIdx === toIdx) return;
 										const item = Service.ShellUtils.pinView.adapter.pins[fromIdx];
@@ -195,9 +208,22 @@ Ctrl.Button { id: root
 												font.pointSize: 10
 											}
 										}
-										onClicked: {
-											pin.entry?.execute();
-											popout.isOpen = false;
+										acceptedButtons: Qt.LeftButton | Qt.RightButton
+										onClicked: (mouse) => {
+											const model = [
+												{"icon":"semi-starred","colorize":true,"text":"Remove from favourites","execute":function(){repeater.addRemovePin(pin.entry?.id || null);}},
+												{"icon":"process-stop","colorize":true,"text":"Cancel","execute":function(){}}
+											];
+
+											switch (mouse.button) {
+												case Qt.LeftButton:
+													pin.entry?.execute();
+													popout.isOpen = false;
+													break;
+												case Qt.RightButton:
+													menu.open(pin, model, pins.x, pins.y, 190, Edges.Right);
+													break;
+											}
 										}
 										drag.target: drag
 										drag.axis: Drag.YAxis
@@ -229,7 +255,7 @@ Ctrl.Button { id: root
 
 											let index = 0;
 
-											if ((y < maxThreshhold || pin.index === repeater.count -1) && (y > minThreshhold || pin.index === 0)) insertHint.y = pin.y;
+											if ((y <= maxThreshhold || pin.index === repeater.count -1) && (y >= minThreshhold || pin.index === 0)) insertHint.y = pin.y;
 											else {
 												let item = repeater.itemAt(0);
 												while (index < repeater.count && y > item.y +item.height /2) item = repeater.itemAt(++index);
@@ -247,6 +273,15 @@ Ctrl.Button { id: root
 											opacity: 0.4
 										}
 
+										ShaderEffectSource {
+											z: -999
+											width: pin.background.width; height: pin.background.height;
+											sourceItem: pin.background
+											opacity: menu.visible && menu.item === pin? 0.4 : 0.0
+
+											Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCirc; }}
+										}
+
 										ShaderEffectSource { id: drag
 											parent: pins
 											visible: pin.drag.active
@@ -255,6 +290,7 @@ Ctrl.Button { id: root
 											z: 999
 											width: pin.icon.width; height: pin.icon.height;
 											sourceItem: pin.icon
+											opacity: 0.5
 
 											MouseArea { anchors.fill: parent; cursorShape: Qt.DragMoveCursor; }
 
@@ -351,24 +387,34 @@ Ctrl.Button { id: root
 					Layout.preferredHeight: col.height
 					padding: Globals.Controls.padding
 					leftPadding: 0
+					scrollbar.onPositionChanged: menu.visible = false;
 					mouse.enabled: !popout.isTransitioning
-					onItemClicked: item => {
-						// add an etry if none exist
-						if (!fileview.adapter.applications.find(a => a.id === item.modelData.id)) {
-							fileview.adapter.applications.push({
-								"id": item.modelData.id,
-								"count": 1,
-								"lastOpened": Date.now()
-							});
-							console.log(`Start menu: Added entry ${item.modelData.id}`);
-							// update entry if there's already one
+					mouse.acceptedButtons: Qt.LeftButton | Qt.RightButton
+					onItemClicked: (item, mouse) => {
+						if ((mouse?.button || Qt.LeftButton) === Qt.LeftButton) {
+							// add an etry if none exist
+							if (!fileview.adapter.applications.find(a => a.id === item.modelData.id)) {
+								fileview.adapter.applications.push({
+									"id": item.modelData.id,
+									"count": 1,
+									"lastOpened": Date.now()
+								});
+								console.log(`Start menu: Added entry ${item.modelData.id}`);
+								// update entry if there's already one
+							} else {
+								fileview.adapter.applications.find(a => a.id === item.modelData.id).count += 1;
+								fileview.adapter.applications.find(a => a.id === item.modelData.id).lastOpened = Date.now();
+								console.log(`Start menu: Updated entry ${item.modelData.id}`);
+							}
+							item.modelData.execute();
+							popout.isOpen = false;
 						} else {
-							fileview.adapter.applications.find(a => a.id === item.modelData.id).count += 1;
-							fileview.adapter.applications.find(a => a.id === item.modelData.id).lastOpened = Date.now();
-							console.log(`Start menu: Updated entry ${item.modelData.id}`);
+							const model = [
+								{"icon":"starred","colorize":true,"text":"Add to favourites","execute":function(){repeater.addRemovePin(item.modelData.id);}},
+								{"icon":"process-stop","colorize":true,"text":"Cancel","execute":function(){}}
+							];
+							menu.open(item, model, applications.x, applications.view.y -applications.view.contentY);
 						}
-						item.modelData.execute();
-						popout.isOpen = false;
 					}
 					model: {
 						let list = [...DesktopEntries.applications.values] // list to search from
@@ -604,6 +650,83 @@ Ctrl.Button { id: root
 									font.italic: true
 								}
 							}
+						}
+					}
+				}
+			}
+
+			Rectangle { id: menu
+				property Item item: null
+
+				function open(item, model, xOffset = 0, yOffset = 0, width = 240, edge = Edges.Bottom) {
+					menu.item = item;
+					popup.model = model;
+					popup.width = width;
+					ptr.edge = edge;
+
+					switch (edge) {
+						case Edges.Right:
+							container.x = item.x +item.width *(3 /4) +xOffset;
+							container.y = item.y +item.height /2 -container.height /2 +yOffset;
+							break;
+						case Edges.Bottom:
+							container.x = item.x +item.width /2 -container.width /2 +xOffset;
+							container.y = item.y +item.height -Globals.Controls.spacing +yOffset;
+							break;
+					}
+
+					if (!menu.visible) menu.visible = true;
+					if (popup.item.visible) popup.item.list.view.currentIndex = -1;
+
+				}
+
+				visible: false
+				anchors.fill: parent
+				color: Globals.Settings.debug? "#20ffffff" : "transparent"
+				onVisibleChanged: menu.visible? popup.open() : popup.close();
+
+				MouseArea { anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.AllButtons; onClicked: menu.visible = false; }
+
+				Rectangle { id: container
+					width: popup.width; height: popup.item?.height || 0;
+					color: Globals.Settings.debug? "#20ffffff" : "transparent"
+
+					Ctrl.PopupMenu { id: popup
+						active: true
+						compatibilityMode: true
+						onSelected: (index) => {
+							if (index !== -1) popup.model[index].execute();
+
+							menu.visible = false
+						}
+						onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
+
+						Rectangle {
+							x: -1; y: -1;
+							width: parent.width +2; height: (popup.item?.height || 0) +2;
+							radius: Globals.Controls.radius
+							color: "transparent"
+							border { width: 1; color: Qt.alpha(Globals.Colours.accent, 0.4); }
+							opacity: 0.975
+						}
+
+						Rectangle { id: ptr
+							property int edge: Edges.Bottom
+
+							x: edge === Edges.Right? -width /2 +radius : container.width /2 -width /2
+							y: edge === Edges.Right? container.height /2 -height /2 : radius -height /2
+							width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
+							radius: 2
+							rotation: edge === Edges.Right? 45 : 135
+							color: Globals.Colours.dark
+							border { width: 1; color: Qt.alpha(Globals.Colours.accent, 0.4); }
+							opacity: 0.975
+							layer.enabled: true
+							layer.effect: OpacityMask { maskSource: Item {
+								width: ptr.width; height: ptr.height;
+
+								Rectangle { x: -parent.width /2; y: parent.height /2; width: Math.sqrt(parent.width **2 *2); height: width /2; rotation: 45; }
+							}}
 						}
 					}
 				}
