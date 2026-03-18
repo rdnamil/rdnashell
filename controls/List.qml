@@ -15,9 +15,9 @@ ScrollView { id: root
 	required property var model
 	required property Component delegate
 
-	readonly property ListView view: listView
-	readonly property MouseArea mouse: mouseArea
-	readonly property ScrollBar scrollbar: scrollBar
+	readonly property alias view: listView
+	readonly property alias mouse: mouseArea
+	readonly property alias scrollbar: scrollBar
 
 	property bool isTop
 	property bool isBottom
