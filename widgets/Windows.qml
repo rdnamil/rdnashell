@@ -181,6 +181,7 @@ Item { id: root
 					}
 				}
 				drag.target: repeater.pins.includes(delegate.modelData.id)? drag : null
+				drag.onActiveChanged: if (root.parent.hasOwnProperty('counter')) delegate.drag.active? root.parent.counter++ : root.parent.counter--;
 				onReleased: (mouse) => { if (delegate.drag.active) {
 					const x = mouse.x +delegate.x;
 
@@ -242,6 +243,7 @@ Item { id: root
 					y: delegate.drag.active? Math.max(0, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
 					implicitSize: appIcon.height
 					source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id, "application-x-generic")
+					opacity: 0.6
 
 					MouseArea { anchors.fill: parent; cursorShape: Qt.DragMoveCursor; }
 				}
