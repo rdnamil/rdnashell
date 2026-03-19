@@ -27,7 +27,7 @@ Variants { id: root
 			Region {
 				x: window.width /2 -width /2; y: window.height -height
 				width: window.width /3; height: 1;
-				intersection: ToplevelManager.activeToplevel.fullscreen? Intersection.Subtract : Intersection.Intersect
+				intersection: (ToplevelManager.activeToplevel?.fullscreen || false)? Intersection.Subtract : Intersection.Intersect
 			}
 
 			Region {
