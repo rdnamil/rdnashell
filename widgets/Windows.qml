@@ -119,7 +119,7 @@ Item { id: root
 				}
 				tooltip: title
 				// background.radius: 4
-				acceptedButtons: Qt.AllButtons
+				acceptedButtons: Qt.LeftButton | Qt.RightButton
 				onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
 				onExited: if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
 				onClicked: (mouse) => {
