@@ -32,8 +32,8 @@ MouseArea { id: root
 	}
 
 	ShaderEffectSource { id: source
-		anchors.centerIn: parent;
-		sourceItem: root.icon;
+		anchors.centerIn: parent
+		sourceItem: root.icon
 		width: root.icon.width
 		height: root.icon.height
 		mipmap: true

@@ -15,7 +15,7 @@ import qs.components as Cmpt
 import "../globals.js" as Globals
 
 Ctrl.Button { id: root
-	property string fileManager: "thunar"
+	property string fileManager: "xdg-open"
 	property bool centreHorizontally
 
 	height: parent.height
@@ -371,7 +371,7 @@ Ctrl.Button { id: root
 							}
 						}
 					}
-					opacity: filters.enabled? 1.0 : 0.4
+					opacity: filters.enabled? 1.0 : 0.2
 					layer.enabled: true
 					layer.effect: MultiEffect {
 						saturation: filters.enabled? 0.0 : -1.0
