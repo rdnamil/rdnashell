@@ -36,7 +36,7 @@ Variants { id: root
 		Rectangle { id: bar
 			visible: !Globals.Settings.debug
 			anchors.fill: parent
-			color: Globals.Colours.dark
+			color: Globals.Colours.base
 			opacity: 0.975
 
 			Rectangle {

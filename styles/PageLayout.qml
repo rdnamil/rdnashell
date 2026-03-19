@@ -2,6 +2,8 @@
 --- PageLayout.qml by andrel ---
 ------------------------------*/
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
