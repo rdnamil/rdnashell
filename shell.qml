@@ -15,14 +15,14 @@ ShellRoot {
 		height: 38 // set the height of the bar
 		anchors: Edges.Top // anchor points **note** only top or bottom edges accepted for now
 		left: [
-			Power {},
-			Network {},
+ 			Network {},
 			Bluetooth {},
-			Audio {},
-			MusicPlayer {},
+			Audio {}
 		]
 		centre: [
-			NiriWorkspaces {}
+			NiriWorkspaces {
+				names: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'] // workspace names (leave blank to default to workspace index)
+			}
 		]
 		right: [
 			SystemTray {},
@@ -34,7 +34,9 @@ ShellRoot {
 			Caffeine {},
 			Redeye {},
 			Weather {},
-			DateTime {},
+			DateTime {
+				stack: false
+			},
 			PowerManagement {},
 			NotificationTray {}
 		]
@@ -43,16 +45,17 @@ ShellRoot {
 		widgets: [
 			Spacer {},
 			StartMenu {
+				fileManager: "thunar" // set file manager used to open shortcuts (unset to use system default)
 				centreHorizontally: true // whether to centre the menu horizontally on the display
 			},
 			Windows {
 				hideLabels: true // show only the window app icon
 				labelMaxWidth: 100 // set the maximum width of the label (has no effect if labels are hidden)
 			},
-			Separator {},
-			DateTime {
-				stack: true
+			Separator {
+				visible: Service.MPlayer.active
 			},
+			MiniPlayer {},
 			Spacer {}
 		]
 	}
@@ -70,7 +73,7 @@ ShellRoot {
 		Service.Idle.init(
 			300 // timeout to idle in seconds
 		);
-		Service.Brightness.init(); // uses brightnessctl
+		// Service.Brightness.init(); // uses brightnessctl
 		Service.Sunsetr.init(
 			3500, // temperature in K
 			95, // gamma (0-100)
