@@ -39,7 +39,7 @@ Item { id: root
 				required property int index
 
 				width: Math.max(height, icon.width)
-				height: 20
+				height: Math.max(20, icon.height)
 				onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
 				onExited: if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
 				onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'focus-workspace', delegate.modelData.idx])
@@ -53,7 +53,7 @@ Item { id: root
 				icon: Text { id: icon
 					readonly property color accent: Globals.Colours.accent
 
-					padding: Globals.Controls.padding /2
+					padding: Globals.Controls.spacing
 					text: delegate.modelData.name ?? (root.names[delegate.index] ?? delegate.modelData.idx)
 					font.family: Globals.Font.mono
 					font.pointSize: 10
