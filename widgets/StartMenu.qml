@@ -283,7 +283,7 @@ Ctrl.Button { id: root
 											parent: pins
 											visible: pin.drag.active
 											x: Globals.Controls.padding /2
-											y: pin.drag.active? Math.max(-Globals.Controls.spacing, Math.min(pins.height -drag.height +Globals.Controls.spacing, pin.mouseY +pin.y -height /2)) : 0
+											y: pin.drag.active? Math.max(-drag.height /2, Math.min(pins.height -drag.height /2, pin.mouseY +pin.y -height /2)) : 0
 											z: 999
 											width: pin.icon.width; height: pin.icon.height;
 											sourceItem: pin.icon
