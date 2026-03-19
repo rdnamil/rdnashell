@@ -25,6 +25,12 @@ Variants { id: root
 			width: window.width /3; height: 1;
 
 			Region {
+				x: window.width /2 -width /2; y: window.height -height
+				width: window.width /3; height: 1;
+				intersection: ToplevelManager.activeToplevel.fullscreen? Intersection.Subtract : Intersection.Intersect
+			}
+
+			Region {
 				x: dock.x; y: dock.y +trans.y;
 				width: dock.width; height: dock.height;
 			}
