@@ -181,25 +181,28 @@ Item { id: root
 					}
 				}
 				drag.target: repeater.pins.includes(delegate.modelData.id)? drag : null
-				drag.onActiveChanged: if (root.parent.hasOwnProperty('counter')) delegate.drag.active? root.parent.counter++ : root.parent.counter--;
-				onReleased: (mouse) => { if (delegate.drag.active) {
-					const x = mouse.x +delegate.x;
+				onPressed: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+				onReleased: (mouse) => {
+					if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
+					if (delegate.drag.active) {
+						const x = mouse.x +delegate.x;
 
-					const prevItem = repeater.itemAt(Math.max(0, delegate.index -1));
-					const nextItem = repeater.itemAt(Math.min(repeater.count -1, delegate.index +1));
-					const minThreshhold = prevItem.x +prevItem.height /2;
-					const maxThreshhold = nextItem.x +nextItem.height /2;
+						const prevItem = repeater.itemAt(Math.max(0, delegate.index -1));
+						const nextItem = repeater.itemAt(Math.min(repeater.count -1, delegate.index +1));
+						const minThreshhold = prevItem.x +prevItem.height /2;
+						const maxThreshhold = nextItem.x +nextItem.height /2;
 
 
-					if (x < minThreshhold || x > maxThreshhold) {
-						let index = 0;
-						let item = repeater.itemAt(0);
+						if (x < minThreshhold || x > maxThreshhold) {
+							let index = 0;
+							let item = repeater.itemAt(0);
 
-						while (index < repeater.count && x > item.x +item.height /2) item = repeater.itemAt(++index);
+							while (index < repeater.count && x > item.x +item.height /2) item = repeater.itemAt(++index);
 
-						index > delegate.index? repeater.movePin(delegate.index, index -1) : repeater.movePin(delegate.index, index);
+							index > delegate.index? repeater.movePin(delegate.index, index -1) : repeater.movePin(delegate.index, index);
+						}
 					}
-				}}
+				}
 
 				Rectangle { // background
 					z: -1
@@ -239,8 +242,10 @@ Item { id: root
 				IconImage { id: drag
 					parent: root
 					visible: delegate.drag.active
-					x: delegate.drag.active? Math.max(0, Math.min(root.width -drag.width, delegate.mouseX +delegate.x -drag.width /2)) : 0
-					y: delegate.drag.active? Math.max(0, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
+					x: delegate.mouseX +delegate.x -drag.width /2
+					y: delegate.mouseY +layout.y -drag.width /2
+					// x: delegate.drag.active? Math.max(0, Math.min(root.width -drag.width, delegate.mouseX +delegate.x -drag.width /2)) : 0
+					// y: delegate.drag.active? Math.max(0, Math.min(root.height -drag.height, delegate.mouseY +layout.y -drag.width /2)) : 0
 					implicitSize: appIcon.height
 					source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id, "application-x-generic")
 					opacity: 0.6
