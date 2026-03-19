@@ -184,7 +184,7 @@ Item { id: root
 				onPressed: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
 				onReleased: (mouse) => {
 					if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
-					if (delegate.drag.active) {
+					if (delegate.drag.active && mouse.y >= delegate.y -delegate.height /2) {
 						const x = mouse.x +delegate.x;
 
 						const prevItem = repeater.itemAt(Math.max(0, delegate.index -1));
