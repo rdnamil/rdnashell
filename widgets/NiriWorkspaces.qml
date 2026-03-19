@@ -11,10 +11,17 @@ import "../globals.js" as Globals
 Item { id: root
 	property list<string> names: []
 
-	width: layout.width; height: layout.height;
+	width: layout.width; height: parent.height;
 
 	Grid { id: layout
+		anchors.centerIn: parent
 		columnSpacing: Globals.Controls.spacing
+		rows: {
+			const h = root.height -Globals.Controls.padding *(4 /3);
+
+			if (h >= 24) return 2;
+			else return 1;
+		}
 
 		Repeater { id: repeater
 			model: ScriptModel {
@@ -33,6 +40,8 @@ Item { id: root
 
 				width: Math.max(height, icon.width)
 				height: 20
+				onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+				onExited: if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
 				onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'focus-workspace', delegate.modelData.idx])
 				effectEnabled: true
 				effect: Component { DropShadow {
@@ -63,7 +72,7 @@ Item { id: root
 						State {
 							name: "inactive"; when: !delegate.modelData.is_active;
 
-							PropertyChanges { icon.color: Globals.Colours.mid; }
+							PropertyChanges { icon.color:Qt.darker(Globals.Colours.mid, 0.8); }
 						}
 					]
 					transitions: [
