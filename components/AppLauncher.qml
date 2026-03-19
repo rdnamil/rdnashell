@@ -297,6 +297,12 @@ Singleton { id: root
 		}
 	}
 
+	Connections {
+		target: Service.PopoutManager
+
+		function onWhosOpenChanged() { if (Service.PopoutManager.whosOpen !== null) loader.active = false; }
+	}
+
 	IpcHandler {
 		target: "launcher"
 
