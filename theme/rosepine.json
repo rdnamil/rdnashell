@@ -1,0 +1,12 @@
+{
+	"base": "#26233a",
+	"accent": "#eb6f92",
+	"dark": "#191724",
+	"light": "#6e6a86",
+	"mid": "#403d52",
+	"text": "#e0def4",
+	"text_inactive": "#575279",
+	"danger": "#d7827e",
+	"warning": "#ea9d34",
+	"success": "#31748f"
+}
