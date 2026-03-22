@@ -7,30 +7,27 @@ Singleton { id: root
 	property list<var> wallpapers: []
 
 	function getWallpaper() { if (!getWallpaper.running) getWallpaper.running = true; }
-	function setWallpaper(path) { applyWallpaper.exec(['swww', 'img', path]); }
+	function setWallpaper(path, transition = "grow", output = "") { applyWallpaper.exec(['swww', 'img', path, '--transition-type', transition, '--transition-fps', '60', '--outputs', output]); }
 
 	Process { id: getWallpaper
 		running: true
 		command: ['swww', 'query']
 		stdout: StdioCollector {
 			onStreamFinished: {
-				var ws = text.trim().split('\n');
+				root.wallpapers = text
+					.trim()
+					.split('\n')
+					.map(w => {
+						const parts = w.match(/^:\s*(\S+):\s*([^,]+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)$/);
 
-				root.wallpapers = [];
-
-				for (let w of ws) {
-					const parts = w.match(/^:\s*(\S+):\s*([^,]+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)$/);
-
-					if (!parts) continue;
-
-					root.wallpapers.push({
-						display: parts[1],
-						resolution: parts[2],
-						scale: parts[3],
-						type: parts[4],
-						path: parts[5]
+						return {
+							display: parts[1],
+							resolution: parts[2],
+							scale: parts[3],
+							type: parts[4],
+							path: parts[5]
+						};
 					});
-				}
 			}
 		}
 	}
