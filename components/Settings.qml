@@ -36,6 +36,8 @@ Singleton { id: root
 			visible: true
 			title: `Qs Settings - ${list.model[root.currentIndex]?.name || ''}`
 			minimumSize: Qt.size(756, 560)
+			implicitWidth: 756
+			implicitHeight: 560
 			onClosed: {
 				fileview.writeAdapter();
 				loader.active = false;
