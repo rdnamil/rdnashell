@@ -18,14 +18,14 @@ Singleton { id: root
 					.trim()
 					.split('\n')
 					.map(w => {
-						const parts = w.match(/^:\s*(\S+):\s*([^,]+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)$/);
+						const parts = w.match(/:\s*(\S+):\s*(\d+x\d+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)/);
 
 						return {
 							display: parts[1],
 							resolution: parts[2],
-							scale: parts[3],
+							scale: Number(parts[3]),
 							type: parts[4],
-							path: parts[5]
+							path: parts[5].trim()
 						};
 					});
 			}
