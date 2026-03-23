@@ -2,11 +2,6 @@
     "settings": [
         {
             "component": "Wallpaper",
-            "icon": "display",
-            "name": "Display"
-        },
-        {
-            "component": "Wallpaper",
             "icon": "livewallpaper",
             "name": "Wallpaper"
         }
