@@ -18,7 +18,7 @@ Singleton { id: root
 					.trim()
 					.split('\n')
 					.map(w => {
-						const parts = w.match(/:\s*(\S+):\s*(\d+x\d+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)/);
+						const parts = w.match(/:\s*(\S+):\s*(\d+x\d+),\s*scale:\s*([\d.]+),\s*currently displaying:\s*(\w+):\s*(.+)/);
 
 						return {
 							display: parts[1],
