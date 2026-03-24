@@ -13,7 +13,7 @@ import qs.services as Service
 import "../../globals.js" as Globals
 
 ColumnLayout { id: root
-	property string path: "/home/andrel/Pictures/Wallpapers/"
+	property string path: "/home/andrel/Pictures/Wallpapers"
 
 	spacing: Globals.Controls.padding
 	width: parent.width
@@ -47,7 +47,7 @@ ColumnLayout { id: root
 				cache: true
 				asynchronous: true
 				mipmap: true
-				fillMode: switch (true) {
+				fillMode: switch (resize.model[resize.currentIndex].text.toLowerCase()) {
 					case "no":
 						return Image.Stretch;
 					case "crop":
@@ -58,6 +58,90 @@ ColumnLayout { id: root
 						return Image.Stretch;
 					default:
 						return Image.PreserveAspectCrop;
+				}
+			}
+		}
+	}
+
+	RowLayout {
+		spacing: Globals.Controls.spacing
+
+		Item {
+			Layout.fillWidth: true
+			Layout.preferredHeight: childrenRect.height
+
+			Ctrl.Dropdown { id: resize
+				width: parent.width
+				compatibilityMode: true
+				currentIndex: 1
+				model: ['No', 'Crop', 'Fit', 'Stretch'].map(r => {
+					return {"text":r};
+				})
+
+				ShaderEffectSource {
+					anchors.fill: parent
+					z: -999
+					sourceItem: parent.button.background
+					opacity: 0.1
+				}
+			}
+		}
+
+		Item {
+			Layout.fillWidth: true
+			Layout.preferredHeight: childrenRect.height
+
+			Ctrl.Dropdown { id: transition
+				width: parent.width
+				compatibilityMode: true
+				currentIndex: 1
+				model: ['None', 'Simple', 'Fade', 'Left', 'Right', 'Top', 'Bottom', 'Wipe', 'Wave', 'Grow', 'Center', 'Any', 'Outer', 'Random'].map(r => {
+					return {"text":r};
+				})
+
+				ShaderEffectSource {
+					anchors.fill: parent
+					z: -999
+					sourceItem: parent.button.background
+					opacity: 0.1
+				}
+			}
+		}
+
+		Item {
+			Layout.fillWidth: true
+			Layout.preferredHeight: childrenRect.height
+
+			Ctrl.Button { id: path
+				width: parent.width
+				height: transition.height
+				enabled: !getPath.running
+				onClicked: if (enabled) getPath.running = true;
+				icon: RowLayout {
+					spacing: Globals.Controls.spacing
+					width: path.width
+
+					IconImage {
+						Layout.leftMargin: Globals.Controls.spacing
+						implicitSize: txt.height
+						source: Quickshell.iconPath("folder")
+					}
+
+					Text { id: txt
+						Layout.rightMargin: Globals.Controls.spacing
+						Layout.fillWidth: true
+						text: root.path
+						elide: Text.ElideLeft
+						color: path.enabled? Globals.Colours.text : Globals.Colours.mid
+						font.pointSize: 8
+					}
+				}
+
+				ShaderEffectSource {
+					anchors.fill: parent
+					z: -999
+					sourceItem: parent.background
+					opacity: parent.enabled? 0.1 : 0.0
 				}
 			}
 		}
@@ -118,7 +202,7 @@ ColumnLayout { id: root
 					required property var modelData
 					required property int index
 
-					readonly property url wallpaper: `${root.path}${delegate.modelData}`
+					readonly property url wallpaper: `${root.path}/${delegate.modelData}`
 
 					width: grid.cellWidth; height: grid.cellHeight;
 
@@ -168,7 +252,7 @@ ColumnLayout { id: root
 	Ctrl.Button { id: applyBtn
 		Layout.fillWidth: true
 		enabled: grid.currentIndex !== -1
-		onClicked: if (enabled) Service.Swww.setWallpaper(grid.currentItem.wallpaper);
+		onClicked: if (enabled) Service.Swww.setWallpaper(grid.currentItem.wallpaper, transition.model[transition.currentIndex].text.toLowerCase(), resize.model[resize.currentIndex].text.toLowerCase());
 		icon: Text {
 			text: "Apply"
 			color: applyBtn.enabled? Globals.Colours.text : Globals.Colours.mid
@@ -212,7 +296,19 @@ ColumnLayout { id: root
 				.filter(w => formats.some(f => w.endsWith(f)));
 
 			grid.model = model;
-			grid.currentIndex = model.findIndex(w => `${root.path}${w}` == Service.Swww.wallpapers[0]?.path || '') ?? -1;
+			grid.currentIndex = model.findIndex(w => `${root.path}/${w}` == Service.Swww.wallpapers[0]?.path || '') ?? -1;
+		}}
+	}
+
+	Process { id: getPath
+		command: ['zenity', '--file-selection', '--directory']
+		stdout: StdioCollector { onStreamFinished: {
+			const path = text.trim();
+
+			if (path.length) {
+				root.path = path;
+				getWalls.running = true;
+			}
 		}}
 	}
 }
