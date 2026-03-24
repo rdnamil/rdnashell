@@ -13,7 +13,7 @@ import qs.services as Service
 import "../../globals.js" as Globals
 
 ColumnLayout { id: root
-	property string path: "/home/andrel/Pictures/Wallpapers"
+	property string path: `${Quickshell.env("HOME")}/Pictures/Wallpapers`
 
 	spacing: Globals.Controls.padding
 	width: parent.width
@@ -165,7 +165,7 @@ ColumnLayout { id: root
 				x: scrollview.width -width /2 -Globals.Controls.padding
 				y: scrollview.padding
 				height: scrollview.availableHeight
-				hoverEnabled: grid.height > scrollview.height
+				hoverEnabled: grid.contentHeight > scrollview.height
 				contentItem: Rectangle {
 					implicitWidth: scrollBar.active? 6 : 4
 					radius: width /2
@@ -182,6 +182,10 @@ ColumnLayout { id: root
 				cellHeight: 90
 				cellWidth: 160
 				clip: true
+				onCurrentItemChanged: {
+					if (contentY > currentItem.y) contentY = currentItem.y;
+					else if ((contentY +height) < (currentItem.y +currentItem.height)) contentY = currentItem.y -height +currentItem.height;
+				}
 				highlightFollowsCurrentItem: false
 				highlightMoveDuration: 0
 				highlight: Rectangle {
@@ -252,7 +256,10 @@ ColumnLayout { id: root
 	Ctrl.Button { id: applyBtn
 		Layout.fillWidth: true
 		enabled: grid.currentIndex !== -1
-		onClicked: if (enabled) Service.Swww.setWallpaper(grid.currentItem.wallpaper, transition.model[transition.currentIndex].text.toLowerCase(), resize.model[resize.currentIndex].text.toLowerCase());
+		onClicked: if (enabled) {
+			Service.Swww.setWallpaper(grid.currentItem.wallpaper, transition.model[transition.currentIndex].text.toLowerCase(), resize.model[resize.currentIndex].text.toLowerCase());
+			fileview.writeAdapter();
+		}
 		icon: Text {
 			text: "Apply"
 			color: applyBtn.enabled? Globals.Colours.text : Globals.Colours.mid
@@ -269,23 +276,23 @@ ColumnLayout { id: root
 		}
 	}
 
-	// FileView { id: fileview
-	// 	path: Qt.resolvedUrl("./wall.json")
-	// 	onLoaded: {
-	// 		position.currentIndex = fileview.adapter.position;
-	// 		transition.currentIndex = fileview.adapter.transition;
-	// 		root.fillColour = fileview.adapter.fill;
-	// 	}
- //
-	// 	JsonAdapter {
-	// 		property int position: position.currentIndex
-	// 		property int transition: transition.currentIndex
-	// 		property color fill: root.fillColour
-	// 	}
-	// }
+	FileView { id: fileview
+		path: Qt.resolvedUrl("./wall.json")
+		onLoaded: {
+			resize.currentIndex = fileview.adapter.resize;
+			transition.currentIndex = fileview.adapter.transition;
+			root.path = fileview.adapter.path;
+			getWalls.running = true;
+		}
+
+		JsonAdapter {
+			property int resize: resize.currentIndex
+			property int transition: transition.currentIndex
+			property string path: root.path
+		}
+	}
 
 	Process { id: getWalls
-		running: true
 		command: ['ls', '-p1', root.path]
 		stdout: StdioCollector { onStreamFinished: {
 			const formats = ['.jpg', '.jpeg', '.png', '.gif', '.pnm', '.tga', '.tiff', '.webp', '.bmp', '.farbfeld', '.svg'];
@@ -297,6 +304,9 @@ ColumnLayout { id: root
 
 			grid.model = model;
 			grid.currentIndex = model.findIndex(w => `${root.path}/${w}` == Service.Swww.wallpapers[0]?.path || '') ?? -1;
+
+			const maxY = Math.max(0, grid.contentHeight -grid.height);
+			grid.contentY = Math.min(grid.currentItem.y, maxY);
 		}}
 	}
 
