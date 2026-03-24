@@ -19,7 +19,7 @@ ColumnLayout { id: root
 	width: parent.width
 
 	Rectangle { id: preview
-		readonly property size resolution: root.wallpapers[0]?.resolution || null
+		readonly property size resolution: Service.Swww.wallpapers[0]?.resolution || null
 
 		Layout.fillWidth: true
 		Layout.minimumWidth: 480
@@ -43,7 +43,8 @@ ColumnLayout { id: root
 
 			Image { id: previewImage
 				anchors.fill: parent
-				source: Service.Swww.wallpapers[0]?.path || ''
+				source: grid.currentItem?.wallpaper || ''
+				cache: true
 				asynchronous: true
 				mipmap: true
 				fillMode: switch (true) {
@@ -96,16 +97,28 @@ ColumnLayout { id: root
 			GridView { id: grid
 				cellHeight: 90
 				cellWidth: 160
-				highlightFollowsCurrentItem: true
+				clip: true
+				highlightFollowsCurrentItem: false
 				highlightMoveDuration: 0
 				highlight: Rectangle {
+					anchors.centerIn: grid.currentItem
+					width: grid.cellWidth -Globals.Controls.spacing; height: grid.cellHeight -Globals.Controls.spacing;
 					color: "transparent"
-					border { width: Globals.Controls.spacing; color: Globals.Colours.accent; }
+					radius: Globals.Controls.radius *(1 /2)
+					border { width: Globals.Controls.spacing /2; color: Globals.Colours.accent; }
+
+					Rectangle {
+						anchors.centerIn: parent
+						width: parent.width -Globals.Controls.spacing +2; height: parent.height -Globals.Controls.spacing +2;
+						border { width: 1; color: Qt.alpha("black", 0.2); }
+					}
 				}
 				model: []
 				delegate: Item { id: delegate
 					required property var modelData
 					required property int index
+
+					readonly property url wallpaper: `${root.path}${delegate.modelData}`
 
 					width: grid.cellWidth; height: grid.cellHeight;
 
@@ -116,7 +129,7 @@ ColumnLayout { id: root
 
 						Image { id: thumbnail
 							anchors.fill: parent
-							source: `${root.path}${delegate.modelData}` ?? "/home/andrel/Pictures/Wallpapers/wallhaven-rqy6wm.jpg"
+							source: delegate.wallpaper
 							sourceSize: Qt.size(thumbnail.width, thumbnail.height)
 							cache: true
 							mipmap: true
@@ -140,20 +153,25 @@ ColumnLayout { id: root
 					anchors.fill: parent
 					hoverEnabled: true
 					onClicked: (mouse) => {
-						const idx = grid.indexAt(mouse.x, mouse.y);
+						const idx = grid.indexAt(mouse.x, mouse.y +grid.contentY);
 
-						if (idx !== -1) grid.currentIndex = idx;
+						if (idx !== -1) {
+							grid.currentIndex = idx;
+							previewImage.source = grid.itemAtIndex(idx).wallpaper;
+						}
 					}
 				}
 			}
 		}
 	}
 
-	Ctrl.Button {
+	Ctrl.Button { id: applyBtn
 		Layout.fillWidth: true
+		enabled: grid.currentIndex !== -1
+		onClicked: if (enabled) Service.Swww.setWallpaper(grid.currentItem.wallpaper);
 		icon: Text {
 			text: "Apply"
-			color: Globals.Colours.text
+			color: applyBtn.enabled? Globals.Colours.text : Globals.Colours.mid
 			font.pointSize: 10
 			font.weight: 600
 			font.letterSpacing: 1.0
@@ -163,7 +181,7 @@ ColumnLayout { id: root
 			anchors.fill: parent
 			z: -999
 			sourceItem: parent.background
-			opacity: 0.1
+			opacity: parent.enabled? 0.1 : 0.0
 		}
 	}
 
