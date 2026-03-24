@@ -31,7 +31,7 @@ Singleton { id: root
 	}
 
 	LazyLoader { id: loader
-		active: true
+		active: false
 		component: FloatingWindow { id: window
 			visible: true
 			title: `Qs Settings - ${list.model[root.currentIndex]?.name || ''}`
