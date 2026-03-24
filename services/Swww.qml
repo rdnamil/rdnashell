@@ -7,7 +7,7 @@ Singleton { id: root
 	property list<var> wallpapers: []
 
 	function getWallpaper() { if (!getWallpaper.running) getWallpaper.running = true; }
-	function setWallpaper(path, transition = "grow", output = "") { applyWallpaper.exec(['swww', 'img', path, '--transition-type', transition, '--transition-fps', '60', '--outputs', output]); }
+	function setWallpaper(path, transition = "grow", resize = "crop", output = "") { applyWallpaper.exec(['swww', 'img', path, '--transition-type', transition, '--transition-fps', '60','--resize', resize, '--outputs', output]); }
 
 	Process { id: getWallpaper
 		running: true
