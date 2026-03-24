@@ -31,13 +31,13 @@ Singleton { id: root
 	}
 
 	LazyLoader { id: loader
-		active: false
+		active: true
 		component: FloatingWindow { id: window
 			visible: true
 			title: `Qs Settings - ${list.model[root.currentIndex]?.name || ''}`
-			minimumSize: Qt.size(756, 560)
-			implicitWidth: 756
-			implicitHeight: 560
+			minimumSize: Qt.size(760, 680)
+			implicitWidth: 760
+			implicitHeight: 680
 			onClosed: {
 				fileview.writeAdapter();
 				loader.active = false;
