@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Basic
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
@@ -12,13 +13,13 @@ import qs.services as Service
 import "../../globals.js" as Globals
 
 ColumnLayout { id: root
-	property list<var> wallpapers: Service.Swww.wallpapers
-	property color fillColour: Globals.Colours.accent
+	property string path: "/home/andrel/Pictures/Wallpapers/"
 
+	spacing: Globals.Controls.padding
 	width: parent.width
 
 	Rectangle { id: preview
-		readonly property size resolution: root.wallpapers[display.currentIndex]?.resolution || null
+		readonly property size resolution: root.wallpapers[0]?.resolution || null
 
 		Layout.fillWidth: true
 		Layout.minimumWidth: 480
@@ -32,7 +33,7 @@ ColumnLayout { id: root
 			y: (parent.height -height) *(1 /3)
 			width: parent.width -24
 			height: parent.height -36
-			color: root.fillColour
+			color: Globals.Colours.accent
 			layer.enabled: true
 			layer.effect: OpacityMask { maskSource: Rectangle {
 				width: previewContainer.width
@@ -41,18 +42,11 @@ ColumnLayout { id: root
 			}}
 
 			Image { id: previewImage
-				anchors.centerIn: parent
-				width: {
-					if (position.model[position.currentIndex].text.toLowerCase() === "no") return parent.width *(sourceSize.width /preview.resolution.width);
-					else return parent.width;
-				}
-				height: {
-					if (position.model[position.currentIndex].text.toLowerCase() === "no") return parent.height *(sourceSize.height /preview.resolution.height);
-					else return parent.height;
-				}
-				source: root.wallpapers[display.currentIndex]?.path || ''
+				anchors.fill: parent
+				source: Service.Swww.wallpapers[0]?.path || ''
+				asynchronous: true
 				mipmap: true
-				fillMode: switch (position.model[position.currentIndex].text.toLowerCase()) {
+				fillMode: switch (true) {
 					case "no":
 						return Image.Stretch;
 					case "crop":
@@ -68,241 +62,139 @@ ColumnLayout { id: root
 		}
 	}
 
-	ScrollView { id: recentScrollView
-		Layout.fillWidth: true
-		Layout.maximumWidth: preview.width
-		Layout.preferredHeight: 124
-		padding: Globals.Controls.padding
-		background: Rectangle {
+	Item {
+		Layout.fillWidth: true;
+		Layout.fillHeight: true;
+
+		ScrollView { id: scrollview
 			anchors.fill: parent
-			radius: Globals.Controls.radius
-			color: Globals.Colours.dark
-			opacity: 0.2
-		}
-
-		ListView { id: listView
-			spacing: Globals.Controls.padding
-			orientation: ListView.Horizontal
+			padding: Globals.Controls.spacing +Globals.Controls.radius*(3 /4)
 			clip: true
-			model: ScriptModel {
-				values: fileview.adapter.recent
-				objectProp: "filename"
+			background: Rectangle {
+				radius: Globals.Controls.radius*(3 /4)
+				color: Globals.Colours.dark
+				opacity: 0.4
 			}
-			delegate: Image { id: delegate
-				required property var modelData
-				required property int index
+			ScrollBar.horizontal: ScrollBar { hoverEnabled: false; }
+			ScrollBar.vertical: ScrollBar { id: scrollBar
+				x: scrollview.width -width /2 -Globals.Controls.padding
+				y: scrollview.padding
+				height: scrollview.availableHeight
+				hoverEnabled: grid.height > scrollview.height
+				contentItem: Rectangle {
+					implicitWidth: scrollBar.active? 6 : 4
+					radius: width /2
+					color: scrollBar.active? Globals.Colours.text : Globals.Colours.mid
+					opacity: (scrollBar.active && scrollBar.size < 1.0) ? 0.75 : 0
 
-				width: height *(sourceSize.width /sourceSize.height)
-				height: recentScrollView.availableHeight
-				source: modelData.path
-				fillMode: Image.PreserveAspectFit
-				mipmap: true
-				asynchronous: true
+					Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					Behavior on color { ColorAnimation { duration: 250; }}
+				}
+			}
 
-				Rectangle {
-					visible: delegate.index == listView.currentIndex
-					anchors.fill: parent
+			GridView { id: grid
+				cellHeight: 90
+				cellWidth: 160
+				highlightFollowsCurrentItem: true
+				highlightMoveDuration: 0
+				highlight: Rectangle {
 					color: "transparent"
-					border { width: 3; color: Globals.Colours.accent; }
+					border { width: Globals.Controls.spacing; color: Globals.Colours.accent; }
 				}
-			}
+				model: []
+				delegate: Item { id: delegate
+					required property var modelData
+					required property int index
 
-			MouseArea { id: mouseArea
-				anchors.fill: parent
-				onClicked: (mouse) => {
-					const idx = listView.indexAt(mouse.x +listView.contentX, mouse.y);
+					width: grid.cellWidth; height: grid.cellHeight;
 
-					if (idx != -1) {
-						listView.currentIndex = idx;
-						root.wallpapers[display.currentIndex].path = listView.model.values[idx].path;
+					Rectangle {
+						anchors.centerIn: parent
+						width: parent.width -Globals.Controls.spacing *2; height: parent.height -Globals.Controls.spacing *2;
+						color: Qt.alpha(Globals.Colours.accent, 1.0 /grid.count *(grid.count -delegate.index))
+
+						Image { id: thumbnail
+							anchors.fill: parent
+							source: `${root.path}${delegate.modelData}` ?? "/home/andrel/Pictures/Wallpapers/wallhaven-rqy6wm.jpg"
+							sourceSize: Qt.size(thumbnail.width, thumbnail.height)
+							cache: true
+							mipmap: true
+							asynchronous: true
+						}
+
+						Rectangle {
+							anchors.fill: parent
+							color: Globals.Colours.accent
+							opacity: {
+								const x = mousearea.mouseX >= delegate.x && mousearea.mouseX <= delegate.x +delegate.width;
+								const y = mousearea.mouseY >= delegate.y -grid.contentY && mousearea.mouseY <= delegate.y -grid.contentY +delegate.height;
+
+								return mousearea.containsMouse && x && y? 0.4 : 0.0;
+							}
+						}
 					}
 				}
-				onDoubleClicked: (mouse) => {
-					const idx = listView.indexAt(mouse.x +listView.contentX, mouse.y);
 
-					if (idx != -1) {
-						listView.currentIndex = idx;
-						root.wallpapers[display.currentIndex].path = listView.model.values[idx].path;
-						if (!applyWallpaper.running) applyWallpaper.running = true;
-					}
-				}
-			}
-		}
-	}
+				MouseArea { id: mousearea
+					anchors.fill: parent
+					hoverEnabled: true
+					onClicked: (mouse) => {
+						const idx = grid.indexAt(mouse.x, mouse.y);
 
-	RowLayout {
-		Item {
-			Layout.fillWidth: true
-			Layout.preferredHeight: childrenRect.height
-
-			Rectangle { anchors.fill: parent; radius: Globals.Controls.radius *(3 /4); color: Globals.Colours.dark; opacity: 0.2; }
-
-			Ctrl.Dropdown { id: display
-				width: parent.width
-				compatibilityMode: true
-				model: root.wallpapers.map(w => {
-					return {"text": w.display};
-				})
-			}
-		}
-
-		Item { id: pathWrapper
-			readonly property TextMetrics metric: TextMetrics {
-				text: pathText.text
-				font.pointSize: pathText.font.pointSize
-			}
-
-			Layout.fillWidth: true
-			Layout.maximumWidth: Globals.Controls.iconSize +Globals.Controls.spacing *3 +Globals.Controls.padding /2 +metric.width +1
-			Layout.preferredHeight: childrenRect.height
-
-			Rectangle { anchors.fill: parent; radius: Globals.Controls.radius *(3 /4); color: Globals.Colours.dark; opacity: 0.2; }
-
-			Ctrl.Button { id: path
-				width: parent.width
-				height: icon.height
-				onClicked: if (!setWallpaper.running) setWallpaper.running = true;
-				icon: RowLayout {
-					spacing: 0
-					width: pathWrapper.width
-
-					IconImage {
-						Layout.margins: Globals.Controls.spacing
-						implicitSize: Globals.Controls.iconSize
-						source: Quickshell.iconPath("image-x-generic")
-					}
-
-					Text { id: pathText
-						Layout.margins: Globals.Controls.spacing
-						Layout.rightMargin: Globals.Controls.padding /2
-						Layout.fillWidth: true
-						text: root.wallpapers[0]?.path || ''
-						elide: Text.ElideLeft
-						color: Globals.Colours.text
-						font.pointSize: 10
+						if (idx !== -1) grid.currentIndex = idx;
 					}
 				}
 			}
 		}
 	}
 
-	RowLayout {
-		Item {
-			Layout.fillWidth: true
-			Layout.preferredHeight: childrenRect.height
-
-			Rectangle { anchors.fill: parent; radius: Globals.Controls.radius *(3 /4); color: Globals.Colours.dark; opacity: 0.2; }
-
-			Ctrl.Dropdown { id: position
-				width: parent.width
-				compatibilityMode: true
-				model: [{"text":"Crop"}, {"text":"Fit"}, {"text":"Stretch"}, {"text":"No"}]
-			}
-		}
-
-		Ctrl.Button {
-			onClicked: if (!getColour.running) getColour.running = true;
-			icon: Rectangle {
-				width: Globals.Controls.iconSize; height: width;
-				radius: 3
-				color: root.fillColour
-			}
-		}
-
-		Item {
-			Layout.fillWidth: true
-			Layout.preferredHeight: childrenRect.height
-
-			Rectangle { anchors.fill: parent; radius: Globals.Controls.radius *(3 /4); color: Globals.Colours.dark; opacity: 0.2; }
-
-			Ctrl.Dropdown { id: transition
-				width: parent.width
-				compatibilityMode: true
-				model: [{"text":"None"}, {"text":"Simple"}, {"text":"Fade"}, {"text":"Left"}, {"text":"Right"}, {"text":"Top"}, {"text":"Bottom"}, {"text":"Wipe"}, {"text":"Wave"}, {"text":"Grow"}, {"text":"Center"}, {"text":"Any"}, {"text":"Outer"}, {"text":"Random"}]
-			}
-		}
-	}
-
-	// Item { Layout.preferredHeight: 24; }
-
-	Item { id: applyWrapper
+	Ctrl.Button {
 		Layout.fillWidth: true
-		Layout.preferredHeight: childrenRect.height
+		icon: Text {
+			text: "Apply"
+			color: Globals.Colours.text
+			font.pointSize: 10
+			font.weight: 600
+			font.letterSpacing: 1.0
+		}
 
-		Rectangle { anchors.fill: parent; radius: Globals.Controls.radius *(3 /4); color: Globals.Colours.dark; opacity: 0.2; }
-
-		Ctrl.Button { id: apply
-			width: parent.width
-			height: icon.height
-			onClicked: if (!applyWallpaper.running) applyWallpaper.running = true;
-			icon: Text {
-				padding: Globals.Controls.spacing
-				leftPadding: 0; rightPadding: 0;
-				x: Globals.Controls.padding /2
-				width: applyWrapper.width -Globals.Controls.padding
-				text: "Apply"
-				horizontalAlignment: Text.AlignHCenter
-				elide: Text.ElideLeft
-				color: Globals.Colours.text
-				font.pointSize: 10
-			}
+		ShaderEffectSource {
+			anchors.fill: parent
+			z: -999
+			sourceItem: parent.background
+			opacity: 0.1
 		}
 	}
 
-	Item { Layout.fillHeight: true; }
+	// FileView { id: fileview
+	// 	path: Qt.resolvedUrl("./wall.json")
+	// 	onLoaded: {
+	// 		position.currentIndex = fileview.adapter.position;
+	// 		transition.currentIndex = fileview.adapter.transition;
+	// 		root.fillColour = fileview.adapter.fill;
+	// 	}
+ //
+	// 	JsonAdapter {
+	// 		property int position: position.currentIndex
+	// 		property int transition: transition.currentIndex
+	// 		property color fill: root.fillColour
+	// 	}
+	// }
 
-	FileView { id: fileview
-		path: Qt.resolvedUrl("./wall.json")
-		onLoaded: {
-			position.currentIndex = fileview.adapter.position;
-			transition.currentIndex = fileview.adapter.transition;
-			root.fillColour = fileview.adapter.fill;
-		}
+	Process { id: getWalls
+		running: true
+		command: ['ls', '-p1', root.path]
+		stdout: StdioCollector { onStreamFinished: {
+			const formats = ['.jpg', '.jpeg', '.png', '.gif', '.pnm', '.tga', '.tiff', '.webp', '.bmp', '.farbfeld', '.svg'];
+			const model = text
+				.trim()
+				.split('\n')
+				.filter(w => !w.endsWith('/'))
+				.filter(w => formats.some(f => w.endsWith(f)));
 
-		JsonAdapter {
-			property list<var> recent
-			property int position: position.currentIndex
-			property int transition: transition.currentIndex
-			property color fill: root.fillColour
-
-			onRecentChanged: if (recent.length > 10) recent.splice(10, 1);
-		}
-	}
-
-	Process { id: setWallpaper
-		command: ['zenity', '--file-selection']
-		stdout: StdioCollector {
-			onStreamFinished: {
-				const path = text.trim();
-
-				if (path.length > 0) {
-					root.wallpapers[display.currentIndex].path = path;
-
-					if (!fileview.adapter.recent.some(w => w.path === path)) {
-						fileview.adapter.recent.splice(0, 0, {
-							"path": path,
-							"filename": path.split('/').pop()
-						});
-						listView.currentIndex = 0;
-					}
-					else listView.currentIndex = fileview.adapter.recent.findIndex(w => w.path === path);
-
-					// console.log(`Settings: Wallpaper on ${root.wallpapers[display.currentIndex].display} changed to ${root.wallpapers[display.currentIndex].path}`);
-				}
-			}
-		}
-	}
-
-	Process { id: getColour
-		command: ['yad', '--color']
-		stdout: StdioCollector { onStreamFinished: { if (text.trim()) root.fillColour = text.trim(); }}
-	}
-
-	Process { id: applyWallpaper
-		command: ['swww', 'img', '--resize', position.model[position.currentIndex].text.toLowerCase(),
-		'--fill-color', root.fillColour.toString().replace('#', ''),
-		'-t', transition.model[transition.currentIndex].text.toLowerCase(), '--transition-fps', '60',
-		root.wallpapers[display.currentIndex]?.path || '']
-		stdout: StdioCollector { onStreamFinished: { Service.Swww.getWallpaper(); fileview.writeAdapter(); }}
+			grid.model = model;
+			grid.currentIndex = model.findIndex(w => `${root.path}${w}` == Service.Swww.wallpapers[0]?.path || '') ?? -1;
+		}}
 	}
 }
