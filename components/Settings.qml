@@ -31,7 +31,7 @@ Singleton { id: root
 	}
 
 	LazyLoader { id: loader
-		active: false
+		active: true
 		component: FloatingWindow { id: window
 			visible: true
 			title: `Qs Settings - ${list.model[root.currentIndex]?.name || ''}`
@@ -90,6 +90,11 @@ Singleton { id: root
 					Layout.preferredHeight: childrenRect.height
 					color: Globals.Colours.dark
 
+					MouseArea {
+						anchors.fill: parent
+						onPressed: window.startSystemMove();
+					}
+
 					Text {
 						anchors.centerIn: parent
 						padding: Globals.Controls.padding /2
@@ -99,9 +104,18 @@ Singleton { id: root
 						font.weight: 600
 					}
 
-					MouseArea {
-						anchors.fill: parent
-						onPressed: window.startSystemMove();
+					Ctrl.Button {
+						width: height; height: parent.height -Globals.Controls.padding;
+						anchors {
+							right: parent.right
+							rightMargin: Globals.Controls.padding /2
+							verticalCenter: parent.verticalCenter
+						}
+						onClicked: loader.active = false;
+						icon: IconImage {
+							implicitSize: Globals.Controls.iconSize
+							source: Quickshell.iconPath("window-close")
+						}
 					}
 				}
 
