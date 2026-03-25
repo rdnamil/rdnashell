@@ -179,8 +179,8 @@ ColumnLayout { id: root
 			}
 
 			GridView { id: grid
-				cellHeight: 90
 				cellWidth: 160
+				cellHeight: 90
 				clip: true
 				onCurrentItemChanged: {
 					if (contentY > currentItem.y) contentY = currentItem.y;
@@ -219,6 +219,7 @@ ColumnLayout { id: root
 							anchors.fill: parent
 							source: delegate.wallpaper
 							sourceSize: Qt.size(thumbnail.width, thumbnail.height)
+							fillMode: Image.PreserveAspectCrop
 							cache: true
 							mipmap: true
 							asynchronous: true
@@ -305,8 +306,9 @@ ColumnLayout { id: root
 			grid.model = model;
 			grid.currentIndex = model.findIndex(w => `${root.path}/${w}` == Service.Swww.wallpapers[0]?.path || '') ?? -1;
 
+			const minY = Math.max(0, grid.currentItem.y -Globals.Controls.padding)
 			const maxY = Math.max(0, grid.contentHeight -grid.height);
-			grid.contentY = Math.min(grid.currentItem.y, maxY);
+			grid.contentY = Math.min(minY, maxY);
 		}}
 	}
 
