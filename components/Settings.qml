@@ -35,9 +35,9 @@ Singleton { id: root
 		component: FloatingWindow { id: window
 			visible: true
 			title: `Qs Settings - ${list.model[root.currentIndex]?.name || ''}`
-			minimumSize: Qt.size(760, 680)
-			implicitWidth: 760
-			implicitHeight: 680
+			minimumSize: Qt.size(720, 740)
+			implicitWidth: 720
+			implicitHeight: 740
 			onClosed: {
 				fileview.writeAdapter();
 				loader.active = false;
@@ -95,13 +95,36 @@ Singleton { id: root
 						onPressed: window.startSystemMove();
 					}
 
-					Text {
+					Row {
 						anchors.centerIn: parent
 						padding: Globals.Controls.padding /2
-						text: `Settings -> ${list.model[root.currentIndex]?.name || ''}`
-						color: Globals.Colours.text
-						font.pointSize: 10
-						font.weight: 600
+						spacing: Globals.Controls.spacing
+
+						Text { id: text
+							text: "Settings"
+							color: Globals.Colours.text
+							font.pointSize: 10
+							font.weight: 600
+						}
+
+						IconImage {
+							anchors.verticalCenter: parent.verticalCenter
+							implicitSize: Globals.Controls.iconSize
+							source: Quickshell.iconPath("draw-arrow-forward")
+						}
+
+						IconImage {
+							anchors.verticalCenter: parent.verticalCenter
+							implicitSize: Globals.Controls.iconSize
+							source: Quickshell.iconPath(root.settings[root.currentIndex]?.icon || '', true)
+						}
+
+						Text {
+							text: root.settings[root.currentIndex]?.name || ''
+							color: Globals.Colours.text
+							font.pointSize: 10
+							font.weight: 600
+						}
 					}
 
 					Ctrl.Button {
@@ -128,11 +151,11 @@ Singleton { id: root
 						anchors.fill: parent
 
 						Ctrl.List { id: list
-							Layout.preferredWidth: 240
-							Layout.fillHeight: true
 							Layout.margins: Globals.Controls.padding -list.padding
 							Layout.leftMargin: 0
 							Layout.rightMargin: 0
+							Layout.preferredWidth: 200
+							Layout.fillHeight: true
 							onItemClicked: root.currentIndex = view.currentIndex;
 							view.currentIndex: -1
 							model: root.settings
@@ -151,25 +174,32 @@ Singleton { id: root
 									opacity: 0.8
 								}
 
-								Row {
-									padding: Globals.Controls.spacing /2
+								RowLayout {
+									// padding: Globals.Controls.spacing /2
 									spacing: Globals.Controls.spacing
+									width: parent.width
 
 									IconImage {
-										anchors.verticalCenter: parent.verticalCenter
+										// anchors.verticalCenter: parent.verticalCenter
+										Layout.alignment: Qt.AlignVCenter
+										Layout.leftMargin: Globals.Controls.padding /2
 										implicitSize: 24
 										source: Quickshell.iconPath(delegate.modelData.icon)
 									}
 
 									Text {
+										Layout.fillWidth: true
 										padding: Globals.Controls.spacing
 										text: delegate.modelData.name
+										elide: Text.ElideRight
 										color: Globals.Colours.text
 										font.pointSize: 10
 										font.weight: 600
 									}
 								}
 							}
+
+							Behavior on Layout.preferredWidth { NumberAnimation { duration: 250; easing.type: Easing.InOutCirc; }}
 						}
 
 						ScrollView { id: scrollview
