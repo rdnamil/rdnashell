@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import qs.controls as Ctrl
