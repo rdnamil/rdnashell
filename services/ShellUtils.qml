@@ -11,6 +11,7 @@ import Quickshell.Io
 Singleton { id: root
 	readonly property alias pinView: pinView
 	readonly property string userFullName: getUserFullName.userFullName
+	readonly property var calendarView: calendarView
 
 	function init() {}
 
@@ -44,6 +45,14 @@ Categories=Settings;`);
 
 		JsonAdapter {
 			property list<string> pins
+		}
+	}
+
+	FileView { id: calendarView
+		path: Qt.resolvedUrl("../calendar.json")
+
+		JsonAdapter {
+			property list<var> events
 		}
 	}
 
