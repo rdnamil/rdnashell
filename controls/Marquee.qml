@@ -47,14 +47,19 @@ Item { id: root
 		}
 	}
 
-	PropertyAnimation {
-		target: scrollTrans
-		property: "x"
-		from: 0
-		to: -(root.content.width +root.spacing *2 +root.separator.width)
-		duration: (root.content.width /root.speed) *1000
+	SequentialAnimation {
 		running: root.scrolling
 		loops: Animation.Infinite
 		onStopped: scrollTrans.x = 0;
+
+		NumberAnimation { duration: 500; }
+
+		PropertyAnimation {
+			target: scrollTrans
+			property: "x"
+			from: 0
+			to: -(root.content.width +root.spacing *2 +root.separator.width)
+			duration: (root.content.width /root.speed) *1000
+		}
 	}
 }
