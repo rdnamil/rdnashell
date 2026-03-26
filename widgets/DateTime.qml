@@ -8,7 +8,9 @@ import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
+import Quickshell.Widgets
 import qs.controls as Ctrl
+import qs.services as Service
 import qs.styles as Style
 import "../globals.js" as Globals
 
@@ -98,7 +100,7 @@ Ctrl.Widget { id: root
 					readonly property int day: root.clock.date.getDate()
 
 					readonly property int daysInPrevMonth: new Date(year, month -1, 0).getDate()
-					readonly property int monthOffset: new Date(year, month, 1).getDay()
+					readonly property int monthOffset: new Date(year, month, 1).getDay() +5
 					readonly property int daysInMonth: new Date(year, month +1, 0).getDate()
 
 					width: parent.width
@@ -120,6 +122,15 @@ Ctrl.Widget { id: root
 								else if (delegate.index < (grid.daysInMonth +grid.monthOffset)) return DateTime.Month.Current;
 								else return DateTime.Month.Next;
 							}
+							readonly property int date: {
+								const d = delegate.index -grid.monthOffset +1;
+
+								switch (delegate.month) {
+									case DateTime.Month.Prev: return grid.daysInPrevMonth +d;
+									case DateTime.Month.Current: return d;
+									case DateTime.Month.Next: return delegate.index -(grid.daysInMonth +grid.monthOffset) +1;
+								}
+							}
 							readonly property bool isToday: {
 								const d = delegate.index -grid.monthOffset +1;
 
@@ -135,15 +146,8 @@ Ctrl.Widget { id: root
 							icon: Text {
 								anchors.centerIn: parent
 								padding: Globals.Controls.spacing
-								text: {
-									const d = delegate.index -grid.monthOffset +1;
-
-									switch (delegate.month) {
-										case DateTime.Month.Prev: return grid.daysInPrevMonth +d;
-										case DateTime.Month.Current: return d;
-										case DateTime.Month.Next: return delegate.index -(grid.daysInMonth +grid.monthOffset) +1;
-									}
-								}
+								text: delegate.date
+								horizontalAlignment: Text.AlignHCenter
 								color: {
 									if (delegate.isToday) return Globals.Colours.text;
 
@@ -154,6 +158,47 @@ Ctrl.Widget { id: root
 									}
 								}
 								font.pointSize: 8
+
+								Rectangle {
+									visible: Service.ShellUtils.calendarView.adapter.events
+										.some(e => {
+											let m = null;
+											const d = delegate.date;
+											let date = "";
+
+											switch (delegate.month) {
+												case DateTime.Month.Prev:
+													m = new Date(grid.year, grid.month -1, 1).getMonth();
+													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m}/`
+														+`${d < 10? 0 : ''}${d}`;
+
+													break;
+
+												case DateTime.Month.Current:
+													m = grid.month;
+													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m}/`
+														+`${d < 10? 0 : ''}${d}`;
+
+													break;
+
+												case DateTime.Month.Next:
+													m = new Date(grid.year, grid.month +1, 1).getMonth();
+													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m}/`
+														+`${d < 10? 0 : ''}${d}`;
+
+													break;
+											}
+
+											return e.date === date;
+										})
+									anchors {
+										horizontalCenter: parent.horizontalCenter
+										bottom: parent.bottom
+									}
+									width: 4; height: width;
+									radius: height /2
+									color: Globals.Colours.accent
+								}
 							}
 							effectEnabled: false
 							effect: Component { DropShadow {
@@ -165,9 +210,9 @@ Ctrl.Widget { id: root
 								const d = delegate.index -(grid.daysInMonth +grid.monthOffset) +1;
 
 								switch (delegate.month) {
-									case DateTime.Month.Prev: return 1.0 /grid.monthOffset *(delegate.index +1);
+									case DateTime.Month.Prev: return 0.8 /grid.monthOffset *(delegate.index +1);
 									case DateTime.Month.Current: return 1.0;
-									case DateTime.Month.Next: return 1.0 /t *(t -d);
+									case DateTime.Month.Next: return 0.8 /t *(t -d);
 								}
 							}
 
@@ -184,7 +229,39 @@ Ctrl.Widget { id: root
 
 				Item { width: -1; height: Globals.Controls.padding; }
 			}
-			footer: Item {}
+			footer: ColumnLayout {
+				width: calendar.width
+
+				Repeater { id: events
+					model: Service.ShellUtils.calendarView.adapter.events
+						.filter(e => e.date === Qt.formatDate(root.clock.date, "yyyy/MM/dd"))
+					delegate: Ctrl.Button { id: event
+						required property var modelData
+
+						Layout.margins: Globals.Controls.spacing
+						Layout.fillWidth: true
+						width: 0
+						onClicked: eventName.font.strikeout = !eventName.font.strikeout;
+						icon: RowLayout { id: icon
+							spacing: Globals.Controls.spacing
+							width: event.width
+
+							IconImage {
+								Layout.leftMargin: Globals.Controls.padding /2
+								implicitSize: Globals.Controls.iconSize
+								source: Quickshell.iconPath("view-calendar-special-occasion")
+							}
+
+							Text { id: eventName
+								Layout.fillWidth: true
+								text: event.modelData.name
+								color: Globals.Colours.text
+								font.pointSize: 10
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
