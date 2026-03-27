@@ -8,6 +8,7 @@ import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
+import Quickshell.Io
 import Quickshell.Widgets
 import qs.controls as Ctrl
 import qs.services as Service
@@ -210,9 +211,9 @@ Ctrl.Widget { id: root
 								const d = delegate.index -(grid.daysInMonth +grid.monthOffset) +1;
 
 								switch (delegate.month) {
-									case DateTime.Month.Prev: return 0.8 /grid.monthOffset *(delegate.index +1);
+									case DateTime.Month.Prev: return 1.0 /grid.monthOffset *(delegate.index +1);
 									case DateTime.Month.Current: return 1.0;
-									case DateTime.Month.Next: return 0.8 /t *(t -d);
+									case DateTime.Month.Next: return 1.0 /t *(t -d);
 								}
 							}
 
@@ -231,6 +232,21 @@ Ctrl.Widget { id: root
 			}
 			footer: ColumnLayout {
 				width: calendar.width
+
+				Ctrl.Button {
+					Layout.alignment: Qt.AlignRight
+					Layout.margins: Globals.Controls.spacing
+					onClicked: {
+						const command = `yad --form --focus-field=3 --item-separator="," --field="":CB "Event,Task" --date-format="%Y/%m/%d" --field="":DT "$(date +%Y/%m/%d)" --field="Description":TXT --width=360 --height=420`;
+
+						createEvent.exec(['sh', '-c', command]);
+						popout.isOpen = false;
+					}
+					icon: IconImage {
+						implicitSize: Globals.Controls.iconSize
+						source: Quickshell.iconPath("list-add")
+					}
+				}
 
 				Repeater { id: events
 					model: Service.ShellUtils.calendarView.adapter.events
@@ -263,5 +279,13 @@ Ctrl.Widget { id: root
 				}
 			}
 		}
+	}
+
+	Process { id: createEvent
+		stdout: StdioCollector { onStreamFinished: {
+			console.log(text);
+
+
+		}}
 	}
 }
