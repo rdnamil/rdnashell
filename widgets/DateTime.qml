@@ -104,6 +104,7 @@ Ctrl.Widget { id: root
 					readonly property int daysInMonth: new Date(year, month +1, 0).getDate()
 
 					padding: Globals.Controls.padding
+					topPadding: Globals.Controls.spacing
 					columns: 7
 					columnSpacing: Globals.Controls.spacing
 					rowSpacing: 0
