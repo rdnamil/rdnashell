@@ -19,7 +19,7 @@ ColumnLayout { id: root
 	width: parent.width
 
 	Rectangle { id: preview
-		readonly property size resolution: Service.Swww.wallpapers[0]?.resolution || null
+		readonly property size resolution: Service.Awww.wallpapers[0]?.resolution || null
 
 		Layout.fillWidth: true
 		Layout.minimumWidth: 480
@@ -258,7 +258,7 @@ ColumnLayout { id: root
 		Layout.fillWidth: true
 		enabled: grid.currentIndex !== -1
 		onClicked: if (enabled) {
-			Service.Swww.setWallpaper(grid.currentItem.wallpaper, transition.model[transition.currentIndex].text.toLowerCase(), resize.model[resize.currentIndex].text.toLowerCase());
+			Service.Awww.setWallpaper(grid.currentItem.wallpaper, transition.model[transition.currentIndex].text.toLowerCase(), resize.model[resize.currentIndex].text.toLowerCase());
 			fileview.writeAdapter();
 		}
 		icon: Text {
@@ -304,7 +304,7 @@ ColumnLayout { id: root
 				.filter(w => formats.some(f => w.endsWith(f)));
 
 			grid.model = model;
-			grid.currentIndex = model.findIndex(w => `${root.path}/${w}` == Service.Swww.wallpapers[0]?.path || '') ?? -1;
+			grid.currentIndex = model.findIndex(w => `${root.path}/${w}` == Service.Awww.wallpapers[0]?.path || '') ?? -1;
 
 			const minY = Math.max(0, grid.currentItem.y -Globals.Controls.padding)
 			const maxY = Math.max(0, grid.contentHeight -grid.height);

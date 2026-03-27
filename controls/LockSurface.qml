@@ -49,7 +49,7 @@ Item { id: root
 		anchors.centerIn: parent
 		width: parent.width +64
 		height: parent.height +64
-		source: Service.Swww.wallpapers.find(w => w.display === root.screen?.name)?.path || ''
+		source: Service.Awww.wallpapers.find(w => w.display === root.screen?.name)?.path || ''
 		layer.enabled: true
 		layer.effect: MultiEffect {
 			blurEnabled: true
