@@ -336,7 +336,7 @@ Item { id: root
 					rotation: layout.anchor === Edges.Bottom? 315 : 135
 					color: Globals.Colours.dark
 					border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
-					opacity: 0.975
+					opacity: popup.item?.opacity || 0.0
 					layer.enabled: true
 					layer.effect: OpacityMask { maskSource: Item {
 						width: ptr.width; height: ptr.height;
