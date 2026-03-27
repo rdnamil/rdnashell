@@ -101,7 +101,7 @@ Ctrl.Widget { id: root
 					readonly property int day: root.clock.date.getDate()
 
 					readonly property int daysInPrevMonth: new Date(year, month -1, 0).getDate()
-					readonly property int monthOffset: new Date(year, month, 1).getDay() +5
+					readonly property int monthOffset: new Date(year, month, 1).getDay()
 					readonly property int daysInMonth: new Date(year, month +1, 0).getDate()
 
 					width: parent.width
@@ -170,21 +170,21 @@ Ctrl.Widget { id: root
 											switch (delegate.month) {
 												case DateTime.Month.Prev:
 													m = new Date(grid.year, grid.month -1, 1).getMonth();
-													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m}/`
+													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m +1}/`
 														+`${d < 10? 0 : ''}${d}`;
 
 													break;
 
 												case DateTime.Month.Current:
 													m = grid.month;
-													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m}/`
+													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m +1}/`
 														+`${d < 10? 0 : ''}${d}`;
 
 													break;
 
 												case DateTime.Month.Next:
 													m = new Date(grid.year, grid.month +1, 1).getMonth();
-													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m}/`
+													date = Qt.formatDate(root.clock.date, "yyyy/") +`${m < 10? 0 : ''}${m +1}/`
 														+`${d < 10? 0 : ''}${d}`;
 
 													break;
@@ -231,16 +231,18 @@ Ctrl.Widget { id: root
 				Item { width: -1; height: Globals.Controls.padding; }
 			}
 			footer: ColumnLayout {
+				spacing: 0
 				width: calendar.width
 
 				Ctrl.Button {
-					Layout.alignment: Qt.AlignRight
+					// Layout.alignment: Qt.AlignRight
 					Layout.margins: Globals.Controls.spacing
+					Layout.bottomMargin: events.count > 0? 0 : Globals.Controls.spacing
 					onClicked: {
-						const command = `yad --form --focus-field=3 --item-separator="," --field="":CB "Event,Task" --date-format="%Y/%m/%d" --field="":DT "$(date +%Y/%m/%d)" --field="Description":TXT --width=360 --height=420`;
+						const command = `yad --form --focus-field=3 --item-separator="," --field="":CB "Event,Task" --date-format="%Y/%m/%d" --field="":DT "$(date +%Y/%m/%d)" --field="" --width=360`;
 
-						createEvent.exec(['sh', '-c', command]);
 						popout.isOpen = false;
+						createEvent.exec(['sh', '-c', command]);
 					}
 					icon: IconImage {
 						implicitSize: Globals.Controls.iconSize
@@ -253,8 +255,12 @@ Ctrl.Widget { id: root
 						.filter(e => e.date === Qt.formatDate(root.clock.date, "yyyy/MM/dd"))
 					delegate: Ctrl.Button { id: event
 						required property var modelData
+						required property int index
 
 						Layout.margins: Globals.Controls.spacing
+						Layout.topMargin: 0
+						Layout.bottomMargin: index < events.count -1? 0 : Globals.Controls.spacing
+
 						Layout.fillWidth: true
 						width: 0
 						onClicked: eventName.font.strikeout = !eventName.font.strikeout;
@@ -270,7 +276,8 @@ Ctrl.Widget { id: root
 
 							Text { id: eventName
 								Layout.fillWidth: true
-								text: event.modelData.name
+								text: event.modelData.description
+								elide: Text.ElideRight
 								color: Globals.Colours.text
 								font.pointSize: 10
 							}
@@ -283,9 +290,14 @@ Ctrl.Widget { id: root
 
 	Process { id: createEvent
 		stdout: StdioCollector { onStreamFinished: {
-			console.log(text);
+			const event = text?.trim()
+				.split('|') || [];
 
-
+			if (event[2]?.length || false) { Service.ShellUtils.calendarView.adapter.events.push({
+				"type": event[0],
+				"date": event[1],
+				"description": event[2]
+			}); Service.ShellUtils.calendarView.writeAdapter(); }
 		}}
 	}
 }
