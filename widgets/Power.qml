@@ -119,7 +119,7 @@ Ctrl.Widget { id: root
 
 						Ctrl.Button {
 							Layout.fillWidth: true
-							onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'quit']);
+							onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'quit', '--skip-confirmation']);
 							icon: Text {
 								text: "Logout"
 								color: Globals.Colours.text

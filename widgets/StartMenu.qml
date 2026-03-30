@@ -561,7 +561,7 @@ Ctrl.Button { id: root
 					Ctrl.Button { // logout
 						onClicked: {
 							Service.PopoutManager.whosOpen = null;
-							Quickshell.execDetached(['niri', 'msg', 'action', 'quit']);
+							Quickshell.execDetached(['niri', 'msg', 'action', 'quit', '--skip-confirmation']);
 						}
 						icon: IconImage {
 							implicitSize: 24
