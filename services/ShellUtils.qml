@@ -48,7 +48,7 @@ Categories=Settings;`);
 		}
 	}
 
-	Widget.Power { id: power }
+	Widget.Power { id: power; height: -1; }
 
 	Process { id: getUserFullName
 		property string userFullName: ''
