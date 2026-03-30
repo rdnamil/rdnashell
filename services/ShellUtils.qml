@@ -7,6 +7,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.widgets as Widget
 
 Singleton { id: root
 	readonly property alias pinView: pinView
@@ -47,6 +48,8 @@ Categories=Settings;`);
 		}
 	}
 
+	Widget.Power { id: power }
+
 	Process { id: getUserFullName
 		property string userFullName: ''
 
@@ -59,6 +62,6 @@ Categories=Settings;`);
 		target: "utils"
 
 		function reload(): void { Quickshell.reload(false); }
-		function execEntry(index: int): void { pinView.open(index); }
+		function showPowerMenu(): void { power.clicked(null); }
 	}
 }
