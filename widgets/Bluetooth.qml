@@ -10,6 +10,7 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Bluetooth
 import qs.controls as Ctrl
+import qs.services as Service
 import qs.styles as Style
 import "../globals.js" as Globals
 
@@ -60,7 +61,7 @@ Ctrl.Widget { id: root
 					Layout.margins: Globals.Controls.spacing
 					enabled: !discoveringTimeout.running
 					onClicked: if (enabled) {
-						Bluetooth.defaultAdapter.discovering = true;
+						Service.Bluetooth.scan(true);
 						discoveringTimeout.restart();
 					}
 					icon: IconImage {
