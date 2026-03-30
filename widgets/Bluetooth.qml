@@ -1,14 +1,7 @@
-/*-----------------------------
---- Bluetooth.qml by andrel ---
------------------------------*/
-
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
-import Quickshell.Bluetooth
 import qs.controls as Ctrl
 import qs.services as Service
 import qs.styles as Style
@@ -16,21 +9,15 @@ import "../globals.js" as Globals
 
 Ctrl.Widget { id: root
 	acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-	onClicked: event => { switch (event.button) {
-		case Qt.LeftButton:
-			popout.toggle();
-			break;
-		case Qt.MiddleButton:
-			Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
-			break;
+	onClicked: (mouse) => { switch (mouse.button) {
+		case Qt.LeftButton: popout.toggle(); break;
+		case Qt.MiddleButton: Service.Bluetooth.toggleAdapter(); break;
 	}}
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
-		source: {
-			if (Bluetooth.devices.values.some(d => d.connected)) return Quickshell.iconPath("bluetooth-paired");
-			else if (Bluetooth.defaultAdapter?.enabled || false) return Quickshell.iconPath("bluetooth-active");
-			else return Quickshell.iconPath("bluetooth-disabled");
-		}
+		source: if (Service.Bluetooth.isPaired) return Quickshell.iconPath("bluetooth-paired");
+		else if (Service.Bluetooth.isPowered) return Quickshell.iconPath("bluetooth-active");
+		else return Quickshell.iconPath("bluetooth-disabled");
 	}
 
 	Ctrl.Popout { id: popout
@@ -46,78 +33,58 @@ Ctrl.Widget { id: root
 					IconImage {
 						anchors.verticalCenter: parent.verticalCenter
 						width: implicitSize +Globals.Controls.padding
-						implicitSize: 16
+						implicitSize: Globals.Controls.iconSize
 						source: Quickshell.iconPath("bluetooth-active")
 					}
 
 					Ctrl.Switch {
-						toggle: Bluetooth.defaultAdapter?.enabled || false
-						onClicked: Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
+						toggle: Service.Bluetooth.isPowered
+						onClicked: Service.Bluetooth.toggleAdapter();
 					}
 				}
 
 				Ctrl.Button {
 					Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 					Layout.margins: Globals.Controls.spacing
-					enabled: !discoveringTimeout.running
-					onClicked: if (enabled) {
-						Service.Bluetooth.scan(true);
-						discoveringTimeout.restart();
-					}
+					enabled: !Service.Bluetooth.isScanning
+					onClicked: if (enabled) Service.Bluetooth.scan();
 					icon: IconImage {
 						implicitSize: Globals.Controls.iconSize
 						source: Quickshell.iconPath("view-refresh")
 					}
-					tooltip: "scan for devices"
 					opacity: enabled? 1.0 : 0.4
-
-					Timer { id: discoveringTimeout
-						interval: 5000
-						onTriggered: Bluetooth.defaultAdapter.discovering = false;
-					}
 				}
 			}
 			body: Ctrl.List { id: list
-				property int lastValidIndex
-
-				mouse.acceptedButtons: Qt.LeftButton | Qt.RightButton
-				mouse.hoverEnabled: !forget.item?.visible || false
-				view.onCountChanged: forget.close();
 				onItemClicked: (item, mouse) => {
-					const dev = list.model[view.currentIndex];
-
-					switch (mouse.button) {
-						case Qt.LeftButton:
-							if (dev.pairing) {
-								dev.cancelPair();
-							} else { switch (dev.state) {
-								case BluetoothDeviceState.Connected:
-									dev.disconnect();
-									break;
-								case BluetoothDeviceState.Disconnected:
-									if (dev.paried) dev.connect();
-									else dev.pair();
-									break;
-								default: break;
-							}}
-							break;
-						case Qt.RightButton:
-							forget.x = mouse.x -Globals.Controls.radius *2 *0.1464;
-							forget.y = mouse.y -Globals.Controls.radius *2 *0.1464;
-							forget.menuAnchor = item;
-							if (dev.bonded) forget.open();
-							break;
+					if (item.modelData.connected) {
+						item.modelData.disconnect();
+						item.status = 1;
+					} else if (!item.modelData.paired) {
+						item.modelData.connect();
+						item.status = 2;
 					}
 				}
-				model: Bluetooth.devices.values.filter(d => d.deviceName) || []
-				delegate: RowLayout { id: delegate
+				model: [...Service.Bluetooth.devices]
+				.filter(d => d.name)
+				.sort((a, b) => {
+					const rank = d => d.connected? 0 : d.paired? 1 : 2;
+					return rank(a) -rank(b);
+				})
+				delegate: GridLayout { id: delegate
 					required property var modelData
 					required property int index
 
+					property int status: delegate.modelData.connected? 4 : 0
+
 					width: list.availableWidth
+					columns: 2
+					columnSpacing: Globals.Controls.spacing
+					rowSpacing: 0
 
 					IconImage {
-						Layout.margins: Globals.Controls.spacing
+						Layout.leftMargin: Globals.Controls.spacing
+						Layout.rowSpan: 2
 						implicitSize: 24
 						source: switch (delegate.modelData.icon) {
 							case "input-gaming":
@@ -127,58 +94,26 @@ Ctrl.Widget { id: root
 						}
 					}
 
-					ColumnLayout {
-						spacing: 0
-
-						Text {
-							Layout.fillWidth: true
-							text: delegate.modelData.deviceName
-							elide: Text.ElideRight
-							color: Globals.Colours.text
-							font.pointSize: 10
-						}
-
-						Text {
-							Layout.fillWidth: true
-							text: {
-								if (delegate.modelData.state !== BluetoothDeviceState.Disconnected)
-									return BluetoothDeviceState.toString(delegate.modelData.state);
-								else return delegate.modelData.address;
-							}
-							elide: Text.ElideRight
-							color: delegate.index === list.view.currentIndex? Globals.Colours.mid : Globals.Colours.light
-							font.pointSize: 6
-							font.letterSpacing: 0.6
-						}
+					Text {
+						Layout.topMargin: Globals.Controls.spacing
+						Layout.fillWidth: true
+						text: delegate.modelData.name
+						color: Globals.Colours.text
+						font.pointSize: 10
 					}
 
-					Connections {
-						target: delegate.modelData
-
-						function onConnectedChanged() { if (!delegate.modelData.paired) {
-							// delegate.modelData.trusted = true;
-							delegate.modelData.pair();
-						}}
-
-						function onPairedChanged() { if (delegate.modelData.paired) {
-							delegate.modelData.trusted = true;
-							// delegate.modelData.connect();
-						}}
-					}
-				}
-
-				Ctrl.PopupMenu { id: forget
-					property Item menuAnchor: null
-
-					width: 96
-					colorize: true
-					model: [
-						{ "icon": 'dialog-question', "text": 'forget' },
-						// { "icon": 'action-unavailable', "text": 'cancel' },
-					]
-					onSelected: index => {
-						if (index === 0) menuAnchor.modelData.forget();
-						menuAnchor = null;
+					Text {
+						Layout.bottomMargin: Globals.Controls.spacing
+						Layout.fillWidth: true
+						text: switch (delegate.status) {
+							case 0: return delegate.modelData.address;
+							case 1: return "Disconnecting";
+							case 2: return "Connecting";
+							case 4: return "Connected";
+						}
+						color: delegate.index === list.view.currentIndex? Globals.Colours.mid : Globals.Colours.light
+						font.pointSize: 6
+						font.letterSpacing: 0.6
 					}
 				}
 			}
