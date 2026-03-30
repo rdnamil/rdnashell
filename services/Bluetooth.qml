@@ -4,9 +4,9 @@ import Quickshell
 import Quickshell.Io
 
 Singleton { id: root
-	readonly property bool isPowered: root.adapters.some(a => a.powered ?? false)
-	readonly property bool isScanning: root.adapters.some(a => a.discovering ?? false)
-	readonly property bool isPaired: root.devices.some(d => d.connected ?? false)
+	readonly property bool isPowered: root.adapters.some(a => a.powered) ?? false
+	readonly property bool isScanning: root.adapters.some(a => a.discovering) ?? false
+	readonly property bool isPaired: root.devices.some(d => d.connected) ?? false
 
 	property list<var> adapters: []
 	property list<var> devices: []
@@ -32,7 +32,7 @@ Singleton { id: root
 			if (match) {
 				const [, type, kind, address, name] = match;
 
-				console.log(`Bluetooth: ${type} ${address} ${name}`);
+				// console.log(`Bluetooth: ${type} ${address} ${name}`);
 
 				if (kind === "Device") switch (type) {
 					case "NEW":
@@ -113,9 +113,9 @@ Singleton { id: root
 			const devs = text.trim()?.split('\n') || [];
 
 			devs.forEach(d => {
-				const addr = d.match(/^Device\s+([0-9A-F:]+)\s+(.+)$/m)[1];
+				const addr = d.match(/^Device\s+([0-9A-F:]+)\s+(.+)$/m);
 
-				getDeviceInfo.devices.push(addr);
+				if (addr) getDeviceInfo.devices.push(addr[1]);
 			});
 		}}
 	}
