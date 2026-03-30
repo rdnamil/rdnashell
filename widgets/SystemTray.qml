@@ -19,14 +19,20 @@ Item { id: root
 	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 
 	width: layout.width
-	height: layout.height
+	height: parent.height
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
-	Row { id: layout
+	Grid { id: layout
 		required property int anchor
 
-		spacing: Globals.Controls.spacing
+		property int verticalOffset
+
+		anchors.verticalCenter: parent.verticalCenter
+		rows: parent.height /(Globals.Controls.spacing
+			+(Globals.Controls.iconSize +Globals.Controls.spacing));
+		columnSpacing: Globals.Controls.spacing
+		rowSpacing: Globals.Controls.spacing
 
 		Repeater { id: repeater
 			readonly property list<Item> items: {
@@ -41,6 +47,9 @@ Item { id: root
 			delegate: Ctrl.Widget { id: delegate
 				required property var modelData
 				required property int index
+
+				function countUp() { if (root.parent.hasOwnProperty('counter')) root.parent.counter++; }
+				function countDown() { if (root.parent.hasOwnProperty('counter')) root.parent.counter--; }
 
 				acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
 				onClicked: (mouse) => {
@@ -64,7 +73,7 @@ Item { id: root
 					}
 				}
 				onWheel: (wheel) => { delegate.modelData.scroll(wheel.angleDelta.y, false); }
-				height: root.parent.height
+				height: icon.height
 				tooltip: `${delegate.modelData.tooltipTitle}\n${delegate.modelData.tooltipDescription}`
 				icon: IconImage {
 					implicitSize: Globals.Controls.iconSize
@@ -87,12 +96,18 @@ Item { id: root
 				bottom: true
 			}
 			color: Globals.Settings.debug? "#400000ff" : "transparent"
-			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-			onVisibleChanged: visible? popup.open() : popup.close();
+			onVisibleChanged: if (menu.visible) {
+				popup.open();
+				if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+			} else {
+				popup.close();
+				if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
+			}
 
 			Rectangle { id: backing
-				y: layout.anchor === Edges.Top? Globals.Controls.padding -ptr.radius : menu.height -height -Globals.Controls.padding +ptr.radius
+				y: if (layout.anchor === Edges.Bottom) return menu.height -height -Globals.Controls.padding +(layout.verticalOffset ?? 0);
+					else return Globals.Controls.padding -(layout.verticalOffset ?? 0);
 				width: popup.width
 				height: (popup.item?.height || 0)
 				color: Globals.Settings.debug? "#4000ff00" : "transparent"
