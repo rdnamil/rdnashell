@@ -46,7 +46,7 @@ Ctrl.Widget { id: root
 				Ctrl.Button {
 					Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 					Layout.margins: Globals.Controls.spacing
-					enabled: !Service.Bluetooth.isScanning
+					enabled: Service.Bluetooth.isPowered && !Service.Bluetooth.isScanning
 					onClicked: if (enabled) Service.Bluetooth.scan();
 					icon: IconImage {
 						implicitSize: Globals.Controls.iconSize
