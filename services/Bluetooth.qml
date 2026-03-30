@@ -19,11 +19,6 @@ Singleton { id: root
 		if (!scan.running) scan.running = true;
 	}
 
-	function parseDevice(addr) {
-		getDeviceInfo.command = ['bluetoothctl', 'info', addr]
-		getDeviceInfo.running = true;
-	}
-
 	Process { id: bluetooth
 		running: true
 		command: ['bluetoothctl']
@@ -42,7 +37,7 @@ Singleton { id: root
 				if (kind === "Device") switch (type) {
 					case "NEW":
 					case "CHG":
-						root.parseDevice(address);
+						getDeviceInfo.devices.push(address);
 						break;
 					case "DEL":
 						root.devices.splice(root.devices.findIndex(d => d.address === address), 1);
@@ -120,12 +115,21 @@ Singleton { id: root
 			devs.forEach(d => {
 				const addr = d.match(/^Device\s+([0-9A-F:]+)\s+(.+)$/m)[1];
 
-				root.parseDevice(addr);
+				getDeviceInfo.devices.push(addr);
 			});
 		}}
 	}
 
 	Process { id: getDeviceInfo
+		property list<string> devices: []
+
+		function startProc() {
+			getDeviceInfo.command = getDeviceInfo.command = ['bluetoothctl', 'info', devices[0]];
+			getDeviceInfo.running = true
+		}
+
+		onDevicesChanged: if (!running && devices.length > 0) startProc();
+		onRunningChanged: if (!running && devices.length > 0) startProc();
 		stdout: StdioCollector { onStreamFinished: {
 			const dev = {
 				connect: function() {
@@ -173,6 +177,8 @@ Singleton { id: root
 
 			if (idx !== -1) root.devices.splice(idx, 1, dev);
 			else root.devices.push(dev);
+
+			getDeviceInfo.devices.splice(0, 1);
 		}}
 	}
 }
