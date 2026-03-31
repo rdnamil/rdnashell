@@ -26,17 +26,10 @@ Ctrl.Widget { id: root
 		implicitSize: Globals.Controls.iconSize
 		source: switch (Service.Network.status.type) {
 			case "wifi":
-				switch (Service.Network.status.state) {
-					case "disconnected":
-						return Quickshell.iconPath("network-wireless-offline");
-					case "connecting":
-					case "deactiviating":
-						return Quickshell.iconPath("network-wireless-acquiring");
-					case "failed":
-						return Quickshell.iconPath("network-wireless-error");
-					default:
-						break;
-				}
+				if (
+					Service.Network.status.state.includes("connecting") ||
+					Service.Network.status.state.includes("deactivating")
+				) return Quickshell.iconPath("network-wireless-acquiring");
 
 				switch (Service.Network.status.connectivity) {
 					case "none":
