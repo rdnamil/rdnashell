@@ -32,6 +32,8 @@ Ctrl.Widget { id: root
 					case "connecting":
 					case "deactiviating":
 						return Quickshell.iconPath("network-wireless-acquiring");
+					case "failed":
+						return Quickshell.iconPath("network-wireless-error");
 					default:
 						break;
 				}
