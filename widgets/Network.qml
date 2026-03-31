@@ -24,26 +24,30 @@ Ctrl.Widget { id: root
 	onClicked: popout.toggle();
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
-		source: switch (Service.Network.status.type) {
-			case "wifi":
-				if (
-					Service.Network.status.state.includes("connecting") ||
-					Service.Network.status.state.includes("deactivating")
-				) return Quickshell.iconPath("network-wireless-acquiring");
+		source: {
+			const strength = Service.Network.networks.find(n => n.ssid === Service.Network.status.connection)?.strength || 0.0;
 
-				switch (Service.Network.status.connectivity) {
-					case "none":
-						return Quickshell.iconPath("network-wireless-offline");
-					case "portal": // behind portal (limited)
-					case "limited": // connected but no internet access
-						return Quickshell.iconPath("network-wireless-no-route");
-					case "full":
-						return root.getStrengthUrl((Service.Network.networks.find(n => n.ssid === Service.Network.status.connection)?.strength || 0.0) /100);
-					default:
-						return Quickshell.iconPath("network");
-				}
+			switch (Service.Network.status.type) {
+				case "wifi":
+					if (
+						Service.Network.status.state.includes("connecting") ||
+						Service.Network.status.state.includes("deactivating")
+					) return Quickshell.iconPath("network-wireless-acquiring");
 
-			default: return Quickshell.iconPath("network");
+					switch (Service.Network.status.connectivity) {
+						case "none":
+							return Quickshell.iconPath("network-wireless-offline");
+						case "portal": // behind portal (limited)
+						case "limited": // connected but no internet access
+							return Quickshell.iconPath(`network-wireless-${Math.round(strength /20) *20}-limited`);
+						case "full":
+							return root.getStrengthUrl(strength /100);
+						default:
+							return Quickshell.iconPath("network");
+					}
+
+						default: return Quickshell.iconPath("network");
+			}
 		}
 	}
 
@@ -101,6 +105,7 @@ Ctrl.Widget { id: root
 					rowSpacing: 0
 
 					IconImage {
+						Layout.leftMargin: Globals.Controls.spacing
 						Layout.rowSpan: delegate.connected? 2 : 1
 						implicitSize: 24
 						source: root.getStrengthUrl(delegate.modelData.strength /100, delegate.modelData.security)
@@ -117,6 +122,8 @@ Ctrl.Widget { id: root
 
 					Text {
 						Layout.alignment: Qt.AlignVCenter
+						Layout.topMargin: Globals.Controls.spacing
+						Layout.bottomMargin: delegate.connected? 0 : Globals.Controls.spacing
 						Layout.fillWidth: true
 						text: delegate.modelData.ssid
 						color: Globals.Colours.text
@@ -125,6 +132,7 @@ Ctrl.Widget { id: root
 
 					Text {
 						visible: delegate.connected
+						Layout.bottomMargin: Globals.Controls.spacing
 						Layout.fillWidth: true
 						text: Service.Network.status.state ?? ''
 						color: list.view.currentIndex === delegate.index? Globals.Colours.mid : Globals.Colours.light
