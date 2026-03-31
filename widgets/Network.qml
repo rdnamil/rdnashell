@@ -25,7 +25,29 @@ Ctrl.Widget { id: root
 	icon: IconImage {
 		implicitSize: Globals.Controls.iconSize
 		source: switch (Service.Network.status.type) {
-			case "wifi": return root.getStrengthUrl();
+			case "wifi":
+				switch (Service.Network.status.state) {
+					case "disconnected":
+						return Quickshell.iconPath("network-wireless-offline");
+					case "connecting":
+					case "deactiviating":
+						return Quickshell.iconPath("network-wireless-acquiring");
+					default:
+						break;
+				}
+
+				switch (Service.Network.status.connectivity) {
+					case "none":
+						return Quickshell.iconPath("network-wireless-offline");
+					case "portal": // behind portal (limited)
+					case "limited": // connected but no internet access
+						return Quickshell.iconPath("network-wireless-no-route");
+					case "full":
+						return root.getStrengthUrl((Service.Network.networks.find(n => n.ssid === Service.Network.status.connection)?.strength || 0.0) /100);
+					default:
+						return Quickshell.iconPath("network");
+				}
+
 			default: return Quickshell.iconPath("network");
 		}
 	}
