@@ -6,6 +6,10 @@ import Quickshell.Io
 
 Singleton { id: root
 	readonly property bool isConnecting: connectToNetwork.running
+	readonly property QtObject radio: QtObject {
+		property bool present: false
+		property bool powered: false
+	}
 
 	property list<var> networks: []
 	property list<var> saved: []
@@ -13,13 +17,11 @@ Singleton { id: root
 
 	signal complete()
 
-	function toggleRadio() {
-		Quickshell.execDetached(['nmcli', 'r', 'w', root.status.radio? "off" : "on"]);
-		getStatus.running = true;
-	}
+	function toggleRadio() { getRadio.exec(['nmcli', 'r', 'w', root.radio.powered? "off" : "on"]); }
 
 	function scan() {
 		if (!scan.running) scan.running = true;
+		getRadio.running = true;
 	}
 
 	Process { // start nmcli manager
@@ -28,25 +30,43 @@ Singleton { id: root
 		stdout: SplitParser { onRead: if (!getStatus.running) getStatus.running = true; }
 	}
 
-	Process { id: getStatus
-		command: ["sh", "-c", 'printf "%s%s\n" "$(nmcli -t -f TYPE,STATE,CONNECTION,IP4-CONNECTIVITY d | head -n1)" ":$(nmcli -t -f WIFI g)"']
+	Process { id: getRadio
+		running: true
+		command: ['nmcli', '-t', '-f', 'WIFI', 'g']
 		stdout: StdioCollector { onStreamFinished: {
-			const parts = text.split(':');
+			if (text.trim()) root.radio.powered = text.trim() === "enabled";
+			else getRadio.exec(['nmcli', '-t', '-f', 'WIFI', 'g']);
+		}}
+	}
 
-			root.status = {
-				type: parts[0],
-				state: parts[1],
-				connection: parts[2],
-				connectivity: parts[3],
-				radio: parts[4].trim() === "enabled"
-			};
+	Process { id: getStatus
+		command: ['nmcli', '-t', '-f', 'TYPE,STATE,CONNECTION,IP4-CONNECTIVITY', 'd']
+		stdout: StdioCollector { onStreamFinished: {
+			const devices = text
+				.trim()
+				.split('\n');
+
+			let stats = [];
+			devices.forEach((d, i) => {
+				const parts = devices[0].split(':');
+
+				stats.push({
+					type: parts[0],
+					state: parts[1],
+					connection: parts[2],
+					connectivity: parts[3]
+				});
+			});
+
+			root.status = stats[0];
+			root.radio.present = stats.some(s => s.type == "wireless");
 		}}
 	}
 
 	Process { id: scan
 		running: true
 		command: ['nmcli', 'd', 'w', 'r']
-		stdout: StdioCollector { onStreamFinished: getNetworks.running = true; }
+		onExited: code => { if (code === 0) getNetworks.running = true; }
 	}
 
 	Process { id: getNetworks
@@ -56,14 +76,12 @@ Singleton { id: root
 			.trim()
 			.split('\n');
 
-			root.networks = [];
-
 			nets.forEach(n => {
 				const parts = n.split(':');
 				const net = {
 					ssid: parts[0],
 					strength: parts[1],
-					security: parts[2].trim(),
+					security: parts[2]?.trim() || undefined,
 					connect: function() {
 						if (!this.security || root.saved.includes(this.ssid))
 							connectToNetwork.exec(['nmcli', 'd', 'w', 'c', this.ssid]);
