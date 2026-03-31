@@ -46,7 +46,25 @@ Ctrl.Widget { id: root
 							return Quickshell.iconPath("network");
 					}
 
-						default: return Quickshell.iconPath("network");
+				case "ethernet":
+					if (
+						Service.Network.status.state.includes("connecting") ||
+						Service.Network.status.state.includes("deactivating")
+					) return Quickshell.iconPath("network-wired-acquiring");
+
+					switch (Service.Network.status.connectivity) {
+						case "none":
+							return Quickshell.iconPath("network-wired-offline");
+						case "portal": // behind portal (limited)
+						case "limited": // connected but no internet access
+							return Quickshell.iconPath("network-limited");
+						case "full":
+							return Quickshell.iconPath("network-wired");
+						default:
+							return Quickshell.iconPath("network");
+					}
+
+				default: return Quickshell.iconPath("network");
 			}
 		}
 	}
@@ -76,7 +94,7 @@ Ctrl.Widget { id: root
 
 					Ctrl.Switch {
 						anchors.verticalCenter: parent.verticalCenter
-						toggle: Service.Network.status.radio ?? false
+						toggle: Service.Network.radio.powered
 						onClicked: Service.Network.toggleRadio();
 					}
 				}
