@@ -106,4 +106,10 @@ Singleton { id: root
 	Process { id: share
 		command: ['nmcli', 'd', 'w', 's']
 	}
+
+	// scan every 5min
+	Timer {
+		interval: 3e5
+		onTriggered: if (!scan.running) scan.running = true;
+	}
 }
