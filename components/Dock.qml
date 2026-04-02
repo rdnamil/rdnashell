@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Effects
 import Quickshell
@@ -98,22 +100,24 @@ Variants { id: root
 			}
 
 			Row { id: layout
+				readonly property list<Item> widgets: [...root.widgets]
+
 				property int counter
 
 				spacing: Globals.Controls.spacing *2
 				height: root.height
 				onCounterChanged: if (counter > 0) {
-					timer.stop();
-					trans.y = 0;
-				} else timer.restart();
-				Component.onCompleted: root.widgets.forEach(w => {
+						timer.stop();
+						trans.y = 0;
+					} else timer.restart();
+				Component.onCompleted: { for (const w of widgets) {
 					w.parent = layout;
 					w.anchors.verticalCenter = layout.verticalCenter;
 					w.children.forEach(c => {
 						if (c.hasOwnProperty('anchor')) c.anchor = Edges.Bottom;
 						if (c.hasOwnProperty('verticalOffset')) c.verticalOffset = -dock.height;
 					});
-				});
+				}}
 			}
 		}
 	}

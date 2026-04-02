@@ -98,40 +98,44 @@ Variants { id: root
 
 		// left items
 		Row { id: rowLeft
+			readonly property list<Item> widgets: [...root.left]
+
 			anchors.verticalCenter: parent.verticalCenter
 			leftPadding: Globals.Controls.padding
 			spacing: Globals.Controls.spacing *2
 			height: parent.height
-
-			Component.onCompleted: { for (let w of root.left) {
+			Component.onCompleted: { for (const w of widgets) {
 				w.parent = rowLeft;
 				w.anchors.verticalCenter = rowLeft.verticalCenter;
-				w.children.forEach(w => {
-					if (w.hasOwnProperty('anchor')) w.anchor = root.anchors;
-				});
+				w.children.forEach(c => {
+					if (c.hasOwnProperty('anchor')) c.anchor = root.anchors;
+				})
 			}}
 		}
 
 		// center items
 		Row { id: rowCentre
+			readonly property list<Item> widgets: [...root.centre]
+
 			anchors {
 				horizontalCenter: parent.horizontalCenter
 				verticalCenter: parent.verticalCenter
 			}
 			spacing: Globals.Controls.spacing *2
 			height: parent.height
-
-			Component.onCompleted: { for (let w of root.centre) {
+			Component.onCompleted: { for (const w of widgets) {
 				w.parent = rowCentre;
 				w.anchors.verticalCenter = rowCentre.verticalCenter;
-				w.children.forEach(w => {
-					if (w.hasOwnProperty('anchor')) w.anchor = root.anchors;
-				});
+				w.children.forEach(c => {
+					if (c.hasOwnProperty('anchor')) c.anchor = root.anchors;
+				})
 			}}
 		}
 
 		// right items
 		Row { id: rowRight
+			readonly property list<Item> widgets: [...root.right]
+
 			anchors {
 				right: parent.right
 				verticalCenter: parent.verticalCenter
@@ -139,13 +143,12 @@ Variants { id: root
 			rightPadding: Globals.Controls.padding
 			spacing: Globals.Controls.spacing *2
 			height: parent.height
-
-			Component.onCompleted: { for (let w of root.right) {
+			Component.onCompleted: { for (const w of widgets) {
 				w.parent = rowRight;
 				w.anchors.verticalCenter = rowRight.verticalCenter;
-				w.children.forEach(w => {
-					if (w.hasOwnProperty('anchor')) w.anchor = root.anchors;
-				});
+				w.children.forEach(c => {
+					if (c.hasOwnProperty('anchor')) c.anchor = root.anchors;
+				})
 			}}
 		}
 	}
