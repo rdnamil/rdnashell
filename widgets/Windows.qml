@@ -15,12 +15,12 @@ Item { id: root
 	property bool hideLabels
 	property int labelMaxWidth: 100
 
-	width: layout.width; height: parent.height;
+	width: layout.width; height: parent?.height || 0;
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
 	RowLayout { id: layout
-		required property int anchor
+		property int anchor
 
 		property int verticalOffset
 
@@ -254,111 +254,111 @@ Item { id: root
 				}
 			}
 		}
+	}
 
-		PanelWindow { id: menu
-			function open(item, model = []) {
-				const x = root.mapToGlobal(0, 0).x +item.x +item.width /2;
+	PanelWindow { id: menu
+		function open(item, model = []) {
+			const x = (root.mapToGlobal(0, 0).x -root.screen.x) +item.x +item.width /2;
 
-				if (x -(container.width /2 +Globals.Controls.padding) < 0) {
-					container.x = Globals.Controls.padding;
-					ptr.x = x -container.x;
+			if (x -(container.width /2 +Globals.Controls.padding) < 0) {
+				container.x = Globals.Controls.padding;
+				ptr.x = x -container.x;
 
-				} else if (x +(container.width /2 +Globals.Controls.padding) > menu.screen.width) {
-					container.x = menu.screen.width -container.width -Globals.Controls.padding;
-					ptr.x = x -container.x -ptr.width /2;
+			} else if (x +(container.width /2 +Globals.Controls.padding) > menu.screen.width) {
+				container.x = menu.screen.width -container.width -Globals.Controls.padding;
+				ptr.x = x -container.x -ptr.width /2;
 
-				} else {
-					container.x = x -container.width /2;
-					ptr.x = container.width /2 -ptr.width /2;
-				}
-
-				popup.model = model;
-
-				if (Service.PopoutManager.whosOpen === item && menu.visible) menu.visible = false;
-				else {
-					if (!menu.visible) menu.visible = true;
-					if (popup.item.visible) popup.item.list.view.currentIndex = -1;
-					Service.PopoutManager.whosOpen = item;
-				}
-			}
-
-			visible: false
-			screen: root.screen
-			anchors {
-				left: true
-				right: true
-				top: true
-				bottom: true
-			}
-			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-			color: Globals.Settings.debug? "#400000ff" : "transparent"
-			onVisibleChanged: if (menu.visible) {
-				popup.open();
-				if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
 			} else {
-				popup.close();
-				if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
+				container.x = x -container.width /2;
+				ptr.x = container.width /2 -ptr.width /2;
 			}
 
-			Rectangle { id: container
-				y: if (layout.anchor === Edges.Bottom) return menu.height -height -Globals.Controls.padding +(layout.verticalOffset ?? 0);
-				else return Globals.Controls.padding -(layout.verticalOffset ?? 0);
-				width: popup.width
-				height: popup.item?.height || 0
-				color: Globals.Settings.debug? "#4000ff00" : "transparent"
+			popup.model = model;
 
-				Ctrl.PopupMenu { id: popup
-					active: true
-					compatibilityMode: true
-					onSelected: (index) => {
-						if (index !== -1) {
-							popup.model[index].execute();
+			if (Service.PopoutManager.whosOpen === item && menu.visible) menu.visible = false;
+			else {
+				if (!menu.visible) menu.visible = true;
+				if (popup.item.visible) popup.item.list.view.currentIndex = -1;
+				Service.PopoutManager.whosOpen = item;
+			}
+		}
 
-							if (!(popup.model[index].hasChildren ?? false)) menu.visible = false;
-						} else menu.visible = false;
-					}
-					onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
+		visible: false
+		screen: root.screen
+		anchors {
+			left: true
+			right: true
+			top: true
+			bottom: true
+		}
+		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+		color: Globals.Settings.debug? "#400000ff" : "transparent"
+		onVisibleChanged: if (menu.visible) {
+			popup.open();
+			if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
+		} else {
+			popup.close();
+			if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
+		}
+
+		Rectangle { id: container
+			y: if (layout.anchor === Edges.Bottom) return menu.height -height -Globals.Controls.padding +(layout.verticalOffset ?? 0);
+			else return Globals.Controls.padding -(layout.verticalOffset ?? 0);
+			width: popup.width
+			height: popup.item?.height || 0
+			color: Globals.Settings.debug? "#4000ff00" : "transparent"
+
+			Ctrl.PopupMenu { id: popup
+				active: true
+				compatibilityMode: true
+				onSelected: (index) => {
+					if (index !== -1) {
+						popup.model[index].execute();
+
+						if (!(popup.model[index].hasChildren ?? false)) menu.visible = false;
+					} else menu.visible = false;
 				}
-
-				Rectangle {
-					x: -1; y: -1;
-					width: parent.width +2; height: (popup.item?.height || 0) +2;
-					radius: Globals.Controls.radius
-					color: "transparent"
-					border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
-					opacity: 0.975
-				}
-
-				Rectangle { id: ptr
-					y: layout.anchor === Edges.Bottom? container.height -height /2 -radius : radius -height /2
-					width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
-					radius: 2
-					rotation: layout.anchor === Edges.Bottom? 315 : 135
-					color: Globals.Colours.dark
-					border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
-					opacity: popup.item?.opacity || 0.0
-					layer.enabled: true
-					layer.effect: OpacityMask { maskSource: Item {
-						width: ptr.width; height: ptr.height;
-
-						Rectangle { x: -parent.width /2; y: parent.height /2; width: Math.sqrt(parent.width **2 *2); height: width /2; rotation: 45; }
-					}}
-				}
+				onLoaded: popup.item.closePolicy = Popup.CloseOnEscape;
 			}
 
-			MouseArea { anchors.fill: parent; onClicked: menu.visible = false; }
-
-			Connections { id: connection
-				readonly property list<Item> windows: {
-					let ws = [];
-					for (let i = 0; i < repeater.count; i++) ws.push(repeater.itemAt(i));
-					return ws;
-				}
-
-				target: Service.PopoutManager
-
-				function onWhosOpenChanged() { if (!connection.windows.includes(Service.PopoutManager.whosOpen)) menu.visible = false; }
+			Rectangle {
+				x: -1; y: -1;
+				width: parent.width +2; height: (popup.item?.height || 0) +2;
+				radius: Globals.Controls.radius
+				color: "transparent"
+				border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
+				opacity: 0.975
 			}
+
+			Rectangle { id: ptr
+				y: layout.anchor === Edges.Bottom? container.height -height /2 -radius : radius -height /2
+				width: Math.sqrt((Globals.Controls.padding -radius) **2 *2); height: width;
+				radius: 2
+				rotation: layout.anchor === Edges.Bottom? 315 : 135
+				color: Globals.Colours.dark
+				border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.4); }
+				opacity: popup.item?.opacity || 0.0
+				layer.enabled: true
+				layer.effect: OpacityMask { maskSource: Item {
+					width: ptr.width; height: ptr.height;
+
+					Rectangle { x: -parent.width /2; y: parent.height /2; width: Math.sqrt(parent.width **2 *2); height: width /2; rotation: 45; }
+				}}
+			}
+		}
+
+		MouseArea { anchors.fill: parent; onClicked: menu.visible = false; }
+
+		Connections { id: connection
+			readonly property list<Item> windows: {
+				let ws = [];
+				for (let i = 0; i < repeater.count; i++) ws.push(repeater.itemAt(i));
+				return ws;
+			}
+
+			target: Service.PopoutManager
+
+			function onWhosOpenChanged() { if (!connection.windows.includes(Service.PopoutManager.whosOpen)) menu.visible = false; }
 		}
 	}
 }

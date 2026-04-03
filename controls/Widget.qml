@@ -18,7 +18,7 @@ MouseArea { id: root
 	function countDown() { if (root.parent.hasOwnProperty('counter')) root.parent.counter--; }
 
 	width: icon.width
-	height: parent.height
+	height: parent?.height || 0
 	hoverEnabled: true
 	onEntered: root.countUp();
 	onExited: {

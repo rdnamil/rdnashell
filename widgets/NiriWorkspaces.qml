@@ -10,7 +10,7 @@ import "../globals.js" as Globals
 Item { id: root
 	property list<string> names: []
 
-	width: layout.width; height: parent.height;
+	width: layout.width; height: parent?.height || 0;
 
 	Grid { id: layout
 		anchors.centerIn: parent

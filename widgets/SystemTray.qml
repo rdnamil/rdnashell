@@ -19,13 +19,12 @@ Item { id: root
 	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 
 	width: layout.width
-	height: parent.height
+	height: parent?.height || 0
 
 	Rectangle { visible: Globals.Settings.debug; anchors.fill: parent; color: "#8000ff00"; }
 
 	Grid { id: layout
-		required property int anchor
-
+		property int anchor
 		property int verticalOffset
 
 		anchors.verticalCenter: parent.verticalCenter
@@ -58,7 +57,7 @@ Item { id: root
 							if (delegate.modelData.hasMenu) {
 								popup.model = menuOpener.children.values
 									.filter(e => !e.hasChildren);
-								backing.x = delegate.mapToGlobal(0, 0).x +delegate.width /2 -popup.width *(7 /8);
+								backing.x = (delegate.mapToGlobal(0, 0).x -root.screen.x) +delegate.width /2 -popup.width *(7 /8);
 
 								if (Service.PopoutManager.whosOpen === repeater.itemAt(delegate.index) && menu.visible) Service.PopoutManager.whosOpen = null;
 								else {

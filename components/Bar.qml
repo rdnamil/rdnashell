@@ -10,23 +10,27 @@ import Quickshell
 import Quickshell.Wayland
 import "../globals.js" as Globals
 
-Variants { id: root
+Scope { id: root
+	property ShellScreen modelData
+	property string display
+
 	property int height: 38
-	property int anchors: Edges.Top
+	property int anchor: Edges.Top
+
 	property list<Item> left: []
 	property list<Item> centre: []
 	property list<Item> right: []
 
-	model: Quickshell.screens
-	delegate: PanelWindow { id: window
-		required property var modelData
-
-		screen: modelData
+	PanelWindow { id: window
+		screen: {
+			if (root.modelData) return root.modelData;
+			else if (root.display) return Quickshell.screens.find(s => s.name === root.display);
+		}
 		anchors {
 			left: true
 			right: true
-			top: root.anchors === Edges.Top
-			bottom: root.anchors === Edges.Bottom
+			top: root.anchor === Edges.Top
+			bottom: root.anchor === Edges.Bottom
 		}
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:bar"
@@ -63,8 +67,8 @@ Variants { id: root
 		}
 
 		Repeater {
-			model: [(Edges.Left | (root.anchors === Edges.Top? Edges.Top : Edges.Bottom)),
-			(Edges.Right | (root.anchors === Edges.Top? Edges.Top : Edges.Bottom))]
+			model: [(Edges.Left | (root.anchor === Edges.Top? Edges.Top : Edges.Bottom)),
+			(Edges.Right | (root.anchor === Edges.Top? Edges.Top : Edges.Bottom))]
 			delegate: Rectangle { id: corner
 				required property var modelData
 
@@ -98,44 +102,38 @@ Variants { id: root
 
 		// left items
 		Row { id: rowLeft
-			readonly property list<Item> widgets: [...root.left]
-
 			anchors.verticalCenter: parent.verticalCenter
 			leftPadding: Globals.Controls.padding
 			spacing: Globals.Controls.spacing *2
 			height: parent.height
-			Component.onCompleted: { for (const w of widgets) {
+			Component.onCompleted: { for (const w of root.left) {
 				w.parent = rowLeft;
 				w.anchors.verticalCenter = rowLeft.verticalCenter;
 				w.children.forEach(c => {
-					if (c.hasOwnProperty('anchor')) c.anchor = root.anchors;
+					if (c.hasOwnProperty('anchor')) c.anchor = root.anchor;
 				})
 			}}
 		}
 
 		// center items
 		Row { id: rowCentre
-			readonly property list<Item> widgets: [...root.centre]
-
 			anchors {
 				horizontalCenter: parent.horizontalCenter
 				verticalCenter: parent.verticalCenter
 			}
 			spacing: Globals.Controls.spacing *2
 			height: parent.height
-			Component.onCompleted: { for (const w of widgets) {
+			Component.onCompleted: { for (const w of root.centre) {
 				w.parent = rowCentre;
 				w.anchors.verticalCenter = rowCentre.verticalCenter;
 				w.children.forEach(c => {
-					if (c.hasOwnProperty('anchor')) c.anchor = root.anchors;
+					if (c.hasOwnProperty('anchor')) c.anchor = root.anchor;
 				})
 			}}
 		}
 
 		// right items
 		Row { id: rowRight
-			readonly property list<Item> widgets: [...root.right]
-
 			anchors {
 				right: parent.right
 				verticalCenter: parent.verticalCenter
@@ -143,11 +141,11 @@ Variants { id: root
 			rightPadding: Globals.Controls.padding
 			spacing: Globals.Controls.spacing *2
 			height: parent.height
-			Component.onCompleted: { for (const w of widgets) {
+			Component.onCompleted: { for (const w of root.right) {
 				w.parent = rowRight;
 				w.anchors.verticalCenter = rowRight.verticalCenter;
 				w.children.forEach(c => {
-					if (c.hasOwnProperty('anchor')) c.anchor = root.anchors;
+					if (c.hasOwnProperty('anchor')) c.anchor = root.anchor;
 				})
 			}}
 		}

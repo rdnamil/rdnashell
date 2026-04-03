@@ -13,11 +13,11 @@ import "../globals.js" as Globals
 
 Item { id: root
 	required property Item content
-	required property int anchor
 
 	readonly property ShellScreen screen: root.QsWindow.window?.screen || Quickshell.screens[0]
 	readonly property bool isTransitioning: anim.running
 
+	property int anchor
 	property int verticalOffset
 	property bool centreHorizontally
 	property bool stealFocus
@@ -29,11 +29,11 @@ Item { id: root
 	function toggle() { root.isOpen = !root.isOpen; }
 
 	function positionContainer() {
-		const x = root.mapToGlobal(0, 0).x +root.parent.width /2 ;
+		const x = (root.mapToGlobal(0, 0).x -root.screen.x) +root.parent.width /2;
 
 		if (root.centreHorizontally) container.x = root.screen.width /2 -container.width /2;
 		else if (x -root.content.width /2 -Globals.Controls.padding < 0) container.x = Globals.Controls.padding;
-		else if (x +root.content.width /2 +Globals.Controls.padding > window.screen.width) container.x = window.screen.width -root.content.width -Globals.Controls.padding;
+		else if (x +root.content.width /2 +Globals.Controls.padding > root.screen.width) container.x = root.screen.width -root.content.width -Globals.Controls.padding;
 		else container.x = x -root.content.width /2;
 
 		if (root.anchor === Edges.Top) {

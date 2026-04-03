@@ -18,8 +18,8 @@ Ctrl.Button { id: root
 	property string fileManager: "xdg-open"
 	property bool centreHorizontally
 
-	height: parent.height
 	width: icon.width
+	height: parent?.height || 0
 	icon: IconImage {
 		implicitSize: {
 			const h = root.height -Globals.Controls.padding *(4 /3);

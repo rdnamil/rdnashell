@@ -11,37 +11,46 @@ import qs.widgets
 import qs.services as Service
 
 ShellRoot {
-	Bar {
-		height: 38 // set the height of the bar
-		anchors: Edges.Top // anchor points **note** only top or bottom edges accepted for now
-		left: [
- 			Network {},
-			Bluetooth {},
-			Audio {}
-		]
-		centre: [
-			NiriWorkspaces {
-				names: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'] // workspace names (leave blank to default to workspace index)
-			}
-		]
-		right: [
-			SystemTray {},
-			Yay {
-				notifyOn: 25 // number of updates before notifying
-				updateCommmand: ['ghostty', '-e', 'yay'] // command to run to update
-			},
-			ColourPicker {},
-			Caffeine {},
-			Redeye {},
-			Weather {},
-			DateTime {
-				stack: false
-			},
-			PowerManagement {},
-			NotificationTray {}
-		]
+	Variants {
+		model: Quickshell.screens
+
+		Bar {
+			display: "DP-1" // outputs to display on (does nothing if using bar in conjunction with variants)
+			                // if not provided will default to primary display
+			height: 38 // set the height of the bar
+			anchor: Edges.Top // anchor points **note** only top or bottom edges accepted for now
+			left: [
+				Network {},
+				Bluetooth {},
+				Audio {}
+			]
+			centre: [
+				NiriWorkspaces {
+					names: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'] // workspace names (leave blank to default to workspace index)
+				}
+			]
+			right: [
+				SystemTray {},
+				UpdateNotifier {
+					notifyOn: 50 // number of updates before notifying
+				},
+				ColourPicker {},
+				Caffeine {},
+				Redeye {},
+				Weather {},
+				DateTime {
+					stack: false
+				},
+				PowerManagement {},
+				NotificationTray {}
+			]
+		}
 	}
+
 	Dock {
+		display: "DP-1" // outputs to display on (does nothing if using dock in conjunction with variants)
+		                // if not provided will default to primary display
+		height: 48 // set the height of the dock
 		widgets: [
 			Spacer {},
 			StartMenu {
@@ -59,6 +68,7 @@ ShellRoot {
 			Spacer {}
 		]
 	}
+
 	NotificationToasts {
 		anchors: Edges.Left | Edges.Right // anchor points (edges left+right will centre)
 		displays: ["DP-1"] // outputs to display on (empty list will display on all outputs)

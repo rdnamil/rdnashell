@@ -2,5 +2,5 @@ import QtQuick
 
 Item { id: root
 	width: 2
-	height: parent.height
+	height: parent?.height || 0
 }

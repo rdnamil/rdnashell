@@ -7,15 +7,18 @@ import Quickshell.Wayland
 import qs.services as Service
 import "../globals.js" as Globals
 
-Variants { id: root
+Scope { id: root
+	property ShellScreen modelData
+	property string display
+
 	property int height: 48
 	property list<Item> widgets: []
 
-	model: Quickshell.screens
-	delegate: PanelWindow { id: window
-		required property var modelData
-
-		screen: modelData
+	PanelWindow { id: window
+		screen: {
+			if (root.modelData) return root.modelData;
+			else if (root.display) return Quickshell.screens.find(s => s.name === root.display);
+		}
 		anchors {
 			left: true
 			right: true
@@ -100,8 +103,6 @@ Variants { id: root
 			}
 
 			Row { id: layout
-				readonly property list<Item> widgets: [...root.widgets]
-
 				property int counter
 
 				spacing: Globals.Controls.spacing *2
@@ -110,7 +111,7 @@ Variants { id: root
 						timer.stop();
 						trans.y = 0;
 					} else timer.restart();
-				Component.onCompleted: { for (const w of widgets) {
+				Component.onCompleted: { for (const w of root.widgets) {
 					w.parent = layout;
 					w.anchors.verticalCenter = layout.verticalCenter;
 					w.children.forEach(c => {
