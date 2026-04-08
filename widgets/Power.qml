@@ -71,11 +71,30 @@ Ctrl.Widget { id: root
 				color: Globals.Colours.base
 				border { width: 1; color: Qt.alpha(Globals.Colours.mid, 0.6); }
  				focus: true
-				Keys.onEscapePressed: fadeOutAnim.start();
+ 				Keys.onPressed: (event) => { switch (event.key) {
+					case Qt.Key_Tab: highlight.currentIndex = (highlight.currentIndex +1) %buttons.children.length; break;
+					case Qt.Key_Backtab: highlight.currentIndex = ((highlight.currentIndex -1) %buttons.children.length +buttons.children.length) %buttons.children.length; break;
+					case Qt.Key_Return: highlight.currentItem.clicked(null); break;
+					case Qt.Key_Escape: fadeOutAnim.start(); break;
+				}}
 
 				NumberAnimation on opacity { from: 0.0; to: 0.975; duration: 500; easing.type: Easing.OutCirc; }
 
 				MouseArea { anchors.fill: parent; } // to prevent clicking on background unloading
+
+				Rectangle { id: highlight
+					readonly property Ctrl.Button currentItem: buttons.children[currentIndex]
+
+					property int currentIndex: 0
+
+					x: buttons.x -border.width; y: buttons.y -border.width;
+					width: currentItem.width +border.width *2; height: currentItem.height +border.width *2;
+					radius: Globals.Controls.radius
+					color: "transparent"
+					border { width: 1; color: Globals.Colours.accent; }
+					opacity: 0.6
+					transform: Translate { x: highlight.currentItem.x; }
+				}
 
 				Column { id: layout
 					padding: Globals.Controls.padding
@@ -90,7 +109,7 @@ Ctrl.Widget { id: root
 						font.letterSpacing: 0.6
 					}
 
-					RowLayout {
+					RowLayout { id: buttons
 						width: options.width -parent.padding *2
 						spacing: Globals.Controls.padding
 						uniformCellSizes: true
