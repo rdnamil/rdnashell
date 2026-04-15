@@ -68,7 +68,7 @@ Singleton { id: root
 					const u = l.split(' ');
 					return {
 						"package": u[0],
-						"repo": infoView.adapter.info.find(p => p.Name === u[0]).Repository,
+						"repo": infoView.adapter.info.find(p => p.Name === u[0])?.Repository || '',
 						"current": u[1],
 						"new": u[3]
 					}

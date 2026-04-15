@@ -292,6 +292,7 @@ Item { id: root
 			bottom: true
 		}
 		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+		WlrLayershell.namespace: "qs:popup"
 		color: Globals.Settings.debug? "#400000ff" : "transparent"
 		onVisibleChanged: if (menu.visible) {
 			popup.open();

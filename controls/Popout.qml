@@ -77,6 +77,7 @@ Item { id: root
 			width: window.width; height: window.height -Math.abs(root.verticalOffset ?? 0);
 		}
 		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+		WlrLayershell.namespace: "qs:popout"
 		color: Globals.Settings.debug? "#400000ff" : "transparent"
 
 		MouseArea { anchors.fill: parent; onClicked: root.isOpen = false; }

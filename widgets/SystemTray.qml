@@ -96,6 +96,7 @@ Item { id: root
 			}
 			color: Globals.Settings.debug? "#400000ff" : "transparent"
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+			WlrLayershell.namespace: "qs:popup"
 			onVisibleChanged: if (menu.visible) {
 				popup.open();
 				if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
