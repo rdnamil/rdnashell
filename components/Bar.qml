@@ -34,6 +34,7 @@ Scope { id: root
 		}
 		WlrLayershell.layer: WlrLayer.Top
 		WlrLayershell.namespace: "qs:bar"
+		BackgroundEffect.blurRegion: Region { item: window.contentItem; }
 		implicitHeight: root.height
 		color: Globals.Settings.debug? "#80ff0000" : "transparent"
 
@@ -41,7 +42,7 @@ Scope { id: root
 			visible: !Globals.Settings.debug
 			anchors.fill: parent
 			color: Globals.Colours.base
-			opacity: 0.975
+			opacity: 0.9
 
 			Rectangle {
 				anchors {
