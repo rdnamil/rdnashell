@@ -154,6 +154,7 @@ ColumnLayout { id: root
 		ScrollView { id: scrollview
 			anchors.fill: parent
 			padding: Globals.Controls.spacing +Globals.Controls.radius*(3 /4)
+			leftPadding: (width %grid.cellWidth) /2
 			clip: true
 			background: Rectangle {
 				radius: Globals.Controls.radius*(3 /4)
