@@ -21,8 +21,10 @@ ColumnLayout { id: root
 	Rectangle { id: preview
 		readonly property size resolution: Service.Awww.wallpapers[0]?.resolution || null
 
+		Layout.alignment: Qt.AlignHCenter
 		Layout.fillWidth: true
 		Layout.minimumWidth: 480
+		Layout.maximumWidth: 720
 		Layout.preferredHeight: width *(9 /16)
 		radius: Globals.Controls.radius *(3 /4)
 		color: Globals.Colours.dark
