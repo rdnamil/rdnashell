@@ -44,7 +44,7 @@ Item { id: root
 				onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'focus-workspace', delegate.modelData.idx])
 				effectEnabled: true
 				effect: Component { DropShadow {
-					samples: 8
+					samples: 12
 					color: delegate.modelData.is_active? "black" : "transparent"
 
 					Behavior on color { ColorAnimation { duration: 150; easing.type: Easing.InCirc; }}
@@ -71,7 +71,7 @@ Item { id: root
 						State {
 							name: "inactive"; when: !delegate.modelData.is_active;
 
-							PropertyChanges { icon.color:Qt.darker(Globals.Colours.mid, 0.8); }
+							PropertyChanges { icon.color:Qt.darker(Globals.Colours.dark, 0.8); }
 						}
 					]
 					transitions: [

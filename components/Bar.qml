@@ -5,6 +5,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
@@ -42,7 +43,7 @@ Scope { id: root
 			visible: !Globals.Settings.debug
 			anchors.fill: parent
 			color: Globals.Colours.base
-			opacity: 0.9
+			opacity: 0.85
 
 			Rectangle {
 				anchors {
@@ -149,6 +150,22 @@ Scope { id: root
 					if (c.hasOwnProperty('anchor')) c.anchor = root.anchor;
 				})
 			}}
+		}
+	}
+
+	PanelWindow {
+		screen: window.screen
+		anchors: window.anchors
+		implicitHeight: shadow.blur
+		exclusiveZone: 0
+		color: "transparent"
+
+		RectangularShadow { id: shadow
+			x: parent.width /2 -width /2
+			y: -height /2
+			width: parent.width
+			height: 1
+			blur: 12
 		}
 	}
 }
