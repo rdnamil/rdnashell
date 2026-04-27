@@ -124,6 +124,8 @@ Singleton { id: root
 			hold.restart();
 
 			root.updateTrack();
+			root.updateArtist();
+
 		} else grace.restart(); }
 
 		function onTrackArtistChanged() { if (hold.running) { root.updateArtist(); }}
