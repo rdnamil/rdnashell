@@ -161,7 +161,7 @@ Scope { id: root
 		color: "transparent"
 
 		RectangularShadow { id: shadow
-			visible: !ToplevelManager.activeToplevel.maximized && ToplevelManager.activeToplevel.screens.includes(window.screen)
+			visible: !ToplevelManager.activeToplevel?.maximized && ToplevelManager.activeToplevel?.screens.includes(window.screen) || false
 			x: parent.width /2 -width /2
 			y: -height /2
 			width: parent.width
