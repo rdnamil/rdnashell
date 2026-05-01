@@ -23,9 +23,12 @@ Item { id: root
 		}
 
 		Repeater {
-			model: [...WindowManager.windowsets]
-			.filter(w => w.projection.screens.includes(QsWindow.window?.screen))
-			.sort((a, b) => a.coordinates[1] -b.coordinates[1])
+			model: ScriptModel {
+				values: [...WindowManager.windowsets]
+					.filter(w => w.projection.screens.includes(QsWindow.window?.screen))
+					.sort((a, b) => a.coordinates[1] -b.coordinates[1])
+				objectProp: "coordinates"
+			}
 			delegate: Ctrl.Button { id: delegate
 				required property Windowset modelData
 				required property int index
