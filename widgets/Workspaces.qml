@@ -9,6 +9,7 @@ import "../globals.js" as Globals
 
 Item { id: root
 	property list<string> names: []
+	property bool wrap
 
 	width: layout.width; height: parent?.height || 0;
 
@@ -23,7 +24,7 @@ Item { id: root
 		}
 
 		Repeater {
-			model: ScriptModel {
+			model: ScriptModel { id: model
 				values: [...WindowManager.windowsets]
 					.filter(w => w.projection.screens.includes(QsWindow.window?.screen))
 					.sort((a, b) => a.coordinates[1] -b.coordinates[1])
@@ -86,6 +87,14 @@ Item { id: root
 					]
 				}
 			}
+		}
+	}
+
+	MouseArea {
+		anchors.fill: parent
+		onWheel: (wheel) => {
+			if (root.wrap) model.values[((model.values.findIndex(w => w.active) +(wheel.angleDelta.y /120)) %model.values.length +model.values.length) %model.values.length].activate();
+			else model.values[Math.min(model.values.length, Math.max(0, model.values.findIndex(w => w.active) +(wheel.angleDelta.y /120)))].activate();
 		}
 	}
 }
