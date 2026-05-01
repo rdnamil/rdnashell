@@ -3,8 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Qt5Compat.GraphicalEffects
 import Quickshell
+import Quickshell.WindowManager
 import qs.controls as Ctrl
-import qs.services as Service
 import "../globals.js" as Globals
 
 Item { id: root
@@ -22,30 +22,23 @@ Item { id: root
 			else return 1;
 		}
 
-		Repeater { id: repeater
-			model: ScriptModel {
-				values: Service.Niri
-				.workspaces?.filter(w => { // filter worskpaces on this.output
-					return QsWindow.window? w.output === QsWindow.window.screen.name : false;
-				})
-				.sort((a ,b) => { // sort in order of idx
-					return a.idx -b.idx;
-				}) || []
-				objectProp: "id"
-			}
+		Repeater {
+			model: [...WindowManager.windowsets]
+			.filter(w => w.projection.screens.includes(QsWindow.window?.screen))
+			.sort((a, b) => a.coordinates[1] -b.coordinates[1])
 			delegate: Ctrl.Button { id: delegate
-				required property var modelData
+				required property Windowset modelData
 				required property int index
 
 				width: Math.max(height, icon.width)
 				height: Math.max(20, icon.height)
 				onEntered: if (root.parent.hasOwnProperty('counter')) root.parent.counter++;
 				onExited: if (root.parent.hasOwnProperty('counter')) root.parent.counter--;
-				onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'focus-workspace', delegate.modelData.idx])
+				onClicked: if (modelData.canActivate) modelData.activate();
 				effectEnabled: true
 				effect: Component { DropShadow {
 					samples: 12
-					color: delegate.modelData.is_active? "black" : "transparent"
+					color: delegate.modelData.active? "black" : "transparent"
 
 					Behavior on color { ColorAnimation { duration: 150; easing.type: Easing.InCirc; }}
 				}}
@@ -53,13 +46,17 @@ Item { id: root
 					readonly property color accent: Globals.Colours.accent
 
 					padding: Globals.Controls.spacing
-					text: delegate.modelData.name ?? (root.names[delegate.index] ?? delegate.modelData.idx)
+					text: {
+						if (Globals.Settings.debug) return `${delegate.modelData.coordinates[0]}x${delegate.modelData.coordinates[1]}`;
+						else if (delegate.modelData.id !== '') return delegate.modelData.id;
+						else return root.names[delegate.index] ?? (delegate.modelData.coordinates[0] +delegate.modelData.coordinates[1]);
+					}
 					font.family: Globals.Font.mono
 					font.pointSize: 10
 					font.weight: 600
 					states: [
 						State {
-							name: "active"; when: delegate.modelData.is_active;
+							name: "active"; when: delegate.modelData.active;
 
 							PropertyChanges { icon.color: Globals.Colours.text; }
 						},
@@ -69,9 +66,9 @@ Item { id: root
 							PropertyChanges { icon.color: Globals.Colours.text_inactive; }
 						},
 						State {
-							name: "inactive"; when: !delegate.modelData.is_active;
+							name: "inactive"; when: !delegate.modelData.active;
 
-							PropertyChanges { icon.color:Qt.darker(Globals.Colours.dark, 0.8); }
+							PropertyChanges { icon.color:Qt.darker(Globals.Colours.mid, 0.6); }
 						}
 					]
 					transitions: [
