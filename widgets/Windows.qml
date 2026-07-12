@@ -101,7 +101,7 @@ Item { id: root
 
 						IconImage {
 							implicitSize: parent.height
-							source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id, "application-x-generic")
+							source: Quickshell.iconPath(delegate.entry?.name.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id.toLowerCase(), true) || Quickshell.iconPath(delegate.modelData.id, "application-x-generic")
 						}
 					}
 
