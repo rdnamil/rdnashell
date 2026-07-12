@@ -21,12 +21,14 @@ Singleton { id: root
 		updateProc.exec(['ghostty', '-e', root.updateCommand]);
 	}}
 
+	Component.onCompleted: checkUpdates();
+
 	FileView { id: infoView
 		path: Qt.resolvedUrl("info.json")
-		onLoaded: root.checkUpdates();
-		onLoadFailed: (error) => {
-			if (error === FileViewError.FileNotFound) getInfo.running = true;
-		}
+		// onLoaded: root.checkUpdates();
+		// onLoadFailed: (error) => {
+		// 	if (error === FileViewError.FileNotFound) getInfo.running = true;
+		// }
 
 		JsonAdapter {
 			property list<var> info: []
@@ -68,7 +70,7 @@ Singleton { id: root
 					const u = l.split(' ');
 					return {
 						"package": u[0],
-						"repo": infoView.adapter.info.find(p => p.Name === u[0])?.Repository || '',
+						"repo": '',
 						"current": u[1],
 						"new": u[3]
 					}

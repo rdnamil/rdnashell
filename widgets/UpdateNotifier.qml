@@ -124,7 +124,7 @@ Ctrl.Widget { id: root
 
 							Layout.leftMargin: Globals.Controls.spacing
 							Layout.fillWidth: true
-							text: `<font color="${flavour}">${delegate.modelData.repo}</font>/${delegate.modelData.package}`
+							text: `<font color="${flavour}">${delegate.modelData.repo? delegate.modelData.repo +'<font color="#aaa">/</font>' : ''}</font>${delegate.modelData.package}`
 							elide: Text.ElideRight
 							color: Globals.Colours.text
 							font.pointSize: 8
